@@ -3,9 +3,28 @@ import './App.css';
 import Home from './pages/Home';
 import ExperimentoLancamento from './pages/ExperimentoLancamento';
 import LogoFisicaLab from './components/LogoFisicaLab';
+import ExperimentoMRU from './pages/ExperimentoMRU';
 
 const TITULOS = {
   lancamento: 'Lançamento de Projéteis',
+  mru: 'Movimento Retilíneo Uniforme',
+};
+
+/* ========================= */
+/* 🔥 NOVO: CORES POR FÍSICA */
+/* ========================= */
+const CORES_FISICA = {
+  fisica1: "#00D4FF",
+  fisica2: "#FF6B9D",
+  fisica3: "#00F5C4",
+};
+
+/* =============================== */
+/* 🔥 NOVO: MAPEAMENTO EXPERIMENTO */
+/* =============================== */
+const EXPERIMENTO_FISICA = {
+  lancamento: "fisica1",
+  mru: "fisica1",
 };
 
 export default function App() {
@@ -22,19 +41,24 @@ export default function App() {
     setExperimento(null);
   };
 
+  /* ===================================== */
+  /* 🔥 NOVO: DEFINE COR ATUAL DINAMICAMENTE */
+  /* ===================================== */
+  const corAtual = experimento
+    ? CORES_FISICA[EXPERIMENTO_FISICA[experimento]]
+    : "#white";
+
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap');
 
-        /* ===== BASE ===== */
         .app-container {
           background: #0B0F1A;
           min-height: 100vh;
           color: white;
         }
 
-        /* ===== HEADER GRID (CORREÇÃO PRINCIPAL) ===== */
         .header {
           display: grid;
           grid-template-columns: auto 1fr auto;
@@ -42,7 +66,6 @@ export default function App() {
           padding: 10px 16px;
         }
 
-        /* ===== CENTRO ===== */
         .app-header-inner {
           display: flex;
           align-items: center;
@@ -50,15 +73,14 @@ export default function App() {
           justify-content: center;
         }
 
+        /* 🔥 ALTERADO: removido color fixo */
         .app-logo-text {
           font-family: 'Orbitron', monospace;
           font-size: 15px;
           font-weight: 900;
           letter-spacing: 4px;
-          color: #00D4FF;
-          text-shadow: 0 0 18px rgba(0,212,255,0.5);
           cursor: pointer;
-          white-space: nowrap;
+          transition: all 0.3s ease;
         }
 
         .app-breadcrumb-sep {
@@ -72,28 +94,21 @@ export default function App() {
           letter-spacing: 2px;
           color: #7C3AED;
           opacity: 0.85;
-          white-space: nowrap;
         }
 
-        /* ===== BOTÃO VOLTAR (SEM SOBREPOSIÇÃO) ===== */
         .app-back-btn {
           font-family: 'Share Tech Mono', monospace;
           font-size: 11px;
           letter-spacing: 1.5px;
-
           padding: 6px 10px;
-
           background: transparent;
           border: 1px solid rgba(0,212,255,0.35);
           color: rgba(0,212,255,0.7);
-
           border-radius: 6px;
           cursor: pointer;
-
           display: flex;
           align-items: center;
           gap: 5px;
-
           transition: all 0.2s ease;
         }
 
@@ -104,12 +119,10 @@ export default function App() {
           box-shadow: 0 0 10px rgba(0,212,255,0.2);
         }
 
-        /* ===== LOGO ===== */
         .logo-container {
           width: 38px;
           height: 38px;
           cursor: pointer;
-          flex-shrink: 0;
         }
       `}</style>
 
@@ -136,11 +149,23 @@ export default function App() {
 
           {/* CENTRO */}
           <div className="app-header-inner">
-            <div className="logo-container" onClick={voltarHome}>
+            <div
+              className="logo-container"
+              onClick={voltarHome}
+              style={{ color: corAtual }}
+            >
               <LogoFisicaLab />
             </div>
 
-            <span className="app-logo-text" onClick={voltarHome}>
+            {/* 🔥 ALTERADO: cor dinâmica */}
+            <span
+              className="app-logo-text"
+              onClick={voltarHome}
+              style={{
+                color: corAtual,
+                textShadow: `0 0 18px ${corAtual}80`
+              }}
+            >
               FÍSICALAB
             </span>
 
@@ -154,18 +179,20 @@ export default function App() {
             )}
           </div>
 
-          {/* DIREITA (ESPAÇO) */}
+          {/* DIREITA */}
           <div></div>
 
         </header>
 
-        {/* PÁGINAS */}
-        {pagina === 'home' && (
-          <Home onNavegar={navegarPara} />
-        )}
+        {pagina === 'home' && <Home onNavegar={navegarPara} />}
 
-        {pagina === 'experimento' && experimento === 'lancamento' && (
-          <ExperimentoLancamento />
+        {pagina === 'experimento' &&
+          experimento === 'lancamento' && (
+            <ExperimentoLancamento />
+          )}
+
+          {pagina === 'experimento' && experimento === 'mru' && (
+          <ExperimentoMRU />
         )}
       </div>
     </>
