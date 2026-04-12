@@ -1,0 +1,143 @@
+/* src/App.css */
+:root {
+  --bg-dark: #0B0F19;
+  --panel-glass: rgba(17, 25, 40, 0.75);
+  --border-glass: rgba(255, 255, 255, 0.125);
+  --neon-orange: #F97316;
+  --neon-cyan: #06B6D4;
+  --neon-green: #4ADE80;
+  --text-main: #F3F4F6;
+  --text-muted: #9CA3AF;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+  /* Fundo sutil de papel milimetrado escuro */
+  background-image: linear-gradient(var(--border-glass) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-glass) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-main);
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 20px;
+}
+
+.glass-panel {
+  background: var(--panel-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.control-group {
+  margin-bottom: 20px;
+}
+
+.control-group label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--neon-cyan);
+}
+
+input[type=range] {
+  width: 100%;
+  accent-color: var(--neon-orange);
+}
+
+.math-font {
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  color: var(--neon-green);
+  background: rgba(0,0,0,0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.metric {
+  background: rgba(0,0,0,0.4);
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 3px solid var(--neon-orange);
+}
+
+.metric.cyan {
+  border-left-color: var(--neon-cyan);
+}
+
+.metric p {
+  margin: 0 0 5px 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.metric h3 {
+  margin: 0;
+  font-family: monospace;
+  font-size: 1.2rem;
+}
+
+.play-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: var(--neon-cyan);
+  color: var(--bg-dark);
+  transition: opacity 0.2s;
+}
+
+button.stop {
+  background-color: var(--border-glass);
+  color: white;
+}
+
+button:hover {
+  opacity: 0.8;
+}
