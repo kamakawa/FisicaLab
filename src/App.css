@@ -15,9 +15,6 @@ body {
   background-color: var(--bg-dark);
   color: var(--text-main);
   font-family: 'Inter', system-ui, sans-serif;
-  /* Fundo sutil de papel milimetrado escuro */
-  background-image: linear-gradient(var(--border-glass) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border-glass) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -100,7 +97,7 @@ input[type=range] {
 }
 
 .metric.cyan {
-  border-left-color: var(--neon-cyan);
+  border-left-color: var(--neon-green);
 }
 
 .metric p {
