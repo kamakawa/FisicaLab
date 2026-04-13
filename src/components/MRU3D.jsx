@@ -1,35 +1,40 @@
 // src/components/MRU3D.jsx
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Text, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
 
 function Particle({ velocidade, posInicial, tempo, setCurrentPos, cor }) {
   const ref = useRef();
-  const [trail, setTrail] = useState([]);
-  const lastTimeRef = useRef(0);
-  const lastPosRef = useRef({ x: 0, y: 0, z: 0 });
 
-  useFrame((state) => {
-    const x = posInicial.x + velocidade.x * tempo;
-    const y = posInicial.y + velocidade.y * tempo;
-    const z = posInicial.z + velocidade.z * tempo;
+  // Posição atual calculada diretamente das props
+  const x = posInicial.x + velocidade.x * tempo;
+  const y = posInicial.y + velocidade.y * tempo;
+  const z = posInicial.z + velocidade.z * tempo;
 
+  // Gera o rastro COMPLETO de t=0 até tempo atual de uma só vez.
+  // Assim o rastro aparece inteiro imediatamente, sem efeito de "crescimento".
+  const trail = useMemo(() => {
+    if (tempo <= 0) return [];
+    const steps = Math.min(Math.ceil(tempo / 0.05), 200);
+    const dt = tempo / steps;
+    const points = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i * dt;
+      points.push(new THREE.Vector3(
+        posInicial.x + velocidade.x * t,
+        posInicial.y + velocidade.y * t,
+        posInicial.z + velocidade.z * t
+      ));
+    }
+    return points;
+  }, [tempo, posInicial.x, posInicial.y, posInicial.z, velocidade.x, velocidade.y, velocidade.z]);
+
+  useFrame(() => {
     if (ref.current) {
       ref.current.position.set(x, y, z);
     }
-
     setCurrentPos({ x, y, z });
-
-    // Adiciona ponto ao rastro a cada frame para um rastro contínuo
-    const currentVec = new THREE.Vector3(x, y, z);
-    const lastVec = new THREE.Vector3(lastPosRef.current.x, lastPosRef.current.y, lastPosRef.current.z);
-    const dist = currentVec.distanceTo(lastVec);
-    
-    if (dist > 0.03) {
-      setTrail(prev => [...prev.slice(-200), currentVec.clone()]);
-      lastPosRef.current = { x, y, z };
-    }
   });
 
   return (
@@ -168,16 +173,10 @@ function FloatingInfo({ position, color }) {
 // Componente principal MRU3D
 export default function MRU3D({ velocidade, posInicial, tempo }) {
   const [currentPos, setCurrentPos] = useState({ x: 0, y: 0, z: 0 });
-  const [cameraTarget, setCameraTarget] = useState([0, 0, 0]);
   const [showInfo, setShowInfo] = useState(true);
   
   // Cor da partícula baseada na velocidade
   const particleColor = velocidade.x > 0 ? "#F97316" : "#FF6B9D";
-
-  // Atualiza o target da câmera para seguir a partícula
-  useEffect(() => {
-    setCameraTarget([currentPos.x, currentPos.y, currentPos.z]);
-  }, [currentPos]);
 
   // Cálculos para as equações
   const x_t = posInicial.x + velocidade.x * tempo;
@@ -316,7 +315,6 @@ export default function MRU3D({ velocidade, posInicial, tempo }) {
           zoomSpeed={1.5}
           panSpeed={1}
           rotateSpeed={1.2}
-          target={cameraTarget}
           makeDefault
         />
 
