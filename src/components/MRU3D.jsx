@@ -52,6 +52,13 @@ function Particle({ velocidade, posInicial, tempo, setCurrentPos, cor }) {
       </mesh>
 
       {/* Vetores de velocidade */}
+      {/* Vetor velocidade RESULTANTE */}
+      <primitive object={new THREE.ArrowHelper(
+        new THREE.Vector3(velocidade.x, velocidade.y, velocidade.z).normalize(),
+        new THREE.Vector3(x, y, z),
+        Math.hypot(velocidade.x, velocidade.y, velocidade.z),
+        0xffff00
+      )} />
       <primitive object={new THREE.ArrowHelper(
         new THREE.Vector3(1, 0, 0),
         new THREE.Vector3(x, y, z),
@@ -188,6 +195,57 @@ function FloatingInfo({ position, color }) {
   );
 }
 
+function TheoryPanel({ velocidade }) {
+  const vMag = Math.hypot(velocidade.x, velocidade.y, velocidade.z);
+
+  const isMoving = vMag > 0;
+
+  return (
+    <div style={{
+      position: 'absolute',
+      top: 16,
+      right: 16,
+      width: 260,
+      background: 'rgba(8, 12, 20, 0.9)',
+      backdropFilter: 'blur(14px)',
+      borderRadius: 16,
+      border: '1px solid rgba(0, 212, 255, 0.25)',
+      padding: '14px 16px',
+      fontFamily: 'monospace',
+      zIndex: 15,
+      color: '#fff'
+    }}>
+      <div style={{
+        fontSize: '0.7rem',
+        letterSpacing: '2px',
+        color: '#00F5C4',
+        marginBottom: 10
+      }}>
+        📘 TEORIA DO MRU
+      </div>
+
+      <div style={{ fontSize: '0.75rem', color: '#ccc', lineHeight: 1.4 }}>
+        Movimento com velocidade constante. A posição varia linearmente com o tempo.
+      </div>
+
+      <div style={{ marginTop: 10, fontSize: '0.75rem' }}>
+        <div>→ Trajetória: <span style={{ color: '#00D4FF' }}>reta</span></div>
+        <div>→ Tipo: <span style={{ color: '#00D4FF' }}>uniforme</span></div>
+        <div>
+          → Estado:{" "}
+          <span style={{ color: isMoving ? '#00F5C4' : '#ff5555' }}>
+            {isMoving ? "em movimento" : "repouso"}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 10, fontSize: '0.7rem', color: '#aaa' }}>
+        |v| = {vMag.toFixed(2)} m/s
+      </div>
+    </div>
+  );
+}
+
 // Componente principal MRU3D
 export default function MRU3D({ velocidade, posInicial, tempo }) {
 
@@ -317,9 +375,11 @@ export default function MRU3D({ velocidade, posInicial, tempo }) {
         </div>
       )}
 
+      <TheoryPanel velocidade={velocidade} />
+      
       <Canvas
       orthographic={false}
-  resize={false}
+      resize={false}
         camera={{ position: [10, 8, 12], fov: 55 }}
         style={{
           width: '100%',

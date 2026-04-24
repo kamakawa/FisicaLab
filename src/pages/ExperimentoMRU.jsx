@@ -10,12 +10,12 @@ export default function ExperimentoMRU() {
   const [modo, setModo] = useState("2D");
 
   // Controles 3D separados
-  const [posInicialX, setPosInicialX] = useState(-3);
+  const [posInicialX, setPosInicialX] = useState(0);
   const [posInicialY, setPosInicialY] = useState(0);
-  const [posInicialZ, setPosInicialZ] = useState(-2);
+  const [posInicialZ, setPosInicialZ] = useState(0);
   const [velocidadeX, setVelocidadeX] = useState(4);
-  const [velocidadeY, setVelocidadeY] = useState(2.5);
-  const [velocidadeZ, setVelocidadeZ] = useState(1.8);
+  const [velocidadeY, setVelocidadeY] = useState(4);
+  const [velocidadeZ, setVelocidadeZ] = useState(4);
 
   useEffect(() => {
     if (!rodando) return;
@@ -507,6 +507,70 @@ export default function ExperimentoMRU() {
   );
 }
 
+function TheoryPanel2D({ velocidade, posInicial, tempo }) {
+  const moving = velocidade !== 0;
+  const direction =
+    velocidade > 0 ? "sentido positivo (→)" :
+    velocidade < 0 ? "sentido negativo (←)" :
+    "repouso";
+
+  const inclinacao =
+    velocidade > 0 ? "crescente" :
+    velocidade < 0 ? "decrescente" :
+    "horizontal";
+
+  return (
+    <div style={{
+      position: 'absolute',
+      top: 16,
+      right: 16,
+      width: 260,
+      background: 'rgba(8, 12, 20, 0.9)',
+      backdropFilter: 'blur(14px)',
+      borderRadius: 16,
+      border: '1px solid rgba(0, 212, 255, 0.25)',
+      padding: '14px 16px',
+      fontFamily: 'monospace',
+      zIndex: 20,
+      color: '#fff'
+    }}>
+      <div style={{
+        fontSize: '0.7rem',
+        letterSpacing: '2px',
+        color: '#00F5C4',
+        marginBottom: 10
+      }}>
+        📘 TEORIA DO MRU (2D)
+      </div>
+
+      <div style={{ fontSize: '0.75rem', color: '#ccc', lineHeight: 1.4 }}>
+        No MRU, a posição varia linearmente com o tempo. O gráfico posição × tempo é sempre uma reta.
+      </div>
+
+      <div style={{ marginTop: 10, fontSize: '0.75rem' }}>
+        <div>→ Tipo: <span style={{ color: '#00D4FF' }}>uniforme</span></div>
+        <div>→ Movimento: 
+          <span style={{ color: moving ? '#00F5C4' : '#ff5555' }}>
+            {moving ? " ativo" : " em repouso"}
+          </span>
+        </div>
+        <div>→ Direção: <span style={{ color: '#00D4FF' }}>{direction}</span></div>
+      </div>
+
+      <div style={{ marginTop: 10, fontSize: '0.75rem' }}>
+        <div>📈 Inclinação da reta:</div>
+        <div style={{ color: '#F97316', fontWeight: 'bold' }}>
+          {inclinacao}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 10, fontSize: '0.7rem', color: '#aaa' }}>
+        v = {velocidade.toFixed(2)} m/s
+      </div>
+    </div>
+  );
+}
+
 // Componente 2D com RASTROS e TAMANHO AUMENTADO
 function MRU2DGraph({ posInicial, velocidade, tempo }) {
   const [viewBox, setViewBox] = useState({ minX: -10, maxX: 25, minY: -12, maxY: 14 });
@@ -594,6 +658,12 @@ function MRU2DGraph({ posInicial, velocidade, tempo }) {
 
   return (
     <div style={{ width: '100%', height: '100%', background: '#05070D', position: 'relative', overflow: 'hidden' }}>
+      <TheoryPanel2D 
+        velocidade={velocidade}
+        posInicial={posInicial}
+        tempo={tempo}
+      />
+
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: '100%', fontFamily: 'monospace' }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
