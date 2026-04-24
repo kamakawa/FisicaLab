@@ -50,8 +50,8 @@ export default function ExperimentoMRU() {
 
         .mru-grid {
           display: grid;
-          grid-template-columns: 360px 1fr;
-          gap: 20px;
+          grid-template-columns: 360px minmax(0, 1fr);
+          align-items: stretch;
         }
 
         /* Painel de Controle Moderno */
@@ -63,7 +63,7 @@ export default function ExperimentoMRU() {
           padding: 20px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
-          height: fit-content;
+          height: 100%;
           max-height: calc(100vh - 80px);
           overflow-y: auto;
         }
@@ -242,8 +242,7 @@ export default function ExperimentoMRU() {
           border: 1px solid rgba(0,212,255,0.2);
           overflow: hidden;
           position: relative;
-          height: 85vh;
-          min-height: 700px;
+          height: 700px;
           width: 100%;
         }
 
@@ -594,7 +593,7 @@ function MRU2DGraph({ posInicial, velocidade, tempo }) {
   }
 
   return (
-    <div style={{ width: '100%', height: '100%', background: '#05070D', position: 'relative', overflow: 'auto' }}>
+    <div style={{ width: '100%', height: '100%', background: '#05070D', position: 'relative', overflow: 'hidden' }}>
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: '100%', fontFamily: 'monospace' }}>
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">

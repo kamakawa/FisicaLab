@@ -1,5 +1,5 @@
 // src/components/MRU3D.jsx
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState, useLayoutEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Text, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -50,6 +50,28 @@ function Particle({ velocidade, posInicial, tempo, setCurrentPos, cor }) {
           roughness={0.2}
         />
       </mesh>
+
+      {/* Vetores de velocidade */}
+      <primitive object={new THREE.ArrowHelper(
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(x, y, z),
+        velocidade.x,
+        0xff4444
+      )} />
+
+      <primitive object={new THREE.ArrowHelper(
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(x, y, z),
+        velocidade.y,
+        0x44ff44
+      )} />
+
+      <primitive object={new THREE.ArrowHelper(
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(x, y, z),
+        velocidade.z,
+        0x4444ff
+      )} />
       
       {/* Luz de glow na partícula */}
       <pointLight 
@@ -61,17 +83,13 @@ function Particle({ velocidade, posInicial, tempo, setCurrentPos, cor }) {
       
       {/* Rastro da partícula */}
       {trail.length > 2 && (
-        <line>
-          <bufferGeometry attach="geometry">
-            <bufferAttribute
-              attach="attributes-position"
-              count={trail.length}
-              array={new Float32Array(trail.flatMap(v => [v.x, v.y, v.z]))}
-              itemSize={3}
-            />
-          </bufferGeometry>
-          <lineBasicMaterial color={cor} linewidth={2} transparent opacity={0.6} />
-        </line>
+        <Line
+          points={trail}
+          color={cor}
+          lineWidth={4}
+          transparent
+          opacity={0.7}
+        />
       )}
     </>
   );
@@ -172,6 +190,7 @@ function FloatingInfo({ position, color }) {
 
 // Componente principal MRU3D
 export default function MRU3D({ velocidade, posInicial, tempo }) {
+
   const [currentPos, setCurrentPos] = useState({ x: 0, y: 0, z: 0 });
   const [showInfo, setShowInfo] = useState(true);
   
@@ -193,7 +212,9 @@ export default function MRU3D({ velocidade, posInicial, tempo }) {
   const vz = velocidade.z;
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', background: '#05070D' }}>
+    <div
+      style={{ width: '100%', height: '100%', position: 'relative', background: '#05070D' }}
+    >
       
       {/* Botão toggle para informações */}
       <button
@@ -297,9 +318,18 @@ export default function MRU3D({ velocidade, posInicial, tempo }) {
       )}
 
       <Canvas
+      orthographic={false}
+  resize={false}
         camera={{ position: [10, 8, 12], fov: 55 }}
-        style={{ background: '#05070D' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          background: '#05070D'
+        }}
         gl={{ antialias: true, alpha: false }}
+        dpr={[1, 2]}
+        resize={{ debounce: 0 }}
+        frameloop="always"
       >
         <ambientLight intensity={0.4} />
         <pointLight position={[8, 10, 8]} intensity={1.2} />
@@ -323,7 +353,13 @@ export default function MRU3D({ velocidade, posInicial, tempo }) {
         {/* Plano de referência no chão */}
         <mesh position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[16, 16]} />
-          <meshStandardMaterial color="#0a0a1a" metalness={0.8} roughness={0.5} transparent opacity={0.5} />
+          <meshStandardMaterial 
+            color="#0a0a1a" 
+            metalness={0.8} 
+            roughness={0.5} 
+            transparent 
+            opacity={0.5} 
+          />
         </mesh>
 
         <Particle
