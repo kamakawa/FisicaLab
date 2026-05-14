@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import CanvasAnimacao from '../components/CanvasAnimacao';
 import ControlesMatematicos from '../components/ControlesMatematicos';
+import LancamentoCalculus from '../components/LancamentoCalculus';
 
 function TheoryPanelProjectile({ v0, angle, time }) {
   const rad = (angle * Math.PI) / 180;
@@ -78,6 +79,7 @@ export default function ExperimentoLancamento() {
   const [angle, setAngle] = useState(45);
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [activeTab, setActiveTab] = useState("sim");
 
   useEffect(() => {
     let intervalId;
@@ -116,22 +118,32 @@ export default function ExperimentoLancamento() {
           </span>
           <span style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
           <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Cinemática 2D</span>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+            {[{ id: "sim", label: "Simulação" }, { id: "calculus", label: "∫ Cálculo" }].map(tb => (
+              <button key={tb.id} onClick={() => setActiveTab(tb.id)}
+                style={{
+                  border: "none", borderRadius: 6, padding: "4px 12px", cursor: "pointer",
+                  background: activeTab === tb.id ? "rgba(251,146,60,0.15)" : "transparent",
+                  color: activeTab === tb.id ? "#FB923C" : "#475569",
+                  fontSize: 11, fontFamily: "'Sora', sans-serif",
+                  borderBottom: activeTab === tb.id ? "2px solid #FB923C" : "2px solid transparent",
+                }}>{tb.label}</button>
+            ))}
+          </div>
         </div>
-        <div style={{ 
-          flex: 1, 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          position: 'relative'
-        }}>
-          <CanvasAnimacao v0={v0} angle={angle} time={time} />
 
-          <TheoryPanelProjectile 
-            v0={v0}
-            angle={angle}
-            time={time}
-          />
-        </div>
+        {activeTab === "sim" && (
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+            <CanvasAnimacao v0={v0} angle={angle} time={time} />
+            <TheoryPanelProjectile v0={v0} angle={angle} time={time} />
+          </div>
+        )}
+
+        {activeTab === "calculus" && (
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <LancamentoCalculus v0={v0} angle={angle} time={time} />
+          </div>
+        )}
       </div>
 
       <ControlesMatematicos

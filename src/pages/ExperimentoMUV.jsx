@@ -4,6 +4,7 @@ import MUVEquations from "../components/Muvequations";
 import MUVTheory from "../components/Muvtheory";
 import MUVTable from "../components/Muvtable";
 import MUVAnalysis from "../components/Muvanalysis";
+import MUVCalculus from "../components/MuvCalculus";
 
 const MODES = [
   { value: "geral", label: "Movimento Geral (MRUV)" },
@@ -16,6 +17,7 @@ const TABS = [
   { id: "sim", label: "Simulação" },
   { id: "graphs", label: "Gráficos" },
   { id: "equations", label: "Equações" },
+  { id: "calculus", label: "∫ Cálculo" },
   { id: "analysis", label: "Análise" },
   { id: "table", label: "Tabela" },
 ];
@@ -439,6 +441,7 @@ export default function ExperimentoMUV() {
             {tab === "sim" && <MUVGraph {...sharedProps} modo={modo} animated />}
             {tab === "graphs" && <MUVGraph {...sharedProps} modo={modo} showAllCharts />}
             {tab === "equations" && <MUVEquations {...sharedProps} />}
+            {tab === "calculus" && <MUVCalculus {...sharedProps} />}
             {tab === "analysis" && <MUVAnalysis {...sharedProps} modo={modo} />}
             {tab === "table" && <MUVTable {...sharedProps} />}
           </div>

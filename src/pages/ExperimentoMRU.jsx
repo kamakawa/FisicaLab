@@ -1,6 +1,7 @@
 // src/pages/ExperimentoMRU.jsx
 import React, { useState, useEffect, useRef } from "react";
 import MRU3D from "../components/MRU3D";
+import MRUCalculus from "../components/MRUCalculus";
 
 export default function ExperimentoMRU() {
   const [velocidade, setVelocidade] = useState(5);
@@ -8,6 +9,7 @@ export default function ExperimentoMRU() {
   const [tempo, setTempo] = useState(0);
   const [rodando, setRodando] = useState(false);
   const [modo, setModo] = useState("2D");
+  const [activeTab, setActiveTab] = useState("sim");
 
   // Controles 3D separados
   const [posInicialX, setPosInicialX] = useState(0);
@@ -485,6 +487,29 @@ export default function ExperimentoMRU() {
 
         {/* Área de Visualização - MAIOR */}
         <div className="mru-viewer">
+          {/* Tab bar inside viewer */}
+          <div style={{ display: "flex", gap: 2, padding: "10px 14px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            {[
+              { id: "sim", label: "Simulação" },
+              { id: "calculus", label: "∫ Cálculo" },
+            ].map(tb => (
+              <button
+                key={tb.id}
+                onClick={() => setActiveTab(tb.id)}
+                style={{
+                  border: "none", background: "transparent", cursor: "pointer",
+                  padding: "6px 14px", borderRadius: "8px 8px 0 0",
+                  color: activeTab === tb.id ? "#00D4FF" : "#475569",
+                  fontSize: 12, fontFamily: "'Sora', sans-serif",
+                  borderBottom: activeTab === tb.id ? "2px solid #00D4FF" : "2px solid transparent",
+                  background: activeTab === tb.id ? "rgba(0,212,255,0.07)" : "transparent",
+                  transition: "all 0.15s",
+                }}
+              >{tb.label}</button>
+            ))}
+          </div>
+
+          {activeTab === "sim" && <>
           <div className="mru-mode-badge">
             {modo === '2D' ? '📈 GRÁFICO ESPAÇO × TEMPO' : '🌍 ESPAÇO TRIDIMENSIONAL • MRU'}
           </div>
@@ -498,6 +523,15 @@ export default function ExperimentoMRU() {
             <MRU2DGraph 
               posInicial={posInicial}
               velocidade={velocidade}
+              tempo={tempo}
+            />
+          )}
+          </>}
+
+          {activeTab === "calculus" && (
+            <MRUCalculus
+              velocidade={velocidade}
+              posInicial={posInicial}
               tempo={tempo}
             />
           )}
