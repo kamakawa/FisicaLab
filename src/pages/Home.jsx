@@ -14,7 +14,7 @@ const DATA = {
           { id: 'lancamento', title: 'Lançamento de Projéteis', desc: 'Decomposição vetorial 2D, trajetória parabólica e vetores de velocidade em tempo real.', tags: ['2D', 'Vetores', 'Disponível'], disponivel: true },
           { id: 'mru', title: 'Movimento Retilíneo Uniforme', desc: 'Posição, velocidade constante e gráficos de movimento sem aceleração.', tags: ['MRU', 'Gráficos'], disponivel: true },
           { id: 'mruv', title: 'Movimento Uniformemente Variado', desc: 'Equações horárias, aceleração constante e queda livre.', tags: ['MRUV', 'Aceleração'], disponivel: true },
-          { id: 'circular', title: 'Movimento Circular', desc: 'Velocidade angular, aceleração centrípeta e período de rotação.', tags: ['ω', 'Centrípeta'], disponivel: false },
+          { id: 'circular', title: 'Movimento Circular', desc: 'Velocidade angular, aceleração centrípeta e período de rotação.', tags: ['ω', 'Centrípeta'], disponivel: true },
         ],
       },
       {

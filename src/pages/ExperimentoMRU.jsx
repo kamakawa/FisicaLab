@@ -524,6 +524,7 @@ export default function ExperimentoMRU() {
               posInicial={posInicial}
               velocidade={velocidade}
               tempo={tempo}
+              showTheory={true}
             />
           )}
           </>}
@@ -606,7 +607,7 @@ function TheoryPanel2D({ velocidade, posInicial, tempo }) {
 }
 
 // Componente 2D com RASTROS e TAMANHO AUMENTADO
-function MRU2DGraph({ posInicial, velocidade, tempo }) {
+function MRU2DGraph({ posInicial, velocidade, tempo, showTheory = true }) {
   const [viewBox, setViewBox] = useState({ minX: -10, maxX: 25, minY: -12, maxY: 14 });
   const [trailPoints, setTrailPoints] = useState([]);
   const lastTimeRef = useRef(0);
@@ -692,11 +693,13 @@ function MRU2DGraph({ posInicial, velocidade, tempo }) {
 
   return (
     <div style={{ width: '100%', height: '100%', background: '#05070D', position: 'relative', overflow: 'hidden' }}>
-      <TheoryPanel2D 
-        velocidade={velocidade}
-        posInicial={posInicial}
-        tempo={tempo}
-      />
+      {showTheory && (
+        <TheoryPanel2D 
+          velocidade={velocidade}
+          posInicial={posInicial}
+          tempo={tempo}
+        />
+      )}
 
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: '100%', fontFamily: 'monospace' }}>
         <defs>

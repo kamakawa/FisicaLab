@@ -5,11 +5,13 @@ import ExperimentoLancamento from './pages/ExperimentoLancamento';
 import LogoFisicaLab from './components/LogoFisicaLab';
 import ExperimentoMRU from './pages/ExperimentoMRU';
 import ExperimentoMRUV from './pages/ExperimentoMUV';
+import ExperimentoCircular from './pages/ExperimentoCircular';
 
 const TITULOS = {
   lancamento: 'Lançamento de Projéteis',
   mru: 'Movimento Retilíneo Uniforme',
   mruv: 'Movimento RetilíneoUniformemente Variado',
+  circular: 'Movimento Circular',
 };
 
 /* ========================= */
@@ -28,6 +30,7 @@ const EXPERIMENTO_FISICA = {
   lancamento: "fisica1",
   mru: "fisica1",
   mruv: "fisica1",
+  circular: 'fisica1',
 };
 
 export default function App() {
@@ -200,6 +203,10 @@ export default function App() {
 
         {pagina === 'experimento' && experimento === 'mruv' && (
           <ExperimentoMRUV />
+        )}
+
+        {pagina === 'experimento' && experimento === 'circular' && (
+          <ExperimentoCircular />
         )}
       </div>
     </>
