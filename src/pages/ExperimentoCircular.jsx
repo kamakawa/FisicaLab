@@ -381,7 +381,7 @@ export default function ExperimentoCircular() {
         <header className="header">
           <div>
             <div className="header-title">Movimento Circular</div>
-            <div className="header-sub">Física II · Mecânica Clássica</div>
+            <div className="header-sub">Física I · Mecânica Clássica</div>
           </div>
           <span className="header-tag">v2.0 · Interativo</span>
         </header>
