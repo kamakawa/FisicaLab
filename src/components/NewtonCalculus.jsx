@@ -1,81 +1,83 @@
 // src/components/NewtonCalculus.jsx
 import React from 'react';
 
-// Auxiliares de estilização matemática customizada
-function Frac({ num, den, color = "#e2e8f0" }) {
-  return (
-    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', verticalAlign: 'middle', padding: '0 4px' }}>
-      <span style={{ borderBottom: `1px solid ${color}`, paddingBottom: '2px', fontSize: '0.9em', color }}>{num}</span>
-      <span style={{ paddingTop: '2px', fontSize: '0.9em', color }}>{den}</span>
-    </span>
-  );
-}
-
-function FormulaBlock({ title, color, children }) {
-  return (
-    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderLeft: `4px solid ${color}`, borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-      <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.05em' }}>{title}</div>
-      <div style={{ fontFamily: "'Fira Code', monospace", fontSize: '14px', color: '#cbd5e1', lineHeight: '1.8' }}>{children}</div>
-    </div>
-  );
-}
-
-export default function NewtonCalculus({ massA, massB, muK, g, aceleração, tração }) {
+export default function NewtonCalculus({ massA, massB, muK, g, aceleracao, tracao }) {
   const pesoB = massB * g;
   const fat = muK * massA * g;
 
   return (
-    <div style={{ overflowY: 'auto', maxHeight: '550px', paddingRight: '8px' }}>
-      <h2 style={{ fontSize: '1.2rem', color: '#a78bfa', marginBottom: '16px' }}>Análise Lagrangeana / Matricial de Forças</h2>
+    <div style={{ padding: '0 8px', maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}>
+      <h2 style={{ fontSize: '1.2rem', color: '#a78bfa', marginBottom: '20px', fontFamily: "'Space Grotesk', sans-serif" }}>
+        Análise Matricial de Forças e Vínculos
+      </h2>
 
-      {/* 1. O Vínculo Geométrico */}
-      <FormulaBlock title="1. Equação de Vínculo Holônomo" color="#60a5fa">
-        O fio é ideal (inextensível e de massa desprezível). Se x_A é a posição de A na mesa e y_B a queda de B:<br/>
-        <span style={{ color: '#60a5fa' }}>x_A(t) + y_B(t) = L  (// comprimento do fio constante)</span><br/>
-        Derivando duas vezes em relação ao tempo t:<br/>
-        ẍ_A + ÿ_B = 0 ⟹ a_A = a_B = a
-      </FormulaBlock>
-
-      {/* 2. Formulação do Sistema Linear */}
-      <FormulaBlock title="2. Formulação Matricial (2ª Lei Restrita)" color="#a78bfa">
-        Escrevendo o sistema acoplado na forma de matriz de massa [M]a⃗ = F⃗_ext:<br/>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '12px 0', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '6px' }}>
-          <span>
-            [m_A  0] [a] = [T - f_at]<br/>
-            [ 0  m_B] [a]   [m_B·g - T]
-          </span>
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', marginBottom: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '10px 16px', background: 'rgba(0,0,0,0.3)', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#64748b', borderLeft: '4px solid #60a5fa' }}>
+          1. Equação de Vínculo Holônomo
         </div>
-        Substituindo os valores definidos:<br/>
-        [{massA}  0] [a] = [T - {fat.toFixed(2)}]<br/>
-        [ 0  {massB}] [a]   [{pesoB.toFixed(2)} - T]
-      </FormulaBlock>
+        <div style={{ padding: '16px', fontSize: '13px', color: '#cbd5e1', lineHeight: 1.8 }}>
+          O fio é ideal (inextensível e massa desprezível). Se x<sub>A</sub> é a posição de A na mesa e y<sub>B</sub> a queda de B:<br/>
+          <strong style={{ color: '#60a5fa' }}>x<sub>A</sub>(t) + y<sub>B</sub>(t) = L</strong> (comprimento do fio constante)<br/>
+          Derivando duas vezes: <strong>a<sub>A</sub> = a<sub>B</sub> = a</strong>
+        </div>
+      </div>
 
-      {/* 3. Resolução Analítica */}
-      <FormulaBlock title="3. Isolamento da Aceleração do Centro de Massa" color="#34d399">
-        Somando as equações lineares para eliminar a força interna de restrição (Tração T):<br/>
-        (m_A + m_B) · a = m_B·g - μ_k·m_A·g<br/>
-        a = <Frac num="m_B·g - μ_k·m_A·g" den="m_A + m_B" color="#34d399" /><br/>
-        a = <Frac num={`${pesoB.toFixed(2)} - ${fat.toFixed(2)}`} den={`${massA} + ${massB}`} color="#34d399" /> 
-        = <strong style={{ color: '#34d399' }}>{aceleração.toFixed(4)} m/s²</strong>
-      </FormulaBlock>
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', marginBottom: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '10px 16px', background: 'rgba(0,0,0,0.3)', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#64748b', borderLeft: '4px solid #a78bfa' }}>
+          2. Formulação Matricial (2ª Lei)
+        </div>
+        <div style={{ padding: '16px', fontSize: '13px', color: '#cbd5e1', lineHeight: 1.8 }}>
+          Sistema na forma [M]·a = F<sub>ext</sub>:
+          <pre style={{ background: '#0a0c12', padding: '10px', borderRadius: '6px', margin: '10px 0', fontFamily: "'Fira Code', monospace", fontSize: '12px' }}>
+{`[ ${massA}    0 ] [a] = [ T - ${fat.toFixed(2)} ]
+[ 0    ${massB} ] [a]   [ ${pesoB.toFixed(2)} - T ]`}
+          </pre>
+        </div>
+      </div>
 
-      {/* 4. Força de Reação/Vínculo */}
-      <FormulaBlock title="4. Determinação do Multiplicador de Lagrange (Tração)" color="#fbbf24">
-        Substituindo a aceleração de volta na EDO do Bloco B para achar a restrição de tração:<br/>
-        T = m_B·(g - a)<br/>
-        T = {massB} · ({g} - {aceleração.toFixed(2)}) = <strong style={{ color: '#fbbf24' }}>{tração.toFixed(4)} N</strong>
-      </FormulaBlock>
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', marginBottom: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '10px 16px', background: 'rgba(0,0,0,0.3)', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#64748b', borderLeft: '4px solid #34d399' }}>
+          3. Aceleração do Sistema
+        </div>
+        <div style={{ padding: '16px', fontSize: '13px', color: '#cbd5e1', lineHeight: 1.8 }}>
+          Somando as equações para eliminar T:<br/>
+          <strong>(m<sub>A</sub> + m<sub>B</sub>)·a = m<sub>B</sub>·g - μ<sub>k</sub>·m<sub>A</sub>·g</strong><br/><br/>
+          a = (m<sub>B</sub>·g - μ<sub>k</sub>·m<sub>A</sub>·g) / (m<sub>A</sub> + m<sub>B</sub>)<br/>
+          a = ({pesoB.toFixed(2)} - {fat.toFixed(2)}) / {massA + massB}<br/><br/>
+          <strong style={{ color: '#34d399', fontSize: '16px' }}>a = {aceleracao.toFixed(4)} m/s²</strong>
+        </div>
+      </div>
 
-      {/* 5. Verificação da 1ª Lei de Newton */}
-      <FormulaBlock title="5. Critério de Equilíbrio Estático (1ª Lei)" color="#f87171">
-        O sistema só sairá do repouso se a componente motora externa superar a barreira de atrito estático:<br/>
-        Condição de Movimento: m_B·g &gt; μ_k·m_A·g<br/>
-        Status Atual: {pesoB > fat ? (
-          <span style={{ color: '#34d399', fontWeight: 'bold' }}>MOVIMENTO VARIADO (F_res ≠ 0)</span>
-        ) : (
-          <span style={{ color: '#f87171', fontWeight: 'bold' }}>INÉRCIA PRESENCIAL (F_res = 0, sistema travado)</span>
-        )}
-      </FormulaBlock>
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', marginBottom: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '10px 16px', background: 'rgba(0,0,0,0.3)', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#64748b', borderLeft: '4px solid #fbbf24' }}>
+          4. Força de Tração (Multiplicador de Lagrange)
+        </div>
+        <div style={{ padding: '16px', fontSize: '13px', color: '#cbd5e1', lineHeight: 1.8 }}>
+          Isolando T na equação do Bloco B: T = m<sub>B</sub>·(g - a)<br/><br/>
+          T = {massB} · ({g} - {aceleracao.toFixed(4)})<br/><br/>
+          <strong style={{ color: '#fbbf24', fontSize: '16px' }}>T = {tracao.toFixed(4)} N</strong>
+        </div>
+      </div>
+
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', marginBottom: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '10px 16px', background: 'rgba(0,0,0,0.3)', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#64748b', borderLeft: '4px solid #f87171' }}>
+          5. Condição de Movimento (1ª Lei de Newton)
+        </div>
+        <div style={{ padding: '16px', fontSize: '13px', color: '#cbd5e1', lineHeight: 1.8 }}>
+          O sistema só se move se a força motora superar o atrito cinético:<br/>
+          <strong>m<sub>B</sub>·g &gt; μ<sub>k</sub>·m<sub>A</sub>·g</strong><br/><br/>
+          {pesoB.toFixed(2)} &gt; {fat.toFixed(2)}?<br/><br/>
+          {pesoB > fat ? (
+            <span style={{ color: '#34d399', fontWeight: 'bold', display: 'inline-block', padding: '4px 12px', background: 'rgba(52, 211, 153, 0.1)', borderRadius: '6px' }}>
+              ✓ MOVIMENTO ACELERADO (F<sub>res</sub> ≠ 0)
+            </span>
+          ) : (
+            <span style={{ color: '#f87171', fontWeight: 'bold', display: 'inline-block', padding: '4px 12px', background: 'rgba(248, 113, 113, 0.1)', borderRadius: '6px' }}>
+              ✗ REPOUSO INERCIAL (F<sub>res</sub> = 0)
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
