@@ -31,8 +31,8 @@ const DATA = {
             id: 'plano-inclinado', 
             title: 'Planos Inclinados e Atrito', 
             desc: 'Decomposição gravitatória, força normal variável e determinação do ângulo crítico de deslizamento.', 
-            tags: ['Vetores', 'Atrito'], 
-            disponivel: false 
+            tags: ['Vetores', 'Atrito', 'Disponível'], 
+            disponivel: true
           },
           { 
             id: 'trabalho-energia', 

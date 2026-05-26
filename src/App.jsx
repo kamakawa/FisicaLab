@@ -7,13 +7,15 @@ import ExperimentoMRU from './pages/ExperimentoMRU';
 import ExperimentoMRUV from './pages/ExperimentoMUV';
 import ExperimentoCircular from './pages/ExperimentoCircular';
 import ExperimentoLeisNewton from './pages/ExperimentoLeisNewton'; // 1. IMPORTAR A NOVA PÁGINA
+import ExperimentoPlanoInclinado from './pages/ExperimentoPlanoInclinado';
 
 const TITULOS = {
   lancamento: 'Lançamento de Projéteis',
   mru: 'Movimento Retilíneo Uniforme',
   mruv: 'Movimento Retilíneo Uniformemente Variado',
   circular: 'Movimento Circular',
-  'leis-newton': 'Leis de Newton e Sistemas Acoplados', // 2. ADICIONAR O TÍTULO PARA A BREADCRUMB
+  'leis-newton': 'Leis de Newton e Sistemas Acoplados',
+  'plano-inclinado': 'Planos Inclinados e Atrito',
 };
 
 /* ========================= */
@@ -33,7 +35,8 @@ const EXPERIMENTO_FISICA = {
   mru: "fisica1",
   mruv: "fisica1",
   circular: 'fisica1',
-  'leis-newton': 'fisica1', // 3. VINCULAR AO ID DE FÍSICA 1 (Para manter o tom Ciano/Neon)
+  'leis-newton': 'fisica1',
+  'plano-inclinado': 'fisica1',
 };
 
 export default function App() {
@@ -101,7 +104,8 @@ export default function App() {
           {experimento === 'mru' && <ExperimentoMRU />}
           {experimento === 'mruv' && <ExperimentoMRUV />}
           {experimento === 'circular' && <ExperimentoCircular />}
-          {experimento === 'leis-newton' && <ExperimentoLeisNewton />} {/* 4. INJETAR A NOVA TELA CONTROLANDO O ESTADO */}
+          {experimento === 'leis-newton' && <ExperimentoLeisNewton />}
+          {experimento === 'plano-inclinado' && <ExperimentoPlanoInclinado />}
         </>
       )}
     </div>
