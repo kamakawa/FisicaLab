@@ -8,6 +8,7 @@ import ExperimentoMRU from './pages/ExperimentoMRU';
 import ExperimentoMRUV from './pages/ExperimentoMUV';
 import ExperimentoCircular from './pages/ExperimentoCircular';
 import ExperimentoLeisNewton from './pages/ExperimentoLeisNewton';
+import ExperimentoEnergia from './pages/ExperimentoEnergia';
 
 const TITULOS = {
   lancamento: 'Lançamento de Projéteis',
@@ -15,6 +16,7 @@ const TITULOS = {
   mruv: 'Movimento Retilíneo Uniformemente Variado',
   circular: 'Movimento Circular',
   'leis-newton': 'Leis de Newton e Sistemas Acoplados',
+  'trabalho-energia': 'Trabalho e Energia Mecânica',
 };
 
 const CORES_FISICA = {
@@ -29,6 +31,7 @@ const EXPERIMENTO_FISICA = {
   mruv: "fisica1",
   circular: 'fisica1',
   'leis-newton': 'fisica1',
+  'trabalho-energia': 'fisica1',
 };
 
 export default function App() {
@@ -93,6 +96,7 @@ export default function App() {
           {experimento === 'mruv' && <ExperimentoMRUV />}
           {experimento === 'circular' && <ExperimentoCircular />}
           {experimento === 'leis-newton' && <ExperimentoLeisNewton />}
+          {experimento === 'trabalho-energia' && <ExperimentoEnergia />}
         </>
       )}
     </div>
