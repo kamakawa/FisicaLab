@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState } from 'react';
 import './App.css';
 import Home from './pages/Home';
@@ -6,34 +7,28 @@ import LogoFisicaLab from './components/LogoFisicaLab';
 import ExperimentoMRU from './pages/ExperimentoMRU';
 import ExperimentoMRUV from './pages/ExperimentoMUV';
 import ExperimentoCircular from './pages/ExperimentoCircular';
-import ExperimentoLeisNewton from './pages/ExperimentoLeisNewton'; // 1. IMPORTAR A NOVA PÁGINA
+import ExperimentoLeisNewton from './pages/ExperimentoLeisNewton';
 
 const TITULOS = {
   lancamento: 'Lançamento de Projéteis',
   mru: 'Movimento Retilíneo Uniforme',
   mruv: 'Movimento Retilíneo Uniformemente Variado',
   circular: 'Movimento Circular',
-  'leis-newton': 'Leis de Newton e Sistemas Acoplados', // 2. ADICIONAR O TÍTULO PARA A BREADCRUMB
+  'leis-newton': 'Leis de Newton e Sistemas Acoplados',
 };
 
-/* ========================= */
-/* 🔥 NOVO: CORES POR FÍSICA */
-/* ========================= */
 const CORES_FISICA = {
   fisica1: "#00D4FF",
   fisica2: "#FF6B9D",
   fisica3: "#00F5C4",
 };
 
-/* =============================== */
-/* 🔥 NOVO: MAPEAMENTO EXPERIMENTO */
-/* =============================== */
 const EXPERIMENTO_FISICA = {
   lancamento: "fisica1",
   mru: "fisica1",
   mruv: "fisica1",
   circular: 'fisica1',
-  'leis-newton': 'fisica1', // 3. VINCULAR AO ID DE FÍSICA 1 (Para manter o tom Ciano/Neon)
+  'leis-newton': 'fisica1',
 };
 
 export default function App() {
@@ -50,14 +45,12 @@ export default function App() {
     setExperimento(null);
   };
 
-  // Determinar a cor atual com base no experimento ativo
   const idFisica = experimento ? EXPERIMENTO_FISICA[experimento] : null;
-  const corAtual = idFisica ? CORES_FISICA[idFisica] : "#00D4FF"; // Cor padrão (Ciano) para a Home
+  const corAtual = idFisica ? CORES_FISICA[idFisica] : "#00D4FF";
 
   return (
     <div className="app-container">
       <header className="header" style={{ borderColor: `${corAtual}40` }}>
-        {/* ESQUERDA: Logo e Breadcrumbs */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div
             className="logo-container"
@@ -88,11 +81,9 @@ export default function App() {
           )}
         </div>
 
-        {/* DIREITA */}
         <div></div>
       </header>
 
-      {/* RENDERIZAÇÃO CONDICIONAL DAS PÁGINAS */}
       {pagina === 'home' && <Home onNavegar={navegarPara} />}
 
       {pagina === 'experimento' && (
@@ -101,7 +92,7 @@ export default function App() {
           {experimento === 'mru' && <ExperimentoMRU />}
           {experimento === 'mruv' && <ExperimentoMRUV />}
           {experimento === 'circular' && <ExperimentoCircular />}
-          {experimento === 'leis-newton' && <ExperimentoLeisNewton />} {/* 4. INJETAR A NOVA TELA CONTROLANDO O ESTADO */}
+          {experimento === 'leis-newton' && <ExperimentoLeisNewton />}
         </>
       )}
     </div>
