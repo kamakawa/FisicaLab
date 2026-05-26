@@ -20,12 +20,36 @@ const DATA = {
       {
         title: 'DINÂMICA',
         topics: [
-          { id: 'newton', title: 'Leis de Newton', desc: 'Inércia, força resultante e ação-reação com sistemas de corpos.', tags: ['Newton', 'Força'], disponivel: false },
-          { id: 'atrito', title: 'Forças de Atrito', desc: 'Atrito estático e cinético, coeficientes e dinâmica de corpos.', tags: ['Atrito', 'μ'], disponivel: false },
-          { id: 'energia', title: 'Trabalho e Energia', desc: 'Teorema trabalho-energia, conservação e potência.', tags: ['Energia', 'Joule'], disponivel: false },
-          { id: 'momentum', title: 'Quantidade de Movimento', desc: 'Impulso, momentum e colisões elásticas e inelásticas.', tags: ['Momentum', 'Colisão'], disponivel: false },
+          { 
+            id: 'leis-newton', 
+            title: 'Leis de Newton e Vínculos', 
+            desc: 'Análise vetorial em sistemas acoplados, forças de tração e dissipação por atrito.', 
+            tags: ['Dinâmica', 'Matrizes', 'Disponível'], 
+            disponivel: true 
+          },
+          { 
+            id: 'plano-inclinado', 
+            title: 'Planos Inclinados e Atrito', 
+            desc: 'Decomposição gravitatória, força normal variável e determinação do ângulo crítico de deslizamento.', 
+            tags: ['Vetores', 'Atrito'], 
+            disponivel: false 
+          },
+          { 
+            id: 'trabalho-energia', 
+            title: 'Trabalho e Energia Mecânica', 
+            desc: 'Sistemas conservativos e dissipativos, integrais de linha de força e teoremas de conservação.', 
+            tags: ['Integrais', 'Gráficos'], 
+            disponivel: false 
+          },
+          { 
+            id: 'colisoes', 
+            title: 'Sistemas de Partículas e Colisões', 
+            desc: 'Conservação da quantidade de movimento, centro de massa e coeficiente de restituição.', 
+            tags: ['Momento', 'Colisões'], 
+            disponivel: false 
+          },
         ],
-      },
+      }
     ],
   },
   f2: {
