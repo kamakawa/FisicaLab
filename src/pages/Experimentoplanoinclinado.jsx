@@ -1,985 +1,1472 @@
-// ExperimentoPlanoInclinado.jsx — redesign completo
-// Animação via requestAnimationFrame + canvas com DPI correto
+// ExperimentoPlanoInclinado.jsx — VERSÃO DEFINITIVA CORRIGIDA
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// ─── constantes ───────────────────────────────────────────────────────────────
+// ─── CONSTANTES ───────────────────────────────────────────────────────────────
 const G = 9.81;
 const toRad = d => (d * Math.PI) / 180;
 const toDeg = r => (r * 180) / Math.PI;
 
-// ─── hook: canvas com DPI correto ─────────────────────────────────────────────
-function useHiDpiCanvas(w, h) {
+// ─── HOOK: canvas responsivo com DPI correto ─────────────────────────────────
+function useResponsiveCanvas() {
   const ref = useRef(null);
   useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const ratio = window.devicePixelRatio || 1;
-    c.width  = w * ratio;
-    c.height = h * ratio;
-    c.style.width  = w + 'px';
-    c.style.height = h + 'px';
-    const ctx = c.getContext('2d');
-    ctx.scale(ratio, ratio);
-  }, [w, h]);
+    const canvas = ref.current;
+    if (!canvas) return;
+    const resize = () => {
+      const container = canvas.parentElement;
+      const w = container?.clientWidth || 520;
+      const h = container?.clientHeight || 340;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = w * ratio;
+      canvas.height = h * ratio;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(ratio, ratio);
+      return { w, h };
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
   return ref;
 }
 
-// ─── tokens de design ─────────────────────────────────────────────────────────
+// ─── TOKENS DE DESIGN ─────────────────────────────────────────────────────────
 const T = {
-  bg:      '#0B0C10',
-  card:    '#1F2833',
-  neon:    '#66FCF1',
-  emerald: '#45A29E',
-  amber:   '#F5A623',
-  rose:    '#FF6B9D',
-  white:   '#C5C6C7',
-  muted:   '#4A5568',
-  border:  'rgba(102,252,241,0.12)',
+  bg: '#0A0C12',
+  card: '#131724',
+  panel: '#0F131A',
+  neon: '#00D4FF',
+  emerald: '#10B981',
+  amber: '#F59E0B',
+  rose: '#EF4444',
+  purple: '#8B5CF6',
+  white: '#F1F5F9',
+  muted: '#64748B',
+  border: 'rgba(0,212,255,0.08)',
+  glow: 'rgba(0,212,255,0.15)',
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ATOMS
-// ─────────────────────────────────────────────────────────────────────────────
-
-const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap');
+// ─── CSS GLOBAL ───────────────────────────────────────────────────────────────
+const globalStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;700;900&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .pie-root {
+  
+  .exp-root {
     min-height: 100vh;
-    background: ${T.bg};
-    color: ${T.white};
+    background: radial-gradient(ellipse at 20% 30%, #0A0C12, #05070A);
+    color: #F1F5F9;
     font-family: 'Inter', sans-serif;
-    padding: 28px 32px 48px;
   }
-
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: ${T.card}; }
-  ::-webkit-scrollbar-thumb { background: ${T.emerald}; border-radius: 2px; }
-
-  /* sliders */
-  input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; }
+  
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #0F131A; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: #00D4FF; border-radius: 4px; opacity: 0.5; }
+  
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+  }
   input[type=range]:focus { outline: none; }
   input[type=range]::-webkit-slider-runnable-track {
-    height: 3px; background: rgba(255,255,255,0.08); border-radius: 3px;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
   }
   input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 14px; height: 14px;
-    border-radius: 50%; margin-top: -5.5px; cursor: pointer;
-    transition: box-shadow .15s;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-top: -6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid var(--thumb-color);
+    background: var(--thumb-color);
+    box-shadow: 0 0 0 0 var(--thumb-glow);
   }
-  input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 0 0 4px rgba(102,252,241,.15); }
-
-  /* tab */
-  .tab-strip { display: flex; gap: 4px; border-bottom: 1px solid ${T.border}; padding-bottom: 8px; margin-bottom: 16px; }
-  .tab-btn {
-    font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 1.5px;
-    padding: 6px 16px; border-radius: 4px; border: none; background: transparent;
-    cursor: pointer; transition: all .2s; color: ${T.muted};
+  input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 6px var(--thumb-glow);
   }
-  .tab-btn.active { color: var(--tc); background: color-mix(in srgb, var(--tc) 12%, transparent); }
-  .tab-btn:hover:not(.active) { color: ${T.white}; }
-
-  /* experiment selector */
-  .exp-selector { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
-  .exp-btn {
-    font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 1.5px;
-    padding: 8px 20px; border-radius: 20px; border: 1px solid ${T.border};
-    background: transparent; color: ${T.muted}; cursor: pointer; transition: all .2s;
-  }
-  .exp-btn.active { border-color: var(--tc); color: var(--tc); background: color-mix(in srgb, var(--tc) 10%, transparent); }
-
-  /* layout */
-  .sim-grid { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
-  .panel { background: ${T.card}; border: 1px solid ${T.border}; border-radius: 10px; padding: 20px; }
-  .canvas-panel { background: ${T.card}; border: 1px solid ${T.border}; border-radius: 10px; padding: 20px; }
-
-  /* metrics */
-  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
-  .metric {
-    background: rgba(0,0,0,.25); border-radius: 6px; padding: 10px 12px;
-    border-left: 2px solid var(--mc);
-  }
-  .metric-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: ${T.muted}; }
-  .metric-val { font-family: 'Share Tech Mono', monospace; font-size: 17px; font-weight: 700; color: var(--mc); line-height: 1.2; margin-top: 2px; }
-  .metric-unit { font-size: 10px; opacity: .6; }
-
-  /* status badge */
-  .status {
-    margin-top: 14px; padding: 10px; border-radius: 6px; text-align: center;
-    font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
-    border: 1px solid; transition: all .3s;
-  }
-
-  /* ctrl buttons */
-  .ctrl-row { display: flex; gap: 8px; margin-top: 14px; }
-  .ctrl-btn {
-    flex: 1; padding: 8px 6px; border-radius: 6px; border: 1px solid ${T.border};
-    background: transparent; color: ${T.white}; cursor: pointer; font-size: 12px;
-    font-family: 'Share Tech Mono', monospace; transition: all .2s; letter-spacing: 1px;
-  }
-  .ctrl-btn:hover { border-color: ${T.neon}; color: ${T.neon}; }
-  .ctrl-btn.active { border-color: ${T.neon}; color: ${T.neon}; background: rgba(102,252,241,.08); }
-  .ctrl-btn.primary { background: ${T.neon}; color: ${T.bg}; border-color: ${T.neon}; font-weight: 700; }
-  .ctrl-btn.primary:hover { box-shadow: 0 0 20px rgba(102,252,241,.3); }
-  .ctrl-btn:disabled { opacity: .35; cursor: not-allowed; }
-
-  /* formula card */
-  .formula-card {
-    border-left: 2px solid var(--fc); border-radius: 0 6px 6px 0;
-    background: rgba(0,0,0,.2); padding: 14px 16px; margin-bottom: 12px;
-  }
-  .formula-title { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--fc); margin-bottom: 8px; }
-  .formula-body { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: ${T.white}; line-height: 1.7; opacity: .85; }
-
-  /* header */
-  .pie-header { margin-bottom: 28px; }
-  .pie-title {
-    font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900;
-    background: linear-gradient(90deg, ${T.neon}, ${T.emerald});
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    letter-spacing: 2px;
-  }
-  .pie-subtitle { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: ${T.muted}; margin-top: 4px; letter-spacing: 1px; }
-
-  /* canvas wrapper */
-  .canvas-wrap { position: relative; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,.3); }
-  canvas { display: block; }
-
-  /* theory scroll */
-  .theory-scroll { max-height: 440px; overflow-y: auto; padding-right: 4px; }
-
-  /* responsive */
-  @media (max-width: 700px) {
-    .sim-grid { grid-template-columns: 1fr; }
-    .pie-root { padding: 16px; }
+  
+  .formula-math {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 2px 0;
   }
 `;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Slider
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── COMPONENTES UI ───────────────────────────────────────────────────────────
 const Slider = ({ label, value, onChange, min, max, step, unit, color = T.neon }) => (
-  <div style={{ marginBottom: 16 }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-      <span style={{ fontSize: 11, color: T.muted, fontFamily: "'Share Tech Mono',monospace", letterSpacing: 1 }}>{label}</span>
-      <span style={{ fontSize: 13, color, fontFamily: "'Share Tech Mono',monospace", fontWeight: 700 }}>
-        {typeof value === 'number' ? (Number.isInteger(step) ? value : value.toFixed(2)) : value}{unit}
+  <div style={{ marginBottom: '1.25rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+      <span style={{ fontSize: '0.75rem', color: T.muted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.5px' }}>
+        {label}
+      </span>
+      <span style={{ 
+        fontSize: '0.85rem', 
+        color, 
+        fontFamily: "'Orbitron', monospace", 
+        fontWeight: 700,
+        background: `${color}15`,
+        padding: '0.15rem 0.5rem',
+        borderRadius: '4px',
+      }}>
+        {typeof value === 'number' ? (step >= 1 ? value : value.toFixed(2)) : value}{unit}
       </span>
     </div>
     <input
-      type="range" min={min} max={max} step={step} value={value}
+      type="range"
+      min={min}
+      max={max}
+      step={step}
+      value={value}
       onChange={e => onChange(parseFloat(e.target.value))}
-      style={{ '--thumb-color': color }}
+      style={{ '--thumb-color': color, '--thumb-glow': `${color}40` }}
     />
-    <style>{`input[type=range][style*="${color}"]::-webkit-slider-thumb { background: ${color}; }`}</style>
   </div>
 );
 
-const Metric = ({ label, value, unit, color = T.neon }) => (
-  <div className="metric" style={{ '--mc': color }}>
-    <div className="metric-label">{label}</div>
-    <div className="metric-val">{value} <span className="metric-unit">{unit}</span></div>
+const MetricCard = ({ label, value, unit, color = T.neon, description }) => (
+  <div style={{
+    background: 'rgba(0,0,0,0.3)',
+    borderRadius: '0.75rem',
+    padding: '0.8rem',
+    borderLeft: `3px solid ${color}`,
+    transition: 'all 0.2s',
+  }}>
+    <div style={{ fontSize: '0.65rem', color: T.muted, letterSpacing: '1px', fontFamily: "'JetBrains Mono', monospace" }}>
+      {label}
+    </div>
+    <div style={{ fontSize: '1.3rem', fontWeight: 700, color, fontFamily: "'Orbitron', monospace", lineHeight: 1.2 }}>
+      {value} <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{unit}</span>
+    </div>
+    {description && <div style={{ fontSize: '0.6rem', color: T.muted, marginTop: '0.25rem' }}>{description}</div>}
   </div>
 );
 
-const Tab = ({ active, onClick, children, color = T.neon }) => (
-  <button className={`tab-btn ${active ? 'active' : ''}`} style={{ '--tc': color }} onClick={onClick}>
+const TabButton = ({ active, onClick, children, color = T.neon }) => (
+  <button
+    onClick={onClick}
+    style={{
+      padding: '0.5rem 1.2rem',
+      borderRadius: '0.5rem',
+      border: 'none',
+      background: active ? `${color}15` : 'transparent',
+      color: active ? color : T.muted,
+      cursor: 'pointer',
+      fontSize: '0.7rem',
+      fontFamily: "'JetBrains Mono', monospace",
+      fontWeight: active ? 600 : 400,
+      letterSpacing: '1px',
+      transition: 'all 0.2s',
+    }}
+  >
     {children}
   </button>
 );
 
-const FormulaCard = ({ title, children, color = T.neon }) => (
-  <div className="formula-card" style={{ '--fc': color }}>
-    <div className="formula-title">{title}</div>
-    <div className="formula-body">{children}</div>
+const FormulaCard = ({ title, children, color = T.neon, icon }) => (
+  <div style={{
+    borderLeft: `3px solid ${color}`,
+    background: `linear-gradient(90deg, ${color}08, transparent)`,
+    borderRadius: '0.5rem',
+    padding: '1rem',
+    marginBottom: '1rem',
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+      {icon && <span style={{ fontSize: '1rem' }}>{icon}</span>}
+      <span style={{ fontSize: '0.7rem', color, letterSpacing: '2px', fontFamily: "'Orbitron', monospace", fontWeight: 600 }}>
+        {title}
+      </span>
+    </div>
+    <div style={{ fontSize: '0.85rem', lineHeight: '1.7', color: T.white }}>
+      {children}
+    </div>
   </div>
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// drawArrow — helper canvas
-// ─────────────────────────────────────────────────────────────────────────────
-function drawArrow(ctx, ox, oy, angle, length, color, label, glowStrength = 10) {
-  if (length < 4) return;
-  const ex = ox + length * Math.cos(angle);
-  const ey = oy + length * Math.sin(angle);
+// ─── FUNÇÕES DE DESENHO ───────────────────────────────────────────────────────
+function drawArrow(ctx, fromX, fromY, angleDeg, length, color, label, glow = true) {
+  if (length < 5) return;
+  const angle = toRad(angleDeg);
+  const toX = fromX + length * Math.cos(angle);
+  const toY = fromY + length * Math.sin(angle);
 
   ctx.save();
-  ctx.strokeStyle = color;
-  ctx.fillStyle   = color;
-  ctx.lineWidth   = 2;
-  ctx.shadowColor = color;
-  ctx.shadowBlur  = glowStrength;
-
   ctx.beginPath();
-  ctx.moveTo(ox, oy);
-  ctx.lineTo(ex, ey);
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  if (glow) {
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 12;
+  }
   ctx.stroke();
 
-  const a = Math.atan2(ey - oy, ex - ox);
+  const arrowAngle = Math.atan2(toY - fromY, toX - fromX);
+  const headSize = 10;
   ctx.beginPath();
-  ctx.moveTo(ex, ey);
-  ctx.lineTo(ex - 10 * Math.cos(a - 0.42), ey - 10 * Math.sin(a - 0.42));
-  ctx.lineTo(ex - 10 * Math.cos(a + 0.42), ey - 10 * Math.sin(a + 0.42));
-  ctx.closePath();
+  ctx.moveTo(toX, toY);
+  ctx.lineTo(toX - headSize * Math.cos(arrowAngle - 0.5), toY - headSize * Math.sin(arrowAngle - 0.5));
+  ctx.lineTo(toX - headSize * Math.cos(arrowAngle + 0.5), toY - headSize * Math.sin(arrowAngle + 0.5));
+  ctx.fillStyle = color;
   ctx.fill();
 
   if (label) {
     ctx.shadowBlur = 0;
-    ctx.font = 'bold 10px "Share Tech Mono", monospace';
-    ctx.fillText(label, ex + 12 * Math.cos(a), ey + 12 * Math.sin(a));
+    ctx.font = 'bold 10px "JetBrains Mono", monospace';
+    ctx.fillStyle = color;
+    ctx.fillText(label, toX + 12 * Math.cos(arrowAngle), toY + 12 * Math.sin(arrowAngle));
   }
   ctx.restore();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// drawIncline — shared ramp geometry
-// ─────────────────────────────────────────────────────────────────────────────
-function drawIncline(ctx, W, H, theta, rampColor = T.neon) {
+function drawRamp(ctx, w, h, theta, color = T.neon) {
   const tR = toRad(theta);
-  const bX = 44, bY = H - 48;
-  const len = W - 80;
-  const tX  = bX + len * Math.cos(tR);
-  const tY  = bY - len * Math.sin(tR);
+  const baseX = 50;
+  const baseY = h - 45;
+  const length = w - 100;
+  const topX = baseX + length * Math.cos(tR);
+  const topY = baseY - length * Math.sin(tR);
 
-  // filled ramp
+  ctx.shadowBlur = 0;
   ctx.beginPath();
-  ctx.moveTo(bX, bY);
-  ctx.lineTo(tX, tY);
-  ctx.lineTo(tX, bY);
-  ctx.closePath();
-  ctx.fillStyle = `color-mix(in srgb, ${rampColor} 5%, transparent)`;
+  ctx.moveTo(baseX, baseY);
+  ctx.lineTo(topX, topY);
+  ctx.lineTo(topX, baseY);
+  ctx.fillStyle = `${color}08`;
   ctx.fill();
 
-  // ramp surface
   ctx.beginPath();
-  ctx.moveTo(bX, bY);
-  ctx.lineTo(tX, tY);
-  ctx.strokeStyle = rampColor;
-  ctx.lineWidth   = 2.5;
-  ctx.shadowColor = rampColor;
-  ctx.shadowBlur  = 8;
-  ctx.stroke();
-  ctx.shadowBlur  = 0;
-
-  // ground line
-  ctx.beginPath();
-  ctx.moveTo(bX, bY);
-  ctx.lineTo(tX, bY);
-  ctx.strokeStyle = 'rgba(255,255,255,.12)';
-  ctx.lineWidth   = 1;
+  ctx.moveTo(baseX, baseY);
+  ctx.lineTo(topX, topY);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
   ctx.stroke();
 
-  // angle arc
   ctx.beginPath();
-  ctx.arc(bX, bY, 38, -tR, 0);
+  ctx.moveTo(baseX, baseY);
+  ctx.lineTo(topX, baseY);
+  ctx.strokeStyle = `${T.white}20`;
+  ctx.lineWidth = 1;
+  ctx.shadowBlur = 0;
+  ctx.stroke();
+
+  const arcRadius = 38;
+  ctx.beginPath();
+  ctx.arc(baseX, baseY, arcRadius, -tR, 0);
   ctx.strokeStyle = T.amber;
-  ctx.lineWidth   = 1.5;
+  ctx.lineWidth = 2;
   ctx.shadowColor = T.amber;
-  ctx.shadowBlur  = 6;
+  ctx.shadowBlur = 6;
   ctx.stroke();
-  ctx.shadowBlur  = 0;
 
   ctx.fillStyle = T.amber;
-  ctx.font = 'bold 11px "Share Tech Mono", monospace';
-  ctx.fillText(`${theta}°`, bX + 46, bY - 12);
+  ctx.font = 'bold 12px "Orbitron", monospace';
+  ctx.shadowBlur = 0;
+  ctx.fillText(`${theta}°`, baseX + arcRadius + 6, baseY - 10);
 
-  return { bX, bY, tX, tY, len, tR };
+  ctx.shadowBlur = 0;
+  return { baseX, baseY, topX, topY, length, tR };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// drawBlock
-// ─────────────────────────────────────────────────────────────────────────────
-function drawBlock(ctx, cx, cy, tR, label, color = T.neon, glowing = false) {
-  const bW = 44, bH = 34;
+function drawBlock(ctx, cx, cy, tR, label, color = T.neon, isMoving = false) {
+  const bw = 46, bh = 36;
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(-tR);
 
-  // glow shell when moving
-  if (glowing) {
+  if (isMoving) {
     ctx.shadowColor = color;
-    ctx.shadowBlur  = 22;
+    ctx.shadowBlur = 20;
   }
 
-  // body
   ctx.beginPath();
-  ctx.roundRect(-bW / 2, -bH, bW, bH, 6);
-  ctx.fillStyle   = `color-mix(in srgb, ${color} 18%, transparent)`;
+  ctx.roundRect(-bw / 2, -bh, bw, bh, 8);
+  ctx.fillStyle = `${color}20`;
   ctx.fill();
   ctx.strokeStyle = color;
-  ctx.lineWidth   = glowing ? 2 : 1.5;
+  ctx.lineWidth = isMoving ? 2.5 : 1.8;
   ctx.stroke();
-  ctx.shadowBlur  = 0;
 
-  // friction texture at base
-  ctx.strokeStyle = `color-mix(in srgb, ${color} 30%, transparent)`;
-  ctx.lineWidth   = 0.8;
-  for (let i = -18; i <= 18; i += 7) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + 4, -6); ctx.stroke();
+  ctx.strokeStyle = `${color}40`;
+  ctx.lineWidth = 0.8;
+  for (let i = -20; i <= 20; i += 7) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + 4, -5);
+    ctx.stroke();
   }
 
-  // label
-  ctx.fillStyle  = color;
-  ctx.font       = 'bold 10px "Share Tech Mono", monospace';
-  ctx.textAlign  = 'center';
-  ctx.fillText(label, 0, -bH / 2 + 5);
+  ctx.fillStyle = color;
+  ctx.font = 'bold 10px "Orbitron", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, 0, -bh / 2 + 6);
   ctx.restore();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CANVAS 1 — Bloco simples  (usa requestAnimationFrame internamente)
-// ─────────────────────────────────────────────────────────────────────────────
-const CW = 520, CH = 340;
+// Extensão do canvas para roundRect
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.moveTo(x+r, y);
+    this.lineTo(x+w-r, y);
+    this.quadraticCurveTo(x+w, y, x+w, y+r);
+    this.lineTo(x+w, y+h-r);
+    this.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    this.lineTo(x+r, y+h);
+    this.quadraticCurveTo(x, y+h, x, y+h-r);
+    this.lineTo(x, y+r);
+    this.quadraticCurveTo(x, y, x+r, y);
+    return this;
+  };
+}
 
-const PlanoCanvas = ({ theta, mu, massa, showVetores, running, onReset }) => {
-  const canvasRef = useHiDpiCanvas(CW, CH);
-  const posRef    = useRef(0);
-  const velRef    = useRef(0);
-  const trailRef  = useRef([]);
-  const rafRef    = useRef(null);
-  const prevT     = useRef(null);
+// ─── CANVAS PRINCIPAL ─────────────────────────────────────────────────────────
+const MainCanvas = ({ theta, mu, massa, showVetores, isAnimating, position }) => {
+  const canvasRef = useResponsiveCanvas();
 
-  // reset when params change
   useEffect(() => {
-    posRef.current   = 0;
-    velRef.current   = 0;
-    trailRef.current = [];
-  }, [theta, mu, massa]);
-
-  const draw = useCallback((pos) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, CW, CH);
-
-    const tR  = toRad(theta);
-    const { bX, bY, len, tX, tY } = drawIncline(ctx, CW, CH, theta);
-
-    const bx = bX + len * pos * Math.cos(tR);
-    const by = bY - len * pos * Math.sin(tR);
-
-    // trail
-    const trail = trailRef.current;
-    trail.forEach((p, i) => {
-      const alpha = (i / trail.length) * 0.25;
-      const tx = bX + len * p * Math.cos(tR);
-      const ty = bY - len * p * Math.sin(tR);
-      ctx.beginPath();
-      ctx.arc(tx, ty, 3, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(102,252,241,${alpha})`;
-      ctx.fill();
-    });
-
-    const emMov = (massa * G * Math.sin(tR)) > (mu * massa * G * Math.cos(tR));
-    drawBlock(ctx, bx, by, tR, `${massa} kg`, T.neon, emMov && running);
-
-    if (!showVetores) return;
-    const P  = massa * G;
-    const N  = massa * G * Math.cos(tR);
-    const Px = massa * G * Math.sin(tR);
-    const Fa = mu * N;
-
-    const S = 0.45;
-    drawArrow(ctx, bx, by - 8, Math.PI / 2,       Math.min(80, P  * S), T.rose,    `P=${P.toFixed(0)}N`);
-    drawArrow(ctx, bx, by - 8, -(Math.PI/2)+tR,   Math.min(80, N  * S), T.emerald, `N=${N.toFixed(0)}N`);
-    drawArrow(ctx, bx, by - 8, Math.PI - tR,       Math.min(80, Px * S), T.amber,   `P∥=${Px.toFixed(0)}N`);
-
-    if (Fa > 0.5) {
-      const angF = Px > Fa ? tR : tR + Math.PI;
-      drawArrow(ctx, bx, by - 8, angF, Math.min(80, Fa * S), '#FF8C00', `f=${Fa.toFixed(0)}N`);
-    }
-  }, [theta, mu, massa, showVetores, running]);
-
-  useEffect(() => {
-    if (!running) {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      prevT.current = null;
-      draw(posRef.current);
-      return;
-    }
-    const tR  = toRad(theta);
-    const a   = Math.max(0, G * (Math.sin(tR) - mu * Math.cos(tR)));
-    if (a < 0.001) { draw(posRef.current); return; }
-
-    const step = (ts) => {
-      if (!prevT.current) prevT.current = ts;
-      const dt = Math.min((ts - prevT.current) / 1000, 0.03);
-      prevT.current = ts;
-
-      // physics step
-      velRef.current += a * dt;
-      posRef.current  = Math.min(0.92, posRef.current + velRef.current * dt / (len => len)(CW - 80) * 1.8);
-
-      if (posRef.current >= 0.92) {
-        posRef.current = 0.92;
-        draw(0.92);
-        onReset?.();
-        return;
+    const container = canvas.parentElement;
+    
+    const draw = () => {
+      const w = container?.clientWidth || 520;
+      const h = container?.clientHeight || 340;
+      
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = w * ratio;
+      canvas.height = h * ratio;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(ratio, ratio);
+      
+      ctx.clearRect(0, 0, w, h);
+      
+      const { baseX, baseY, length, tR } = drawRamp(ctx, w, h, theta);
+      
+      // CORREÇÃO: position = 0 (topo) → position = 0.92 (base)
+      // O bloco DESCE o plano
+      const px = baseX + length * position * Math.cos(tR);
+      const py = baseY - length * position * Math.sin(tR);
+      
+      const P = massa * G;
+      const N = massa * G * Math.cos(tR);
+      const Px = massa * G * Math.sin(tR);
+      const Fat = mu * N;
+      const isMoving = Px > Fat;
+      
+      // Rastro de movimento (descendo)
+      if (position > 0.02 && isAnimating) {
+        for (let i = 0; i <= position; i += 0.03) {
+          const tx = baseX + length * i * Math.cos(tR);
+          const ty = baseY - length * i * Math.sin(tR);
+          ctx.beginPath();
+          ctx.arc(tx, ty, 3, 0, Math.PI * 2);
+          ctx.fillStyle = `${T.neon}${Math.floor(40 * (1 - i / position))}`;
+          ctx.fill();
+        }
       }
-      // trail
-      trailRef.current.push(posRef.current);
-      if (trailRef.current.length > 28) trailRef.current.shift();
-
-      draw(posRef.current);
-      rafRef.current = requestAnimationFrame(step);
+      
+      drawBlock(ctx, px, py, tR, `${massa} kg`, T.neon, isAnimating && isMoving);
+      
+      if (showVetores) {
+        const centerY = py - 8;
+        const scale = 0.45;
+        
+        drawArrow(ctx, px, centerY, 90, Math.min(85, P * scale), T.rose, `P = ${P.toFixed(0)} N`, true);
+        
+        const normalAngle = toDeg(-Math.PI / 2 + tR);
+        drawArrow(ctx, px, centerY, normalAngle, Math.min(75, N * scale), T.emerald, `N = ${N.toFixed(0)} N`, true);
+        
+        const parallelAngle = toDeg(Math.PI - tR);
+        drawArrow(ctx, px, centerY, parallelAngle, Math.min(85, Px * scale), T.amber, `P∥ = ${Px.toFixed(0)} N`, true);
+        
+        if (Fat > 0.5) {
+          const frictionAngle = isMoving ? toDeg(tR) : toDeg(tR + Math.PI);
+          drawArrow(ctx, px, centerY, frictionAngle, Math.min(75, Fat * scale), '#FF8C00', `f = ${Fat.toFixed(0)} N`, true);
+        }
+        
+        const Fres = Px - Fat;
+        if (Fres > 0.5 && isAnimating) {
+          drawArrow(ctx, px, centerY - 15, parallelAngle, Math.min(90, Fres * scale * 0.7), '#FFFFFF', `F_res = ${Fres.toFixed(0)} N`, true);
+        }
+      }
+      
+      ctx.shadowBlur = 0;
     };
-    rafRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [running, theta, mu, draw, onReset]);
-
-  // initial draw
-  useEffect(() => { if (!running) draw(0); }, [theta, mu, massa, showVetores, draw, running]);
-
+    
+    draw();
+    window.addEventListener('resize', draw);
+    return () => window.removeEventListener('resize', draw);
+  }, [theta, mu, massa, showVetores, isAnimating, position, canvasRef]);
+  
   return (
-    <div className="canvas-wrap">
-      <canvas ref={canvasRef} />
+    <div style={{ width: '100%', minHeight: 340, background: 'rgba(0,0,0,0.2)', borderRadius: '12px', overflow: 'hidden' }}>
+      <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', display: 'block' }} />
     </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CANVAS 2 — Dois blocos  (animação contínua)
-// ─────────────────────────────────────────────────────────────────────────────
-const DoisBlocosCanvas = ({ theta, mu1, mu2, m1, m2, aceleracao }) => {
-  const canvasRef = useHiDpiCanvas(CW, CH - 40);
-  const posRef    = useRef(0);
-  const rafRef    = useRef(null);
-  const prevT     = useRef(null);
+// ─── CANVAS FORÇA EXTERNA ──────────────────────────────────────────────────────
+const ExternalForceCanvas = ({ theta, mu, massa, F_ext, anguloF, showVetores, isAnimating, position }) => {
+  const canvasRef = useResponsiveCanvas();
 
   useEffect(() => {
-    posRef.current = 0;
-    prevT.current  = null;
-  }, [theta, mu1, mu2, m1, m2]);
-
-  useEffect(() => {
-    const W = CW, H = CH - 40;
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const step = (ts) => {
-      if (!prevT.current) prevT.current = ts;
-      const dt = Math.min((ts - prevT.current) / 1000, 0.025);
-      prevT.current = ts;
-
-      if (aceleracao > 0.01) {
-        posRef.current = (posRef.current + dt * 0.04) % 1;
-      }
-
+    const container = canvas.parentElement;
+    
+    const draw = () => {
+      const w = container?.clientWidth || 520;
+      const h = container?.clientHeight || 340;
+      
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = w * ratio;
+      canvas.height = h * ratio;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
       const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, W, H);
+      ctx.scale(ratio, ratio);
+      
+      ctx.clearRect(0, 0, w, h);
+      
+      const { baseX, baseY, length, tR } = drawRamp(ctx, w, h, theta, T.purple);
+      
+      const px = baseX + length * position * Math.cos(tR);
+      const py = baseY - length * position * Math.sin(tR);
+      
+      const N = massa * G * Math.cos(tR);
+      const Px = massa * G * Math.sin(tR);
+      const Fat_max = mu * N;
+      
+      const angFRad = toRad(anguloF);
+      const F_paralela = F_ext * Math.cos(angFRad - tR);
+      const F_perpendicular = F_ext * Math.sin(angFRad - tR);
+      
+      const Fat = Math.min(Fat_max, Math.abs(Px - F_paralela));
+      const Fres = Px - F_paralela - Fat;
+      const isMoving = Math.abs(Px - F_paralela) > Fat_max;
+      const acc = Fres / massa;
+      
+      drawBlock(ctx, px, py, tR, `${massa} kg`, T.purple, isAnimating && isMoving);
+      
+      if (showVetores) {
+        const centerY = py - 8;
+        const scale = 0.4;
+        
+        drawArrow(ctx, px, centerY, 90, Math.min(85, massa * G * scale), T.rose, `P = ${(massa*G).toFixed(0)} N`, true);
+        
+        const normalAngle = toDeg(-Math.PI / 2 + tR);
+        drawArrow(ctx, px, centerY, normalAngle, Math.min(75, N * scale), T.emerald, `N = ${N.toFixed(0)} N`, true);
+        
+        const parallelAngle = toDeg(Math.PI - tR);
+        drawArrow(ctx, px, centerY, parallelAngle, Math.min(85, Px * scale), T.amber, `P∥ = ${Px.toFixed(0)} N`, true);
+        
+        if (F_ext > 0.1) {
+          drawArrow(ctx, px, centerY, anguloF, Math.min(90, F_ext * scale), T.neon, `F_ext = ${F_ext.toFixed(0)} N`, true);
+          
+          if (F_paralela > 0.1) {
+            const compAngle = F_paralela > 0 ? parallelAngle : toDeg(Math.PI - tR + Math.PI);
+            drawArrow(ctx, px, centerY - 12, compAngle, Math.min(60, Math.abs(F_paralela) * scale), `${T.neon}80`, `F∥ = ${F_paralela.toFixed(0)} N`, false);
+          }
+        }
+        
+        if (Fat > 0.5) {
+          const frictionAngle = (Px - F_paralela) > 0 ? toDeg(tR) : toDeg(tR + Math.PI);
+          drawArrow(ctx, px, centerY, frictionAngle, Math.min(75, Fat * scale), '#FF8C00', `f = ${Fat.toFixed(0)} N`, true);
+        }
+        
+        if (Math.abs(Fres) > 0.5 && isAnimating) {
+          const fresAngle = Fres > 0 ? parallelAngle : toDeg(Math.PI - tR + Math.PI);
+          drawArrow(ctx, px, centerY - 20, fresAngle, Math.min(80, Math.abs(Fres) * scale * 0.8), '#FFFFFF', `F_res = ${Math.abs(Fres).toFixed(0)} N`, true);
+        }
+      }
+      
+      ctx.shadowBlur = 0;
+    };
+    
+    draw();
+    window.addEventListener('resize', draw);
+    return () => window.removeEventListener('resize', draw);
+  }, [theta, mu, massa, showVetores, isAnimating, position, F_ext, anguloF, canvasRef]);
+  
+  return (
+    <div style={{ width: '100%', minHeight: 340, background: 'rgba(0,0,0,0.2)', borderRadius: '12px', overflow: 'hidden' }}>
+      <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', display: 'block' }} />
+    </div>
+  );
+};
 
-      const { bX, bY, len, tR } = drawIncline(ctx, W, H, theta, T.rose);
-
-      const p1 = (0.25 + posRef.current * 0.5) % 0.9;
-      const p2 = (0.55 + posRef.current * 0.5) % 0.9;
-
-      const b1x = bX + len * p1 * Math.cos(tR);
-      const b1y = bY - len * p1 * Math.sin(tR);
-      const b2x = bX + len * p2 * Math.cos(tR);
-      const b2y = bY - len * p2 * Math.sin(tR);
-
-      // rope
+// ─── CANVAS ÂNGULO CRÍTICO ────────────────────────────────────────────────────
+const CriticalCanvas = ({ theta, thetaCrit, estado }) => {
+  const canvasRef = useResponsiveCanvas();
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    
+    const draw = () => {
+      const w = container?.clientWidth || 520;
+      const h = container?.clientHeight || 300;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = w * ratio;
+      canvas.height = h * ratio;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(ratio, ratio);
+      
+      ctx.clearRect(0, 0, w, h);
+      
+      const stateColor = { repouso: T.emerald, iminente: T.amber, deslizando: T.rose };
+      const color = stateColor[estado];
+      
+      const { baseX, baseY, length, tR } = drawRamp(ctx, w, h, theta, color);
+      
+      const tRCrit = toRad(thetaCrit);
+      const critX = baseX + length * Math.cos(tRCrit);
+      const critY = baseY - length * Math.sin(tRCrit);
       ctx.beginPath();
-      ctx.moveTo(b1x + 22 * Math.cos(tR), b1y - 22 * Math.sin(tR));
-      ctx.lineTo(b2x - 22 * Math.cos(tR), b2y + 22 * Math.sin(tR));
+      ctx.moveTo(baseX, baseY);
+      ctx.lineTo(critX, critY);
       ctx.strokeStyle = T.amber;
-      ctx.lineWidth   = 1.5;
-      ctx.shadowColor = T.amber;
-      ctx.shadowBlur  = 6;
-      ctx.setLineDash([5, 4]);
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([8, 6]);
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.shadowBlur  = 0;
-
-      drawBlock(ctx, b1x, b1y, tR, `${m1}kg`, T.rose, aceleracao > 0.01);
-      drawBlock(ctx, b2x, b2y, tR, `${m2}kg`, T.neon,  aceleracao > 0.01);
-
-      // tension label
-      const mx = (b1x + b2x) / 2, my = (b1y + b2y) / 2;
+      
+      ctx.beginPath();
+      ctx.arc(baseX, baseY, 52, -tRCrit, 0);
+      ctx.strokeStyle = T.amber;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
       ctx.fillStyle = T.amber;
-      ctx.font      = '10px "Share Tech Mono", monospace';
+      ctx.font = '9px "JetBrains Mono", monospace';
+      ctx.fillText(`θc = ${thetaCrit.toFixed(1)}°`, baseX + 60, baseY - 28);
+      
+      const blockX = baseX + length * 0.48 * Math.cos(tR);
+      const blockY = baseY - length * 0.48 * Math.sin(tR);
+      drawBlock(ctx, blockX, blockY, tR, estado.toUpperCase(), color, estado !== 'repouso');
+      
+      const statusText = {
+        repouso: '⚖️ EQUILÍBRIO ESTÁTICO',
+        iminente: '⚠️ DESLIZAMENTO IMINENTE',
+        deslizando: '▶️ BLOCO DESLIZANDO'
+      };
+      ctx.fillStyle = color;
+      ctx.font = 'bold 12px "Orbitron", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(`T = ${Math.abs(aceleracao > 0 ? (m2 * (G * Math.sin(tR) - mu2 * G * Math.cos(tR) - aceleracao)) : 0).toFixed(1)} N`, mx, my - 16);
-
-      rafRef.current = requestAnimationFrame(step);
+      ctx.fillText(statusText[estado], w / 2, 28);
+      
+      ctx.shadowBlur = 0;
     };
-
-    rafRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [theta, mu1, mu2, m1, m2, aceleracao]);
-
-  return <div className="canvas-wrap"><canvas ref={canvasRef} /></div>;
+    
+    draw();
+    window.addEventListener('resize', draw);
+    return () => window.removeEventListener('resize', draw);
+  }, [theta, thetaCrit, estado, canvasRef]);
+  
+  return (
+    <div style={{ width: '100%', minHeight: 300, background: 'rgba(0,0,0,0.2)', borderRadius: '12px', overflow: 'hidden' }}>
+      <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', display: 'block' }} />
+    </div>
+  );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CANVAS 3 — Ângulo crítico  (reactive, no animation loop needed)
-// ─────────────────────────────────────────────────────────────────────────────
-const AnguloCriticoCanvas = ({ theta, thetaCritico, estado }) => {
-  const W = CW, H = CH - 40;
-  const canvasRef = useHiDpiCanvas(W, H);
-
+// ─── GRÁFICO ─────────────────────────────────────────────────────────────────
+const SimpleChart = ({ data, xLabel, yLabel, color = T.neon, highlight }) => {
+  const canvasRef = useRef(null);
+  
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, W, H);
-
-    const stateColor = { repouso: T.emerald, iminente: T.amber, deslizando: T.rose };
-    const color = stateColor[estado] || T.neon;
-
-    const { bX, bY, len, tR } = drawIncline(ctx, W, H, theta, color);
-
-    // critical angle overlay
-    const tCR = toRad(thetaCritico);
-    const cX  = bX + len * Math.cos(tCR);
-    const cY  = bY - len * Math.sin(tCR);
-    ctx.beginPath();
-    ctx.moveTo(bX, bY);
-    ctx.lineTo(cX, cY);
-    ctx.strokeStyle = T.amber;
-    ctx.lineWidth   = 1;
-    ctx.setLineDash([6, 5]);
-    ctx.globalAlpha = 0.4;
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.globalAlpha = 1;
-
-    ctx.beginPath();
-    ctx.arc(bX, bY, 52, -tCR, 0);
-    ctx.strokeStyle = T.amber;
-    ctx.lineWidth   = 1.2;
-    ctx.shadowColor = T.amber;
-    ctx.shadowBlur  = 5;
-    ctx.stroke();
-    ctx.shadowBlur  = 0;
-    ctx.fillStyle   = T.amber;
-    ctx.font        = '9px "Share Tech Mono", monospace';
-    ctx.fillText(`θc = ${thetaCritico.toFixed(1)}°`, bX + 60, bY - 26);
-
-    const bx = bX + len * 0.5 * Math.cos(tR);
-    const by = bY - len * 0.5 * Math.sin(tR);
-    drawBlock(ctx, bx, by, tR, estado.toUpperCase(), color, estado !== 'repouso');
-
-    // status banner
-    const banners = { repouso: '✓ EQUILÍBRIO ESTÁTICO', iminente: '⚠ IMINÊNCIA DE DESLIZAMENTO', deslizando: '▶ BLOCO DESLIZANDO' };
-    ctx.fillStyle   = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur  = 12;
-    ctx.font        = 'bold 12px "Share Tech Mono", monospace';
-    ctx.textAlign   = 'center';
-    ctx.fillText(banners[estado], W / 2, 26);
-    ctx.shadowBlur  = 0;
-  }, [theta, thetaCritico, estado]);
-
-  return <div className="canvas-wrap"><canvas ref={canvasRef} /></div>;
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CHART — mini sparkline
-// ─────────────────────────────────────────────────────────────────────────────
-const MiniChart = ({ data, xLabel, yLabel, color = T.neon, highlight }) => {
-  const ref = useRef(null);
-  useEffect(() => {
-    const c = ref.current;
-    if (!c || !data.length) return;
+    if (!canvas || !data.length) return;
+    const container = canvas.parentElement;
+    const w = container?.clientWidth || 480;
+    const h = 180;
     const ratio = window.devicePixelRatio || 1;
-    const w = 460, h = 160;
-    c.width  = w * ratio; c.height = h * ratio;
-    c.style.width = w + 'px'; c.style.height = h + 'px';
-    const ctx = c.getContext('2d');
+    canvas.width = w * ratio;
+    canvas.height = h * ratio;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    const ctx = canvas.getContext('2d');
     ctx.scale(ratio, ratio);
-
-    const pad = { l: 46, r: 20, t: 16, b: 36 };
-    const gW  = w - pad.l - pad.r;
-    const gH  = h - pad.t - pad.b;
-
-    const xs = data.map(d => d.x), ys = data.map(d => d.y);
-    const minX = Math.min(...xs), maxX = Math.max(...xs);
-    const minY = Math.min(0, ...ys), maxY = Math.max(...ys) || 1;
-
-    const px = x => pad.l + ((x - minX) / (maxX - minX)) * gW;
-    const py = y => h - pad.b - ((y - minY) / (maxY - minY)) * gH;
-
-    // grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-    ctx.lineWidth   = 1;
+    
+    ctx.clearRect(0, 0, w, h);
+    
+    const pad = { l: 48, r: 24, t: 16, b: 40 };
+    const gw = w - pad.l - pad.r;
+    const gh = h - pad.t - pad.b;
+    
+    const xs = data.map(d => d.x);
+    const ys = data.map(d => d.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(0, ...ys);
+    const maxY = Math.max(...ys) || 1;
+    
+    const toX = x => pad.l + ((x - minX) / (maxX - minX)) * gw;
+    const toY = y => h - pad.b - ((y - minY) / (maxY - minY)) * gh;
+    
+    ctx.strokeStyle = `${T.white}10`;
+    ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
-      const y = pad.t + i * gH / 4;
-      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+      const y = pad.t + i * gh / 4;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(w - pad.r, y);
+      ctx.stroke();
     }
-
-    // area fill
-    const grad = ctx.createLinearGradient(0, pad.t, 0, h - pad.b);
-    grad.addColorStop(0, `${color}28`);
-    grad.addColorStop(1, `${color}00`);
+    
     ctx.beginPath();
-    data.forEach((d, i) => i === 0 ? ctx.moveTo(px(d.x), py(d.y)) : ctx.lineTo(px(d.x), py(d.y)));
-    ctx.lineTo(px(data[data.length-1].x), py(0));
-    ctx.lineTo(px(data[0].x), py(0));
-    ctx.fillStyle = grad;
+    data.forEach((d, i) => i === 0 ? ctx.moveTo(toX(d.x), toY(d.y)) : ctx.lineTo(toX(d.x), toY(d.y)));
+    ctx.lineTo(toX(data[data.length-1].x), toY(0));
+    ctx.lineTo(toX(data[0].x), toY(0));
+    ctx.fillStyle = `${color}15`;
     ctx.fill();
-
-    // line
+    
     ctx.beginPath();
-    data.forEach((d, i) => i === 0 ? ctx.moveTo(px(d.x), py(d.y)) : ctx.lineTo(px(d.x), py(d.y)));
+    data.forEach((d, i) => i === 0 ? ctx.moveTo(toX(d.x), toY(d.y)) : ctx.lineTo(toX(d.x), toY(d.y)));
     ctx.strokeStyle = color;
-    ctx.lineWidth   = 2;
-    ctx.shadowColor = color;
-    ctx.shadowBlur  = 8;
+    ctx.lineWidth = 2.5;
     ctx.stroke();
-    ctx.shadowBlur  = 0;
-
-    // highlight marker
+    
     if (highlight !== undefined) {
-      const hd = data.find(d => Math.abs(d.x - highlight) < 0.6) || data[Math.round(highlight)];
-      if (hd) {
+      const hPoint = data.find(d => Math.abs(d.x - highlight) < 0.6);
+      if (hPoint) {
         ctx.beginPath();
-        ctx.arc(px(hd.x), py(hd.y), 5, 0, Math.PI * 2);
-        ctx.fillStyle   = color;
+        ctx.arc(toX(hPoint.x), toY(hPoint.y), 6, 0, Math.PI * 2);
+        ctx.fillStyle = color;
         ctx.shadowColor = color;
-        ctx.shadowBlur  = 16;
+        ctx.shadowBlur = 12;
         ctx.fill();
-        ctx.shadowBlur  = 0;
+        ctx.shadowBlur = 0;
       }
     }
-
-    // axes labels
+    
     ctx.fillStyle = T.muted;
-    ctx.font      = '10px "Share Tech Mono", monospace';
+    ctx.font = '9px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(xLabel, w / 2, h - 4);
-    ctx.save(); ctx.translate(11, h / 2); ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yLabel, 0, 0); ctx.restore();
-
-    // y ticks
+    ctx.fillText(xLabel, w / 2, h - 6);
+    ctx.save();
+    ctx.translate(14, h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(yLabel, 0, 0);
+    ctx.restore();
+    
     ctx.textAlign = 'right';
     [minY, (minY + maxY) / 2, maxY].forEach(v => {
-      ctx.fillText(v.toFixed(1), pad.l - 6, py(v) + 3);
+      ctx.fillText(v.toFixed(1), pad.l - 6, toY(v) + 3);
     });
-  }, [data, color, highlight, xLabel, yLabel]);
-  return <canvas ref={ref} style={{ borderRadius: 6, maxWidth: '100%' }} />;
+  }, [data, xLabel, yLabel, color, highlight]);
+  
+  return <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', borderRadius: '8px' }} />;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EXPERIMENTO 1 — Bloco Simples
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── EXPERIMENTO 1: BLOCO SIMPLES (CORRIGIDO - DESCE) ──────────────────────────
 const ExpBlocoSimples = () => {
-  const [theta,       setTheta]       = useState(30);
-  const [mu,          setMu]          = useState(0.25);
-  const [massa,       setMassa]       = useState(5);
+  const [theta, setTheta] = useState(30);
+  const [mu, setMu] = useState(0.25);
+  const [massa, setMassa] = useState(5);
   const [showVetores, setShowVetores] = useState(true);
-  const [running,     setRunning]     = useState(false);
-  const [aba,         setAba]         = useState('sim');
-
-  const tR  = toRad(theta);
-  const N   = massa * G * Math.cos(tR);
-  const Px  = massa * G * Math.sin(tR);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [position, setPosition] = useState(0);
+  const [activeTab, setActiveTab] = useState('sim');
+  const animRef = useRef(null);
+  
+  const tR = toRad(theta);
+  const N = massa * G * Math.cos(tR);
+  const Px = massa * G * Math.sin(tR);
   const Fat = mu * N;
   const acc = Math.max(0, (Px - Fat) / massa);
-  const mov = Px > Fat;
-
+  const isMoving = Px > Fat;
+  
   const chartData = Array.from({ length: 90 }, (_, i) => ({
-    x: i, y: Math.max(0, G * (Math.sin(toRad(i)) - mu * Math.cos(toRad(i)))),
+    x: i,
+    y: Math.max(0, G * (Math.sin(toRad(i)) - mu * Math.cos(toRad(i))))
   }));
-
-  const handleReset = useCallback(() => setRunning(false), []);
-  const resetAll    = () => { setRunning(false); };
-
+  
+  // CORREÇÃO: O BLOCO DESCE (position aumenta de 0 até 0.92)
+  useEffect(() => {
+    if (isAnimating && isMoving && position < 0.92) {
+      animRef.current = setInterval(() => {
+        setPosition(p => Math.min(0.92, p + 0.008)); // AUMENTA = descendo
+      }, 25);
+    } else if (position >= 0.92 && isAnimating) {
+      setIsAnimating(false);
+    }
+    return () => clearInterval(animRef.current);
+  }, [isAnimating, isMoving, position]);
+  
+  const resetAnimation = () => {
+    setIsAnimating(false);
+    setPosition(0);
+    clearInterval(animRef.current);
+  };
+  
+  const handleParamChange = (setter) => (val) => {
+    setter(val);
+    resetAnimation();
+  };
+  
   return (
-    <div className="sim-grid">
-      {/* ── painel esquerdo ── */}
-      <div className="panel">
-        <div style={{ fontFamily: "'Orbitron',monospace", fontSize: 10, letterSpacing: 2, color: T.neon, marginBottom: 18 }}>PARÂMETROS</div>
-
-        <Slider label="Ângulo θ"    value={theta} onChange={v => { setTheta(v); resetAll(); }} min={1} max={85} step={1}    unit="°"   color={T.amber}   />
-        <Slider label="Coef. atrito μ" value={mu} onChange={v => { setMu(v);    resetAll(); }} min={0} max={0.9} step={0.01} unit=""    color="#FF8C00"   />
-        <Slider label="Massa m"    value={massa} onChange={v => { setMassa(v);  resetAll(); }} min={1} max={30}  step={0.5}  unit=" kg" color={T.neon}    />
-
-        <div className="ctrl-row">
-          <button className={`ctrl-btn ${showVetores ? 'active' : ''}`} onClick={() => setShowVetores(v => !v)}>
-            {showVetores ? '◉ VET ON' : '○ VET OFF'}
+    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem' }}>
+      <div style={{ background: T.panel, borderRadius: '1rem', padding: '1.25rem', border: `1px solid ${T.border}` }}>
+        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.7rem', color: T.neon, letterSpacing: '2px', marginBottom: '1.5rem' }}>
+          ⚙️ PARÂMETROS
+        </div>
+        
+        <Slider label="Ângulo de inclinação θ" value={theta} onChange={handleParamChange(setTheta)} min={1} max={85} step={1} unit="°" color={T.amber} />
+        <Slider label="Coeficiente de atrito μ" value={mu} onChange={handleParamChange(setMu)} min={0} max={0.9} step={0.01} unit="" color="#FF8C00" />
+        <Slider label="Massa do bloco m" value={massa} onChange={handleParamChange(setMassa)} min={1} max={30} step={0.5} unit=" kg" color={T.neon} />
+        
+        <div style={{ display: 'flex', gap: '0.5rem', margin: '1rem 0' }}>
+          <button
+            onClick={() => setShowVetores(!showVetores)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${showVetores ? T.neon : T.muted}`,
+              background: showVetores ? `${T.neon}10` : 'transparent',
+              color: showVetores ? T.neon : T.muted,
+              cursor: 'pointer',
+              fontSize: '0.7rem',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontWeight: 600,
+            }}
+          >
+            {showVetores ? '◉ VETORES ON' : '○ VETORES OFF'}
           </button>
           <button
-            className={`ctrl-btn ${running ? '' : 'primary'}`}
-            disabled={!mov}
-            onClick={() => setRunning(r => !r)}
+            onClick={() => isMoving && setIsAnimating(!isAnimating)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              background: isMoving && isAnimating ? T.neon : (isMoving ? `${T.neon}20` : T.muted),
+              color: isMoving && isAnimating ? '#000' : (isMoving ? T.neon : T.muted),
+              cursor: isMoving ? 'pointer' : 'not-allowed',
+              fontWeight: 700,
+              fontSize: '0.7rem',
+            }}
           >
-            {running ? '⏸ PAUSA' : '▶ PLAY'}
+            {isAnimating ? '⏸ PAUSAR' : '▶ ANIMAR'}
           </button>
-          <button className="ctrl-btn" onClick={resetAll} style={{ flex: '0 0 36px' }}>↺</button>
+          <button
+            onClick={resetAnimation}
+            style={{
+              padding: '0.6rem 0.8rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${T.border}`,
+              background: 'transparent',
+              color: T.white,
+              cursor: 'pointer',
+            }}
+          >
+            ↺
+          </button>
         </div>
-
-        <div className="metrics-grid">
-          <Metric label="ACELERAÇÃO" value={acc.toFixed(3)} unit="m/s²" color={mov ? T.neon : T.muted} />
-          <Metric label="NORMAL N"   value={N.toFixed(1)}   unit="N"    color={T.emerald} />
-          <Metric label="P∥"         value={Px.toFixed(1)}  unit="N"    color={T.amber}   />
-          <Metric label="ATRITO f"   value={Fat.toFixed(1)} unit="N"    color="#FF8C00"   />
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+          <MetricCard label="ACELERAÇÃO" value={acc.toFixed(3)} unit="m/s²" color={isMoving ? T.neon : T.muted} />
+          <MetricCard label="FORÇA NORMAL" value={N.toFixed(1)} unit="N" color={T.emerald} />
+          <MetricCard label="PESO PARALELO" value={Px.toFixed(1)} unit="N" color={T.amber} />
+          <MetricCard label="ATRITO" value={Fat.toFixed(1)} unit="N" color="#FF8C00" />
         </div>
-
-        <div className="status" style={{
-          color: mov ? T.neon : T.rose,
-          borderColor: mov ? `${T.neon}33` : `${T.rose}33`,
-          background: mov ? `${T.neon}0a` : `${T.rose}0a`,
+        
+        <div style={{
+          marginTop: '1rem',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          background: isMoving ? `${T.neon}08` : `${T.rose}08`,
+          border: `1px solid ${isMoving ? `${T.neon}30` : `${T.rose}30`}`,
+          textAlign: 'center',
+          fontSize: '0.7rem',
+          fontFamily: "'JetBrains Mono', monospace",
+          color: isMoving ? T.neon : T.rose,
         }}>
-          {mov ? `▶ DESLIZANDO  a = ${acc.toFixed(3)} m/s²` : '■ EQUILÍBRIO ESTÁTICO'}
+          {isMoving 
+            ? `📐 DESLIZANDO — a = ${acc.toFixed(3)} m/s²`
+            : `⚖️ EQUILÍBRIO ESTÁTICO — μ > tan(θ) (${mu.toFixed(2)} > ${Math.tan(tR).toFixed(2)})`}
         </div>
       </div>
-
-      {/* ── área principal ── */}
-      <div className="canvas-panel">
-        <div className="tab-strip">
-          <Tab active={aba==='sim'}    onClick={() => setAba('sim')}    color={T.neon}>SIMULAÇÃO</Tab>
-          <Tab active={aba==='teoria'} onClick={() => setAba('teoria')} color={T.amber}>TEORIA</Tab>
-          <Tab active={aba==='graf'}   onClick={() => setAba('graf')}   color={T.emerald}>GRÁFICO</Tab>
-        </div>
-
-        {aba === 'sim' && (
-          <PlanoCanvas theta={theta} mu={mu} massa={massa} showVetores={showVetores} running={running} onReset={handleReset} />
-        )}
-
-        {aba === 'teoria' && (
-          <div className="theory-scroll">
-            <FormulaCard title="DECOMPOSIÇÃO DO PESO" color={T.amber}>
-              P∥ = m·g·sen θ = {Px.toFixed(2)} N{'\n'}
-              P⊥ = m·g·cos θ = {N.toFixed(2)} N{'\n\n'}
-              A componente P∥ tende a deslizar o bloco;{'\n'}
-              P⊥ comprime a superfície gerando N.
-            </FormulaCard>
-            <FormulaCard title="FORÇA NORMAL" color={T.emerald}>
-              Equilíbrio perpendicular → N = P⊥ = {N.toFixed(2)} N{'\n\n'}
-              Para θ = {theta}° e m = {massa} kg:{'\n'}
-              N = {massa}·9,81·cos({theta}°) = {N.toFixed(2)} N
-            </FormulaCard>
-            <FormulaCard title="ACELERAÇÃO RESULTANTE" color={T.neon}>
-              a = g·(sen θ − μ·cos θ){'\n'}
-              a = 9,81·(sen{theta}° − {mu}·cos{theta}°){'\n'}
-              a = {acc.toFixed(4)} m/s²{'\n\n'}
-              {mov ? '▶ Bloco em movimento.' : '■ Atrito suficiente para manter equilíbrio.'}
-            </FormulaCard>
+      
+      <div style={{ background: T.panel, borderRadius: '1rem', border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+        <div style={{ padding: '1rem 1.25rem 0 1.25rem', borderBottom: `1px solid ${T.border}` }}>
+          <div style={{ display: 'flex', gap: '0.25rem' }}>
+            <TabButton active={activeTab === 'sim'} onClick={() => setActiveTab('sim')} color={T.neon}>🎬 SIMULAÇÃO</TabButton>
+            <TabButton active={activeTab === 'teoria'} onClick={() => setActiveTab('teoria')} color={T.amber}>📖 TEORIA</TabButton>
+            <TabButton active={activeTab === 'calculus'} onClick={() => setActiveTab('calculus')} color={T.purple}>∫ CÁLCULO</TabButton>
+            <TabButton active={activeTab === 'grafico'} onClick={() => setActiveTab('grafico')} color={T.emerald}>📊 GRÁFICOS</TabButton>
           </div>
-        )}
-
-        {aba === 'graf' && (
-          <>
-            <MiniChart data={chartData} xLabel="ângulo θ (°)" yLabel="a (m/s²)" color={T.neon} highlight={theta} />
-            <div style={{ marginTop: 10, fontSize: 11, color: T.muted, fontFamily: "'Share Tech Mono',monospace", lineHeight: 1.6 }}>
-              Ponto atual θ = {theta}° → a = {acc.toFixed(3)} m/s²{'\n'}
-              Ângulo crítico: arctan({mu}) = {toDeg(Math.atan(mu)).toFixed(1)}°
+        </div>
+        
+        <div style={{ padding: '1.5rem' }}>
+          {activeTab === 'sim' && (
+            <>
+              <MainCanvas 
+                theta={theta} mu={mu} massa={massa} 
+                showVetores={showVetores} 
+                isAnimating={isAnimating} 
+                position={position}
+              />
+              {isMoving && isAnimating && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                  <MetricCard label="POSIÇÃO" value={(position * 5).toFixed(2)} unit="m" color={T.muted} />
+                  <MetricCard label="VELOCIDADE" value={(acc * (position / 0.008 * 0.025)).toFixed(2)} unit="m/s" color={T.neon} />
+                </div>
+              )}
+            </>
+          )}
+          
+          {activeTab === 'teoria' && (
+            <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <FormulaCard title="📐 DECOMPOSIÇÃO DO PESO" color={T.amber} icon="📐">
+                <p>O peso <strong>P = m·g</strong> atua verticalmente para baixo. No plano inclinado, decompomos essa força em duas componentes:</p>
+                <br/>
+                <div className="formula-math">P∥ = m·g·sen(θ) = {Px.toFixed(2)} N</div>
+                <div className="formula-math">P⊥ = m·g·cos(θ) = {N.toFixed(2)} N</div>
+                <br/>
+                <p>• <span style={{ color: T.amber }}>P∥</span> é a componente paralela ao plano — responsável pelo deslizamento</p>
+                <p>• <span style={{ color: T.emerald }}>P⊥</span> é a componente perpendicular — comprime a superfície, gerando a força normal</p>
+              </FormulaCard>
+              
+              <FormulaCard title="🔧 FORÇA NORMAL" color={T.emerald} icon="🔧">
+                <p>Pela 2ª Lei de Newton na direção perpendicular ao plano (sem movimento nessa direção):</p>
+                <div className="formula-math">ΣF⊥ = 0 ⇒ N - P⊥ = 0</div>
+                <div className="formula-math">N = m·g·cos(θ)</div>
+                <p>Para θ = {theta}° e m = {massa} kg: <strong style={{ color: T.emerald }}>N = {N.toFixed(2)} N</strong></p>
+                <p>Observação: N &lt; m·g quando θ &gt; 0° e N → 0 quando θ → 90°.</p>
+              </FormulaCard>
+              
+              <FormulaCard title="⚡ FORÇA DE ATRITO CINÉTICO" color="#FF8C00" icon="⚡">
+                <p>Quando há deslizamento, o atrito cinético se opõe ao movimento:</p>
+                <div className="formula-math">f_c = μ_c·N = μ_c·m·g·cos(θ)</div>
+                <p>Com μ = {mu} e θ = {theta}°:</p>
+                <div className="formula-math">f = {mu} × {N.toFixed(2)} = <strong style={{ color: '#FF8C00' }}>{Fat.toFixed(2)} N</strong></div>
+              </FormulaCard>
+              
+              <FormulaCard title="📐 2ª LEI DE NEWTON (DIREÇÃO PARALELA)" color={T.neon} icon="📐">
+                <p>Aplicando ΣF = m·a na direção do movimento:</p>
+                <div className="formula-math">P∥ − f = m·a</div>
+                <div className="formula-math">m·g·sen(θ) − μ·m·g·cos(θ) = m·a</div>
+                <p>Cancelando a massa m (que não influencia a aceleração!):</p>
+                <div className="formula-math">a = g·(sen(θ) − μ·cos(θ))</div>
+                <p>Para os valores atuais:</p>
+                <div className="formula-math">a = 9,81 × (sen({theta}°) − {mu}×cos({theta}°)) = <strong style={{ color: T.neon }}>{acc.toFixed(4)} m/s²</strong></div>
+              </FormulaCard>
+              
+              <FormulaCard title="⚖️ ÂNGULO CRÍTICO" color={T.amber} icon="⚖️">
+                <p>O ângulo onde o bloco começa a deslizar é obtido igualando P∥ ao atrito estático máximo:</p>
+                <div className="formula-math">m·g·sen(θ_c) = μ_s·m·g·cos(θ_c)</div>
+                <div className="formula-math">tan(θ_c) = μ_s</div>
+                <div className="formula-math">θ_c = arctan(μ_s)</div>
+                <p>Para μ_s = 0.6 (valor típico): θ_c ≈ 31.0°</p>
+                <p><strong style={{ color: T.purple }}>Importante:</strong> O ângulo crítico é <strong>independente da massa</strong> do bloco!</p>
+              </FormulaCard>
             </div>
-          </>
-        )}
+          )}
+          
+          {activeTab === 'calculus' && (
+            <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <FormulaCard title="∫ EQUAÇÃO DIFERENCIAL DO MOVIMENTO" color={T.purple} icon="∫">
+                <p>A posição s(t) ao longo do plano satisfaz a EDO de 2ª ordem:</p>
+                <div className="formula-math">d²s/dt² = a = g·sen(θ) − μ·g·cos(θ) = constante</div>
+                <p>Esta é uma EDO linear com coeficientes constantes:</p>
+                <div className="formula-math">s''(t) = a,   a ∈ ℝ⁺</div>
+                <p>Condições iniciais (partida do repouso na origem):</p>
+                <div className="formula-math">s(0) = 0,   v(0) = s'(0) = 0</div>
+              </FormulaCard>
+              
+              <FormulaCard title="∫ VELOCIDADE POR INTEGRAÇÃO" color={T.neon} icon="∫">
+                <p>Integrando a aceleração em relação ao tempo:</p>
+                <div className="formula-math">v(t) = ∫ a dt = a·t + C₁</div>
+                <p>Com v(0) = 0 ⇒ C₁ = 0, portanto:</p>
+                <div className="formula-math">v(t) = a·t = {acc.toFixed(3)}·t</div>
+                <p>Em t = {isAnimating ? (position / 0.008 * 0.025).toFixed(2) : '0'} s: v = {isAnimating ? (acc * (position / 0.008 * 0.025)).toFixed(2) : '0'} m/s</p>
+              </FormulaCard>
+              
+              <FormulaCard title="∫ POSIÇÃO POR INTEGRAÇÃO DUPLA" color={T.emerald} icon="∫">
+                <p>Integrando a velocidade:</p>
+                <div className="formula-math">s(t) = ∫ v(t) dt = ∫ (a·t) dt = ½·a·t² + C₂</div>
+                <p>Com s(0) = 0 ⇒ C₂ = 0, finalmente:</p>
+                <div className="formula-math">s(t) = ½·a·t² = {(acc / 2).toFixed(4)}·t²</div>
+                <p>Esta é a conhecida equação horária do MUV (Movimento Uniformemente Variado).</p>
+              </FormulaCard>
+              
+              <FormulaCard title="∂ OTIMIZAÇÃO: ÂNGULO DE MÁXIMA ACELERAÇÃO" color={T.amber} icon="∂">
+                <p>Para um dado μ, queremos o θ que maximiza a aceleração:</p>
+                <div className="formula-math">a(θ) = g·(sen θ − μ·cos θ)</div>
+                <p>Derivando em relação a θ e igualando a zero:</p>
+                <div className="formula-math">da/dθ = g·(cos θ + μ·sen θ) = 0</div>
+                <p>Condição de máximo:</p>
+                <div className="formula-math">cos θ + μ·sen θ = 0 ⇒ tan θ = 1/μ</div>
+                <div className="formula-math">θ_max = arctan(1/μ) = arctan(1/{mu}) = <strong style={{ color: T.amber }}>{toDeg(Math.atan(1 / mu)).toFixed(1)}°</strong></div>
+              </FormulaCard>
+              
+              <FormulaCard title="∫ TRABALHO E ENERGIA" color={T.rose} icon="∫">
+                <p>O trabalho da força resultante é igual à variação da energia cinética:</p>
+                <div className="formula-math">W_res = ∫₀ˢ F_res·ds = ΔEc</div>
+                <p>Como F_res = m·a é constante ao longo do plano:</p>
+                <div className="formula-math">W_res = m·a·s = ½·m·v² − 0</div>
+                <p>Isolando a velocidade:</p>
+                <div className="formula-math">v = √(2·a·s) = √(2 × {acc.toFixed(3)} × s)</div>
+                <p>Para s = {((position || 0) * 5).toFixed(2)} m: v = {Math.sqrt(2 * acc * ((position || 0) * 5)).toFixed(2)} m/s</p>
+              </FormulaCard>
+            </div>
+          )}
+          
+          {activeTab === 'grafico' && (
+            <div>
+              <SimpleChart 
+                data={chartData} 
+                xLabel="Ângulo θ (graus)" 
+                yLabel="Aceleração a (m/s²)" 
+                color={T.neon} 
+                highlight={theta}
+              />
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: `${T.neon}08`, borderRadius: '0.5rem', fontSize: '0.75rem', lineHeight: 1.6 }}>
+                <strong style={{ color: T.neon }}>📈 Interpretação do gráfico:</strong><br/>
+                • Para θ {'<'} θ_c = arctan(μ) = {toDeg(Math.atan(mu)).toFixed(1)}°, a aceleração é <strong>zero</strong> (equilíbrio estático)<br/>
+                • Após o ângulo crítico, a aceleração cresce com θ, tendendo a <strong>g = 9,81 m/s²</strong> quando θ → 90°<br/>
+                • O ângulo ótimo para máxima aceleração (dado μ fixo) é θ_max = arctan(1/μ) = {toDeg(Math.atan(1 / mu)).toFixed(1)}°<br/>
+                • Ponto atual: <strong style={{ color: T.neon }}>θ = {theta}° → a = {acc.toFixed(3)} m/s²</strong>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EXPERIMENTO 2 — Dois Blocos
-// ─────────────────────────────────────────────────────────────────────────────
-const ExpDoisBlocos = () => {
-  const [theta, setTheta] = useState(35);
-  const [m1,  setM1]  = useState(4);
-  const [m2,  setM2]  = useState(3);
-  const [mu1, setMu1] = useState(0.2);
-  const [mu2, setMu2] = useState(0.3);
-  const [aba, setAba] = useState('sim');
-
-  const tR  = toRad(theta);
-  const mt  = m1 + m2;
-  const Fat = (mu1 * m1 + mu2 * m2) * G * Math.cos(tR);
-  const Px  = mt * G * Math.sin(tR);
-  const acc = Math.max(0, (Px - Fat) / mt);
-  const T2  = m2 * (G * Math.sin(tR) - mu2 * G * Math.cos(tR) - acc);
-
+// ─── EXPERIMENTO 2: FORÇA EXTERNA HORIZONTAL (NOVO) ───────────────────────────
+const ExpForcaExterna = () => {
+  const [theta, setTheta] = useState(30);
+  const [mu, setMu] = useState(0.25);
+  const [massa, setMassa] = useState(5);
+  const [F_ext, setF_ext] = useState(20);
+  const [anguloF, setAnguloF] = useState(0);
+  const [showVetores, setShowVetores] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [position, setPosition] = useState(0);
+  const [activeTab, setActiveTab] = useState('sim');
+  const animRef = useRef(null);
+  
+  const tR = toRad(theta);
+  const angFRad = toRad(anguloF);
+  
+  const N = massa * G * Math.cos(tR) - F_ext * Math.sin(angFRad - tR);
+  const N_efetiva = Math.max(0, N);
+  const Px = massa * G * Math.sin(tR);
+  const F_paralela = F_ext * Math.cos(angFRad - tR);
+  const Fat_max = mu * N_efetiva;
+  const Fat = Math.min(Fat_max, Math.abs(Px - F_paralela));
+  const Fres = Px - F_paralela - (Math.abs(Px - F_paralela) > Fat_max ? Math.sign(Px - F_paralela) * Fat : 0);
+  const acc = Fres / massa;
+  const isMoving = Math.abs(Px - F_paralela) > Fat_max;
+  const sentido = Px - F_paralela > 0 ? "descendo" : "subindo";
+  
+  const chartData = Array.from({ length: 101 }, (_, i) => {
+    const F = i * 2;
+    const F_par = F * Math.cos(angFRad - tR);
+    const N_temp = massa * G * Math.cos(tR) - F * Math.sin(angFRad - tR);
+    const N_eff = Math.max(0, N_temp);
+    const Fat_max_temp = mu * N_eff;
+    const Fres_temp = Px - F_par - (Math.abs(Px - F_par) > Fat_max_temp ? Math.sign(Px - F_par) * Fat_max_temp : 0);
+    return { x: F, y: Fres_temp / massa };
+  });
+  
+  useEffect(() => {
+    if (isAnimating && isMoving && position < 0.92 && position > 0) {
+      animRef.current = setInterval(() => {
+        setPosition(p => {
+          const delta = (acc > 0 ? 0.008 : -0.008);
+          const newPos = p + delta;
+          if (newPos <= 0) return 0;
+          if (newPos >= 0.92) return 0.92;
+          return newPos;
+        });
+      }, 25);
+    } else if ((position >= 0.92 || position <= 0) && isAnimating) {
+      setIsAnimating(false);
+    }
+    return () => clearInterval(animRef.current);
+  }, [isAnimating, isMoving, position, acc]);
+  
+  const resetAnimation = () => {
+    setIsAnimating(false);
+    setPosition(0.46);
+    clearInterval(animRef.current);
+  };
+  
+  const handleParamChange = (setter) => (val) => {
+    setter(val);
+    resetAnimation();
+  };
+  
   return (
-    <div className="sim-grid">
-      <div className="panel">
-        <div style={{ fontFamily: "'Orbitron',monospace", fontSize: 10, letterSpacing: 2, color: T.rose, marginBottom: 18 }}>PARÂMETROS</div>
-        <Slider label="Ângulo θ"      value={theta} onChange={setTheta} min={1}   max={85}  step={1}    unit="°"   color={T.amber} />
-        <Slider label="Massa m₁"      value={m1}    onChange={setM1}    min={1}   max={20}  step={0.5}  unit=" kg" color={T.rose}  />
-        <Slider label="Massa m₂"      value={m2}    onChange={setM2}    min={1}   max={20}  step={0.5}  unit=" kg" color={T.neon}  />
-        <Slider label="μ₁ (atrito m₁)" value={mu1}  onChange={setMu1}   min={0}   max={0.9} step={0.01} unit=""    color={T.rose}  />
-        <Slider label="μ₂ (atrito m₂)" value={mu2}  onChange={setMu2}   min={0}   max={0.9} step={0.01} unit=""    color={T.neon}  />
-        <div className="metrics-grid">
-          <Metric label="ACELERAÇÃO"  value={acc.toFixed(3)}       unit="m/s²" color={T.rose}    />
-          <Metric label="TRAÇÃO T"    value={Math.abs(T2).toFixed(1)} unit="N"   color={T.amber}   />
-          <Metric label="F. MOTORA"   value={Px.toFixed(1)}        unit="N"    color={T.emerald} />
-          <Metric label="ATRITO TOT." value={Fat.toFixed(1)}       unit="N"    color="#FF8C00"   />
+    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem' }}>
+      <div style={{ background: T.panel, borderRadius: '1rem', padding: '1.25rem', border: `1px solid ${T.border}` }}>
+        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.7rem', color: T.purple, letterSpacing: '2px', marginBottom: '1.5rem' }}>
+          🎯 FORÇA EXTERNA
+        </div>
+        
+        <Slider label="Ângulo do plano θ" value={theta} onChange={handleParamChange(setTheta)} min={1} max={85} step={1} unit="°" color={T.amber} />
+        <Slider label="Coeficiente de atrito μ" value={mu} onChange={handleParamChange(setMu)} min={0} max={0.9} step={0.01} unit="" color="#FF8C00" />
+        <Slider label="Massa m" value={massa} onChange={handleParamChange(setMassa)} min={1} max={30} step={0.5} unit=" kg" color={T.neon} />
+        <Slider label="Força externa F" value={F_ext} onChange={handleParamChange(setF_ext)} min={0} max={100} step={1} unit=" N" color={T.purple} />
+        <Slider label="Ângulo da força α" value={anguloF} onChange={handleParamChange(setAnguloF)} min={-90} max={90} step={5} unit="°" color={T.purple} />
+        
+        <div style={{ display: 'flex', gap: '0.5rem', margin: '1rem 0' }}>
+          <button
+            onClick={() => setShowVetores(!showVetores)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${showVetores ? T.purple : T.muted}`,
+              background: showVetores ? `${T.purple}10` : 'transparent',
+              color: showVetores ? T.purple : T.muted,
+              cursor: 'pointer',
+              fontSize: '0.7rem',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontWeight: 600,
+            }}
+          >
+            {showVetores ? '◉ VETORES ON' : '○ VETORES OFF'}
+          </button>
+          <button
+            onClick={() => isMoving && setIsAnimating(!isAnimating)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              background: isMoving && isAnimating ? T.purple : (isMoving ? `${T.purple}20` : T.muted),
+              color: isMoving && isAnimating ? '#000' : (isMoving ? T.purple : T.muted),
+              cursor: isMoving ? 'pointer' : 'not-allowed',
+              fontWeight: 700,
+              fontSize: '0.7rem',
+            }}
+          >
+            {isAnimating ? '⏸ PAUSAR' : '▶ ANIMAR'}
+          </button>
+          <button
+            onClick={resetAnimation}
+            style={{
+              padding: '0.6rem 0.8rem',
+              borderRadius: '0.5rem',
+              border: `1px solid ${T.border}`,
+              background: 'transparent',
+              color: T.white,
+              cursor: 'pointer',
+            }}
+          >
+            ↺
+          </button>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+          <MetricCard label="ACELERAÇÃO" value={Math.abs(acc).toFixed(3)} unit="m/s²" color={isMoving ? T.purple : T.muted} description={isMoving ? sentido : "em repouso"} />
+          <MetricCard label="FORÇA NORMAL" value={N_efetiva.toFixed(1)} unit="N" color={T.emerald} />
+          <MetricCard label="PESO PARALELO" value={Px.toFixed(1)} unit="N" color={T.amber} />
+          <MetricCard label="F_ext PARALELA" value={F_paralela.toFixed(1)} unit="N" color={T.purple} />
+          <MetricCard label="ATRITO MÁXIMO" value={Fat_max.toFixed(1)} unit="N" color="#FF8C00" />
+          <MetricCard label="FORÇA RESULTANTE" value={Math.abs(Fres).toFixed(1)} unit="N" color={T.neon} />
+        </div>
+        
+        <div style={{
+          marginTop: '1rem',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          background: isMoving ? `${T.purple}08` : `${T.emerald}08`,
+          border: `1px solid ${isMoving ? `${T.purple}30` : `${T.emerald}30`}`,
+          textAlign: 'center',
+          fontSize: '0.7rem',
+          fontFamily: "'JetBrains Mono', monospace",
+          color: isMoving ? T.purple : T.emerald,
+        }}>
+          {isMoving 
+            ? `🔹 BLOCO ${sentido.toUpperCase()} — a = ${Math.abs(acc).toFixed(3)} m/s²`
+            : `⚖️ EQUILÍBRIO ESTÁTICO — |P∥ − F_∥| ≤ μ·N`}
         </div>
       </div>
-
-      <div className="canvas-panel">
-        <div className="tab-strip">
-          <Tab active={aba==='sim'}    onClick={() => setAba('sim')}    color={T.rose}>SIMULAÇÃO</Tab>
-          <Tab active={aba==='teoria'} onClick={() => setAba('teoria')} color={T.amber}>TEORIA</Tab>
-        </div>
-
-        {aba === 'sim' && <DoisBlocosCanvas theta={theta} mu1={mu1} mu2={mu2} m1={m1} m2={m2} aceleracao={acc} />}
-
-        {aba === 'teoria' && (
-          <div className="theory-scroll">
-            <FormulaCard title="SISTEMA COMPLETO" color={T.amber}>
-              (m₁+m₂)·a = (m₁+m₂)·g·sen θ − (μ₁m₁+μ₂m₂)·g·cos θ{'\n\n'}
-              a = {acc.toFixed(4)} m/s²
-            </FormulaCard>
-            <FormulaCard title="TRAÇÃO NO FIO" color={T.rose}>
-              Isolando m₂:{'\n'}
-              T = m₂·(g·sen θ − μ₂·g·cos θ − a){'\n'}
-              T = {Math.abs(T2).toFixed(2)} N
-            </FormulaCard>
-            <FormulaCard title="OBSERVAÇÃO" color={T.neon}>
-              Coeficientes diferentes (μ₁≠μ₂) geram{'\n'}
-              tensão interna não-nula no fio mesmo{'\n'}
-              quando o sistema está em equilíbrio.
-            </FormulaCard>
+      
+      <div style={{ background: T.panel, borderRadius: '1rem', border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+        <div style={{ padding: '1rem 1.25rem 0 1.25rem', borderBottom: `1px solid ${T.border}` }}>
+          <div style={{ display: 'flex', gap: '0.25rem' }}>
+            <TabButton active={activeTab === 'sim'} onClick={() => setActiveTab('sim')} color={T.purple}>🎬 SIMULAÇÃO</TabButton>
+            <TabButton active={activeTab === 'teoria'} onClick={() => setActiveTab('teoria')} color={T.amber}>📖 TEORIA</TabButton>
+            <TabButton active={activeTab === 'calculus'} onClick={() => setActiveTab('calculus')} color={T.purple}>∫ CÁLCULO</TabButton>
+            <TabButton active={activeTab === 'grafico'} onClick={() => setActiveTab('grafico')} color={T.emerald}>📊 GRÁFICOS</TabButton>
           </div>
-        )}
+        </div>
+        
+        <div style={{ padding: '1.5rem' }}>
+          {activeTab === 'sim' && (
+            <>
+              <ExternalForceCanvas 
+                theta={theta} mu={mu} massa={massa}
+                F_ext={F_ext} anguloF={anguloF}
+                showVetores={showVetores}
+                isAnimating={isAnimating}
+                position={position}
+              />
+              {isMoving && isAnimating && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                  <MetricCard label="POSIÇÃO" value={(Math.abs(position - 0.46) * 5).toFixed(2)} unit="m" color={T.muted} />
+                  <MetricCard label="VELOCIDADE" value={(Math.abs(acc) * (Math.abs(position - 0.46) / 0.008 * 0.025)).toFixed(2)} unit="m/s" color={T.purple} />
+                </div>
+              )}
+            </>
+          )}
+          
+          {activeTab === 'teoria' && (
+            <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <FormulaCard title="🎯 FORÇA EXTERNA NO PLANO INCLINADO" color={T.purple} icon="🎯">
+                <p>Uma força externa <strong>F</strong> aplicada ao bloco altera completamente o equilíbrio. Ela tem componentes:</p>
+                <div className="formula-math">F_∥ = F·cos(α − θ)</div>
+                <div className="formula-math">F_⊥ = F·sin(α − θ)</div>
+                <p>Para α = {anguloF}°: F_∥ = {F_paralela.toFixed(1)} N, F_⊥ = {(F_ext * Math.sin(angFRad - tR)).toFixed(1)} N</p>
+              </FormulaCard>
+              
+              <FormulaCard title="🔧 NOVA FORÇA NORMAL" color={T.emerald} icon="🔧">
+                <p>A componente perpendicular da força externa altera a normal:</p>
+                <div className="formula-math">N = m·g·cos(θ) − F·sin(α − θ)</div>
+                <p>Com valores atuais:</p>
+                <div className="formula-math">N = {massa}×9,81×cos({theta}°) − {F_ext}×sin({anguloF}° − {theta}°)</div>
+                <div className="formula-math">N = <strong style={{ color: T.emerald }}>{N_efetiva.toFixed(2)} N</strong></div>
+                {N_efetiva < 0 && <p style={{ color: T.rose }}>⚠️ NORMAL NEGATIVA — bloco perderia contato com o plano!</p>}
+              </FormulaCard>
+              
+              <FormulaCard title="⚖️ NOVO EQUILÍBRIO" color={T.amber} icon="⚖️">
+                <p>A força resultante na direção do plano é:</p>
+                <div className="formula-math">F_res = P∥ − F_∥ − f</div>
+                <p>Onde f = μ·N se |P∥ − F_∥| {'>'} μ·N, ou f = P∥ − F_∥ se em equilíbrio.</p>
+                <p>Condição de equilíbrio estático:</p>
+                <div className="formula-math">|P∥ − F_∥| ≤ μ·N</div>
+              </FormulaCard>
+              
+              <FormulaCard title="🔬 CASOS PARTICULARES" color={T.neon} icon="🔬">
+                <p><strong>• Força horizontal (α = 0°):</strong> F_∥ = F·cosθ, F_⊥ = −F·sinθ (aumenta a normal)</p>
+                <p><strong>• Força paralela ao plano (α = θ):</strong> F_∥ = F, F_⊥ = 0 (não altera a normal)</p>
+                <p><strong>• Força perpendicular ao plano (α = θ+90°):</strong> F_∥ = 0, F_⊥ = F (só altera a normal)</p>
+              </FormulaCard>
+            </div>
+          )}
+          
+          {activeTab === 'calculus' && (
+            <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <FormulaCard title="∂ OTIMIZAÇÃO DA FORÇA" color={T.purple} icon="∂">
+                <p>Para um dado θ e μ, qual F mínima para iniciar o movimento?</p>
+                <div className="formula-math">|P∥ − F·cos(α−θ)| = μ·(m·g·cosθ − F·sin(α−θ))</div>
+                <p>Resolvendo para F:</p>
+                <div className="formula-math">F_min = (m·g·senθ − μ·m·g·cosθ) / (cos(α−θ) + μ·sin(α−θ))</div>
+                <p>Para α = 0° (força horizontal): F_min = {((massa*G*Math.sin(tR) - mu*massa*G*Math.cos(tR)) / (Math.cos(-tR) + mu*Math.sin(-tR))).toFixed(1)} N</p>
+              </FormulaCard>
+              
+              <FormulaCard title="∂ ÂNGULO ÓTIMO DA FORÇA" color={T.amber} icon="∂">
+                <p>Para minimizar a força necessária, derivamos F em relação a α:</p>
+                <div className="formula-math">dF/dα = 0 ⇒ tan(α − θ) = μ</div>
+                <div className="formula-math">α_ótimo = θ + arctan(μ)</div>
+                <p>Para μ = {mu}: α_ótimo = {theta + toDeg(Math.atan(mu)).toFixed(1)}°</p>
+                <p>Neste ângulo, a força é mínima para iniciar o movimento.</p>
+              </FormulaCard>
+            </div>
+          )}
+          
+          {activeTab === 'grafico' && (
+            <div>
+              <SimpleChart 
+                data={chartData} 
+                xLabel="Força Externa F (N)" 
+                yLabel="Aceleração a (m/s²)" 
+                color={T.purple} 
+                highlight={F_ext}
+              />
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: `${T.purple}08`, borderRadius: '0.5rem', fontSize: '0.75rem', lineHeight: 1.6 }}>
+                <strong style={{ color: T.purple }}>📈 Interpretação do gráfico:</strong><br/>
+                • Aceleração <strong>zero</strong> na região de equilíbrio estático<br/>
+                • Força negativa significa que F está <strong>ajudando o movimento</strong> para baixo<br/>
+                • O limiar de movimento ocorre quando |P∥ − F_∥| = μ·N<br/>
+                • Ponto atual: <strong style={{ color: T.purple }}>F = {F_ext} N → a = {acc.toFixed(3)} m/s²</strong>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EXPERIMENTO 3 — Ângulo Crítico
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── EXPERIMENTO 3: ÂNGULO CRÍTICO (MANTIDO) ───────────────────────────────────
 const ExpAnguloCritico = () => {
   const [theta, setTheta] = useState(20);
   const [muEst, setMuEst] = useState(0.4);
   const [massa, setMassa] = useState(5);
-  const [aba,   setAba]   = useState('sim');
-
+  const [activeTab, setActiveTab] = useState('sim');
+  
   const thetaCrit = toDeg(Math.atan(muEst));
-  const diff      = theta - thetaCrit;
-  const estado    = diff < -0.5 ? 'repouso' : diff > 0.5 ? 'deslizando' : 'iminente';
-
-  const stateColor = { repouso: T.emerald, iminente: T.amber, deslizando: T.rose };
-  const sc = stateColor[estado];
-
-  const dadosForca = Array.from({ length: 90 }, (_, i) => {
+  const estado = theta < thetaCrit - 0.5 ? 'repouso' : theta > thetaCrit + 0.5 ? 'deslizando' : 'iminente';
+  
+  const forceData = Array.from({ length: 90 }, (_, i) => {
     const tr = toRad(i);
     return { x: i, y: massa * G * Math.sin(tr) - muEst * massa * G * Math.cos(tr) };
   });
-
+  
   return (
-    <div className="sim-grid">
-      <div className="panel">
-        <div style={{ fontFamily: "'Orbitron',monospace", fontSize: 10, letterSpacing: 2, color: T.amber, marginBottom: 18 }}>PARÂMETROS</div>
-        <Slider label="Ângulo θ"        value={theta} onChange={setTheta} min={1}    max={89}  step={1}    unit="°"   color={T.amber}   />
-        <Slider label="μₛ (estático)"  value={muEst} onChange={setMuEst} min={0.05} max={0.95} step={0.01} unit=""    color="#FF8C00"   />
-        <Slider label="Massa m"         value={massa} onChange={setMassa} min={1}    max={30}   step={1}    unit=" kg" color={T.muted}   />
-
-        <div style={{ marginTop: 16, padding: 16, borderRadius: 8, background: `${sc}10`, border: `1px solid ${sc}33`, textAlign: 'center' }}>
-          <div style={{ fontSize: 9, color: T.muted, fontFamily: "'Share Tech Mono',monospace", letterSpacing: 2 }}>ÂNGULO CRÍTICO</div>
-          <div style={{ fontSize: 34, fontWeight: 900, color: T.amber, fontFamily: "'Orbitron',monospace", marginTop: 4 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem' }}>
+      <div style={{ background: T.panel, borderRadius: '1rem', padding: '1.25rem', border: `1px solid ${T.border}` }}>
+        <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '0.7rem', color: T.amber, letterSpacing: '2px', marginBottom: '1.5rem' }}>
+          ⚠️ PARÂMETROS
+        </div>
+        
+        <Slider label="Ângulo θ" value={theta} onChange={setTheta} min={1} max={89} step={1} unit="°" color={T.amber} />
+        <Slider label="μₛ (atrito estático)" value={muEst} onChange={setMuEst} min={0.05} max={0.95} step={0.01} unit="" color="#FF8C00" />
+        <Slider label="Massa m" value={massa} onChange={setMassa} min={1} max={30} step={1} unit=" kg" color={T.muted} />
+        
+        <div style={{
+          marginTop: '1rem',
+          padding: '1rem',
+          background: `${T.amber}10`,
+          borderRadius: '0.75rem',
+          textAlign: 'center',
+          border: `1px solid ${T.amber}30`,
+        }}>
+          <div style={{ fontSize: '0.65rem', color: T.muted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '1px' }}>
+            ÂNGULO CRÍTICO
+          </div>
+          <div style={{ fontSize: '2.2rem', fontWeight: 900, color: T.amber, fontFamily: "'Orbitron', monospace", marginTop: '0.25rem' }}>
             {thetaCrit.toFixed(1)}°
           </div>
-          <div style={{ fontSize: 9, color: T.muted, fontFamily: "'Share Tech Mono',monospace" }}>θc = arctan(μₛ)</div>
+          <div style={{ fontSize: '0.7rem', color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
+            θc = arctan(μₛ) = arctan({muEst})
+          </div>
         </div>
-
-        <div className="status" style={{ color: sc, borderColor: `${sc}33`, background: `${sc}0a`, marginTop: 12 }}>
-          {{ repouso: '✓ EM REPOUSO', iminente: '⚠ IMINENTE', deslizando: '▶ DESLIZANDO' }[estado]}
-        </div>
-
-        <div className="metrics-grid">
-          <Metric label="P∥"          value={(massa * G * Math.sin(toRad(theta))).toFixed(1)} unit="N" color={T.amber}   />
-          <Metric label="fₛ MÁX."    value={(muEst * massa * G * Math.cos(toRad(theta))).toFixed(1)} unit="N" color="#FF8C00" />
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginTop: '1rem' }}>
+          <MetricCard label="PESO PARALELO" value={(massa * G * Math.sin(toRad(theta))).toFixed(1)} unit="N" color={T.amber} />
+          <MetricCard label="ATRITO MÁXIMO" value={(muEst * massa * G * Math.cos(toRad(theta))).toFixed(1)} unit="N" color="#FF8C00" />
         </div>
       </div>
-
-      <div className="canvas-panel">
-        <div className="tab-strip">
-          <Tab active={aba==='sim'}    onClick={() => setAba('sim')}    color={T.amber}>SIMULAÇÃO</Tab>
-          <Tab active={aba==='teoria'} onClick={() => setAba('teoria')} color={T.emerald}>TEORIA</Tab>
-          <Tab active={aba==='graf'}   onClick={() => setAba('graf')}   color={T.rose}>GRÁFICO</Tab>
-        </div>
-
-        {aba === 'sim'    && <AnguloCriticoCanvas theta={theta} thetaCritico={thetaCrit} estado={estado} />}
-
-        {aba === 'teoria' && (
-          <div className="theory-scroll">
-            <FormulaCard title="CONDIÇÃO DE EQUILÍBRIO" color={T.emerald}>
-              fₛ ≥ P∥  →  μₛ·N ≥ m·g·sen θ{'\n'}
-              μₛ·m·g·cos θ ≥ m·g·sen θ{'\n'}
-              μₛ ≥ tan θ
-            </FormulaCard>
-            <FormulaCard title="ÂNGULO CRÍTICO" color={T.amber}>
-              No limite: μₛ = tan θc{'\n'}
-              θc = arctan(μₛ) = arctan({muEst}) = {thetaCrit.toFixed(2)}°{'\n\n'}
-              θ {'<'} θc → repouso{'\n'}
-              θ = θc → iminência{'\n'}
-              θ {'>'} θc → deslizamento
-            </FormulaCard>
-            <FormulaCard title="INDEPENDÊNCIA DA MASSA" color={T.neon}>
-              A massa cancela na expressão final.{'\n'}
-              Blocos de qualquer massa com mesmo μₛ{'\n'}
-              deslizam no mesmo ângulo crítico.
-            </FormulaCard>
+      
+      <div style={{ background: T.panel, borderRadius: '1rem', border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+        <div style={{ padding: '1rem 1.25rem 0 1.25rem', borderBottom: `1px solid ${T.border}` }}>
+          <div style={{ display: 'flex', gap: '0.25rem' }}>
+            <TabButton active={activeTab === 'sim'} onClick={() => setActiveTab('sim')} color={T.amber}>🎬 SIMULAÇÃO</TabButton>
+            <TabButton active={activeTab === 'teoria'} onClick={() => setActiveTab('teoria')} color={T.emerald}>📖 TEORIA</TabButton>
+            <TabButton active={activeTab === 'calculus'} onClick={() => setActiveTab('calculus')} color={T.purple}>∫ CÁLCULO</TabButton>
+            <TabButton active={activeTab === 'grafico'} onClick={() => setActiveTab('grafico')} color={T.rose}>📊 GRÁFICOS</TabButton>
           </div>
-        )}
-
-        {aba === 'graf' && (
-          <>
-            <MiniChart data={dadosForca} xLabel="ângulo θ (°)" yLabel="F_res (N)" color={T.rose} highlight={theta} />
-            <div style={{ marginTop: 10, fontSize: 11, color: T.muted, fontFamily: "'Share Tech Mono',monospace", lineHeight: 1.6 }}>
-              F_res = P∥ − fₛ,máx{'\n'}
-              F_res {'<'} 0 → repouso  ·  F_res = 0 → θc  ·  F_res {'>'} 0 → deslizamento
+        </div>
+        
+        <div style={{ padding: '1.5rem' }}>
+          {activeTab === 'sim' && (
+            <CriticalCanvas theta={theta} thetaCrit={thetaCrit} estado={estado} />
+          )}
+          
+          {activeTab === 'teoria' && (
+            <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <FormulaCard title="⚖️ CONDIÇÃO DE EQUILÍBRIO ESTÁTICO" color={T.emerald} icon="⚖️">
+                <p>Para que o bloco permaneça em repouso, a força de atrito estático deve ser suficiente para equilibrar a componente paralela do peso:</p>
+                <div className="formula-math">f_s ≥ P∥</div>
+                <div className="formula-math">μ_s·N ≥ m·g·sen(θ)</div>
+                <div className="formula-math">μ_s·m·g·cos(θ) ≥ m·g·sen(θ)</div>
+                <p>Cancelando m·g (independente da massa!):</p>
+                <div className="formula-math">μ_s ≥ tan(θ)</div>
+              </FormulaCard>
+              
+              <FormulaCard title="⚠️ ÂNGULO CRÍTICO" color={T.amber} icon="⚠️">
+                <p>No limite do equilíbrio (iminência de deslizamento):</p>
+                <div className="formula-math">μ_s = tan(θ_c)</div>
+                <div className="formula-math">θ_c = arctan(μ_s)</div>
+                <p>Para μ_s = {muEst}:</p>
+                <div className="formula-math">θ_c = arctan({muEst}) = <strong style={{ color: T.amber }}>{thetaCrit.toFixed(2)}°</strong></div>
+                <p>Este é o ângulo máximo antes do deslizamento começar.</p>
+              </FormulaCard>
+              
+              <FormulaCard title="📊 REGIÕES DE COMPORTAMENTO" color={T.rose} icon="📊">
+                <p>• <span style={{ color: T.emerald }}>θ {'<'} θ_c</span>: Bloco em <strong>repouso estático</strong> — f_s {'<'} μ_s·N, atrito ajustável</p>
+                <p>• <span style={{ color: T.amber }}>θ = θ_c</span>: <strong>Iminência de deslizamento</strong> — f_s = μ_s·N, situação instável</p>
+                <p>• <span style={{ color: T.rose }}>θ {'>'} θ_c</span>: <strong>Bloco desliza</strong> — regime cinético, a {'>'} 0</p>
+              </FormulaCard>
+              
+              <FormulaCard title="🎯 INDEPENDÊNCIA DA MASSA" color={T.purple} icon="🎯">
+                <p>Uma consequência surpreendente: <strong>a massa do bloco não aparece</strong> na expressão final!</p>
+                <p>Isso significa que blocos de massas diferentes, com o mesmo coeficiente de atrito estático, começam a deslizar no <strong>mesmo ângulo crítico</strong>.</p>
+                <p>Na prática, isso é observado: uma caixa leve e uma pesada, sobre a mesma superfície, deslizam quando a inclinação atinge o mesmo valor.</p>
+              </FormulaCard>
             </div>
-          </>
-        )}
+          )}
+          
+          {activeTab === 'calculus' && (
+            <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <FormulaCard title="∂ FUNÇÃO FORÇA RESULTANTE" color={T.purple} icon="∂">
+                <p>Definimos a força resultante na direção paralela ao plano:</p>
+                <div className="formula-math">F_res(θ) = P∥ − f_s,máx</div>
+                <div className="formula-math">F_res(θ) = m·g·sen(θ) − μ_s·m·g·cos(θ)</div>
+                <div className="formula-math">F_res(θ) = m·g·(sen(θ) − μ_s·cos(θ))</div>
+                <p>O sinal de F_res determina o estado do sistema.</p>
+              </FormulaCard>
+              
+              <FormulaCard title="∂ ZEROS DA FUNÇÃO" color={T.amber} icon="∂">
+                <p>O ângulo crítico é a raiz da equação F_res(θ) = 0:</p>
+                <div className="formula-math">sen(θ_c) − μ_s·cos(θ_c) = 0</div>
+                <div className="formula-math">sen(θ_c) = μ_s·cos(θ_c)</div>
+                <div className="formula-math">tan(θ_c) = μ_s</div>
+                <div className="formula-math">θ_c = arctan(μ_s)</div>
+              </FormulaCard>
+              
+              <FormulaCard title="∂ ANÁLISE DE ESTABILIDADE" color={T.neon} icon="∂">
+                <p>Analisando a derivada de F_res em torno do ponto crítico:</p>
+                <div className="formula-math">F_res'(θ) = m·g·(cos(θ) + μ_s·sen(θ)) {'>'} 0 para θ ∈ [0, 90°]</div>
+                <p>Como a derivada é sempre positiva, a função é estritamente crescente.</p>
+                <p>Isso significa que:</p>
+                <p>• θ {'<'} θ_c → F_res {'<'} 0 (equilíbrio estável)</p>
+                <p>• θ = θ_c → F_res = 0 (equilíbrio instável)</p>
+                <p>• θ {'>'} θ_c → F_res {'>'} 0 (movimento acelerado)</p>
+              </FormulaCard>
+            </div>
+          )}
+          
+          {activeTab === 'grafico' && (
+            <div>
+              <SimpleChart 
+                data={forceData} 
+                xLabel="Ângulo θ (graus)" 
+                yLabel="Força Resultante F_res (N)" 
+                color={T.rose} 
+                highlight={theta}
+              />
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: `${T.rose}08`, borderRadius: '0.5rem', fontSize: '0.75rem', lineHeight: 1.6 }}>
+                <strong style={{ color: T.rose }}>📈 Interpretação do gráfico:</strong><br/>
+                • <span style={{ color: T.emerald }}>F_res {'<'} 0</span>: Bloco em repouso — atrito estático suficiente<br/>
+                • <span style={{ color: T.amber }}>F_res = 0</span>: Iminência de deslizamento — θ = θ_c<br/>
+                • <span style={{ color: T.rose }}>F_res {'>'} 0</span>: Bloco desliza — aceleração positiva<br/>
+                • Ponto atual: <strong style={{ color: T.rose }}>θ = {theta}° → F_res = {(massa * G * Math.sin(toRad(theta)) - muEst * massa * G * Math.cos(toRad(theta))).toFixed(2)} N</strong>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ROOT
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
 export default function ExperimentoPlanoInclinado() {
-  const [exp, setExp] = useState('bloco');
-
-  const exps = [
-    { id: 'bloco',   label: 'BLOCO NO PLANO',  color: T.neon  },
-    { id: 'dois',    label: 'SISTEMA 2 BLOCOS', color: T.rose  },
-    { id: 'critico', label: 'ÂNGULO CRÍTICO',   color: T.amber },
-  ];
-
+  const [experimento, setExperimento] = useState('bloco');
+  
   return (
-    <div className="pie-root">
-      <style>{css}</style>
-
-      {/* header */}
-      <div className="pie-header">
-        <div className="pie-title">PLANO INCLINADO</div>
-        <div className="pie-subtitle">
-          DECOMPOSIÇÃO DE FORÇAS · ATRITO ESTÁTICO E CINÉTICO · ÂNGULO CRÍTICO
+    <div className="exp-root">
+      <style>{globalStyles}</style>
+      
+      <div style={{ padding: '2rem 2rem 0 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{ 
+            fontSize: '2.2rem', 
+            background: `linear-gradient(135deg, ${T.neon}, ${T.emerald}, ${T.amber})`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontFamily: "'Orbitron', monospace",
+            fontWeight: 900,
+            letterSpacing: '-1px',
+          }}>
+            PLANO INCLINADO
+          </h1>
+          <p style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', marginTop: '0.5rem', letterSpacing: '1px' }}>
+            DECOMPOSIÇÃO VETORIAL · ATRITO ESTÁTICO E CINÉTICO · FORÇA EXTERNA · ÂNGULO CRÍTICO
+          </p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setExperimento('bloco')}
+            style={{
+              padding: '0.6rem 1.5rem',
+              borderRadius: '2rem',
+              border: `1px solid ${experimento === 'bloco' ? T.neon : T.border}`,
+              background: experimento === 'bloco' ? `${T.neon}10` : 'transparent',
+              color: experimento === 'bloco' ? T.neon : T.muted,
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontFamily: "'Orbitron', monospace",
+              fontWeight: experimento === 'bloco' ? 700 : 400,
+              transition: 'all 0.2s',
+            }}
+          >
+            🔷 BLOCO NO PLANO
+          </button>
+          <button
+            onClick={() => setExperimento('forca')}
+            style={{
+              padding: '0.6rem 1.5rem',
+              borderRadius: '2rem',
+              border: `1px solid ${experimento === 'forca' ? T.purple : T.border}`,
+              background: experimento === 'forca' ? `${T.purple}10` : 'transparent',
+              color: experimento === 'forca' ? T.purple : T.muted,
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontFamily: "'Orbitron', monospace",
+              fontWeight: experimento === 'forca' ? 700 : 400,
+            }}
+          >
+            🎯 FORÇA EXTERNA
+          </button>
+          <button
+            onClick={() => setExperimento('critico')}
+            style={{
+              padding: '0.6rem 1.5rem',
+              borderRadius: '2rem',
+              border: `1px solid ${experimento === 'critico' ? T.amber : T.border}`,
+              background: experimento === 'critico' ? `${T.amber}10` : 'transparent',
+              color: experimento === 'critico' ? T.amber : T.muted,
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontFamily: "'Orbitron', monospace",
+              fontWeight: experimento === 'critico' ? 700 : 400,
+            }}
+          >
+            ⚠️ ÂNGULO CRÍTICO
+          </button>
         </div>
       </div>
-
-      {/* experiment selector */}
-      <div className="exp-selector">
-        {exps.map(e => (
-          <button
-            key={e.id}
-            className={`exp-btn ${exp === e.id ? 'active' : ''}`}
-            style={{ '--tc': e.color }}
-            onClick={() => setExp(e.id)}
-          >
-            {e.label}
-          </button>
-        ))}
+      
+      <div style={{ padding: '0 2rem 2rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+        {experimento === 'bloco' && <ExpBlocoSimples />}
+        {experimento === 'forca' && <ExpForcaExterna />}
+        {experimento === 'critico' && <ExpAnguloCritico />}
       </div>
-
-      {/* content */}
-      {exp === 'bloco'   && <ExpBlocoSimples />}
-      {exp === 'dois'    && <ExpDoisBlocos />}
-      {exp === 'critico' && <ExpAnguloCritico />}
-
-      {/* footer */}
-      <div style={{ marginTop: 32, paddingTop: 16, borderTop: `1px solid ${T.border}`, textAlign: 'center', fontFamily: "'Share Tech Mono',monospace", fontSize: 10, color: T.muted, letterSpacing: 2 }}>
-        g = 9,81 m/s²  ·  MECÂNICA CLÁSSICA  ·  LEIS DE NEWTON
+      
+      <div style={{
+        borderTop: `1px solid ${T.border}`,
+        padding: '1.5rem 2rem',
+        textAlign: 'center',
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: '0.7rem',
+        color: T.muted,
+        letterSpacing: '1px',
+      }}>
+        g = 9,81 m/s² · Experimento Didático de Mecânica Clássica · Baseado nas Leis de Newton e no Cálculo Diferencial/Integral
       </div>
     </div>
   );
