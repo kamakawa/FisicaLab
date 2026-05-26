@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const DATA = {
-  f1: {
+    f1: {
     label: 'FÍSICA 1',
     sub: 'MECÂNICA · CINEMÁTICA · DINÂMICA',
     cor: '#00D4FF',
