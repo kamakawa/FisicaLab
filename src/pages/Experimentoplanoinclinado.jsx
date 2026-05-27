@@ -1,24 +1,24 @@
 // ExperimentoPlanoInclinado.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// ─── Paleta e CSS global (mesmo estilo do circular) ─────────────────────────
+// ─── Paleta e CSS global ─────────────────────────
 const STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #07090f;
-  --surface:  #0d1117;
-  --panel:    #111827;
-  --border:   rgba(255,255,255,0.07);
-  --accent:   #60a5fa;
-  --gold:     #fbbf24;
-  --green:    #34d399;
-  --red:      #f87171;
-  --purple:   #a78bfa;
-  --text:     #e2e8f0;
-  --muted:    #64748b;
+  --bg:       #05060a;
+  --surface:  #0a0d14;
+  --panel:    #0f141f;
+  --border:   rgba(255, 255, 255, 0.08);
+  --accent:   #3b82f6;
+  --gold:     #eab308;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --purple:   #8b5cf6;
+  --text:     #f1f5f9;
+  --muted:    #94a3b8;
   --mono:     'Fira Code', monospace;
   --sans:     'Space Grotesk', sans-serif;
 }
@@ -35,48 +35,49 @@ body { background: var(--bg); }
 
 .header {
   border-bottom: 1px solid var(--border);
-  padding: 18px 32px;
+  padding: 20px 32px;
   display: flex;
   align-items: baseline;
-  gap: 20px;
-  background: linear-gradient(90deg, rgba(96,165,250,0.06) 0%, transparent 60%);
+  gap: 24px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
 }
 .header-title {
   font-family: 'Playfair Display', serif;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.5px;
 }
 .header-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 .header-tag {
   margin-left: auto;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--accent);
-  border: 1px solid rgba(96,165,250,0.3);
-  padding: 3px 10px;
-  border-radius: 20px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.05);
+  padding: 4px 12px;
+  border-radius: 24px;
   font-family: var(--mono);
 }
 
 .tabs {
   display: flex;
-  gap: 2px;
-  padding: 12px 32px 0;
+  gap: 4px;
+  padding: 16px 32px 0;
   border-bottom: 1px solid var(--border);
 }
 .tab {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
   background: transparent;
   color: var(--muted);
   font-family: var(--sans);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -91,15 +92,15 @@ body { background: var(--bg); }
 
 .content {
   display: grid;
-  grid-template-columns: 320px 1fr 280px;
+  grid-template-columns: 340px 1fr 300px;
   gap: 0;
-  height: calc(100vh - 104px);
+  height: calc(100vh - 120px);
 }
 
 .sidebar-l, .sidebar-r {
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  padding: 20px;
+  padding: 24px;
   background: var(--panel);
 }
 .sidebar-r {
@@ -116,13 +117,13 @@ body { background: var(--bg); }
 .canvas-wrap {
   flex: 1;
   position: relative;
-  background: radial-gradient(ellipse at 50% 50%, #0f1829 0%, #07090f 80%);
+  background: radial-gradient(ellipse at 50% 50%, #0d1424 0%, #05060a 100%);
   overflow: hidden;
 }
 canvas { display: block; width: 100%; height: 100%; }
 
 .plots-strip {
-  height: 160px;
+  height: 180px;
   border-top: 1px solid var(--border);
   display: flex;
   background: var(--panel);
@@ -130,52 +131,54 @@ canvas { display: block; width: 100%; height: 100%; }
 .plot-box {
   flex: 1;
   border-right: 1px solid var(--border);
-  padding: 8px;
+  padding: 12px;
   position: relative;
 }
 .plot-box:last-child { border-right: none; }
 .plot-title {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.1em;
   color: var(--muted);
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
-.plot-box canvas { border-radius: 4px; }
+.plot-box canvas { border-radius: 6px; }
 
 .section-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.15em;
   color: var(--muted);
   text-transform: uppercase;
-  margin-bottom: 12px;
-  margin-top: 20px;
+  margin-bottom: 16px;
+  margin-top: 24px;
 }
 .section-label:first-child { margin-top: 0; }
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px;
-  margin-bottom: 10px;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border);
 }
 .stat-row:last-child { border-bottom: none; }
-.stat-label { color: var(--muted); font-size: 12px; }
+.stat-label { color: var(--muted); font-size: 13px; }
 .stat-val {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text);
+  font-weight: 500;
 }
 .stat-val.accent { color: var(--accent); }
 .stat-val.gold   { color: var(--gold); }
@@ -184,128 +187,132 @@ canvas { display: block; width: 100%; height: 100%; }
 .stat-val.purple { color: var(--purple); }
 
 .ctrl {
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 .ctrl-head {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
-  font-size: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
 }
-.ctrl-name { color: var(--muted); }
-.ctrl-num  { font-family: var(--mono); color: var(--accent); }
+.ctrl-name { color: var(--text); font-weight: 500; }
+.ctrl-num  { font-family: var(--mono); color: var(--accent); background: rgba(59, 130, 246, 0.1); padding: 2px 8px; border-radius: 4px; }
 input[type=range] {
   width: 100%;
   accent-color: var(--accent);
-  height: 3px;
+  height: 4px;
   cursor: pointer;
 }
 
-.btn-row { display: flex; gap: 8px; margin-top: 12px; }
+.btn-row { display: flex; gap: 12px; margin-top: 16px; }
 .btn {
   flex: 1;
-  padding: 9px;
+  padding: 12px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  transition: all 0.15s;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
 }
 .btn-primary {
   background: var(--accent);
-  color: #07090f;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
-.btn-primary:hover { filter: brightness(1.15); }
+.btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
 .btn-primary:disabled {
-  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  box-shadow: none;
   cursor: not-allowed;
+  transform: none;
 }
 .btn-secondary {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text);
   border: 1px solid var(--border);
 }
-.btn-secondary:hover { background: rgba(255,255,255,0.1); }
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
 .btn-danger {
-  background: rgba(248,113,113,0.15);
+  background: rgba(239, 68, 68, 0.1);
   color: var(--red);
-  border: 1px solid rgba(248,113,113,0.2);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
-.btn-danger:hover { background: rgba(248,113,113,0.25); }
+.btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
 
 .toggle-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 12px;
   cursor: pointer;
 }
 .toggle-row input[type=checkbox] {
   accent-color: var(--accent);
-  width: 14px; height: 14px;
+  width: 16px; height: 16px;
 }
-.toggle-label { font-size: 12px; color: var(--muted); }
+.toggle-label { font-size: 13px; font-weight: 500; }
 
 .eq-block {
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: 0 10px 10px 0;
-  padding: 12px 14px;
-  margin-bottom: 10px;
+  border-radius: 0 8px 8px 0;
+  padding: 16px;
+  margin-bottom: 12px;
   font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1.9;
+  font-size: 13px;
+  line-height: 2;
   color: var(--text);
 }
 .eq-block .eq-title {
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .eq-block .sym { color: var(--gold); }
 .eq-block .op  { color: var(--purple); }
 .eq-block .cmt { color: var(--muted); }
 
 .calc-page {
-  padding: 32px;
+  padding: 40px;
   max-width: 900px;
   margin: 0 auto;
   overflow-y: auto;
-  height: calc(100vh - 104px);
+  height: calc(100vh - 120px);
 }
 .calc-section {
-  margin-bottom: 40px;
+  margin-bottom: 48px;
 }
 .calc-h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 22px;
+  font-size: 24px;
   color: #fff;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
 }
 .calc-p {
   color: var(--muted);
-  line-height: 1.7;
-  margin-bottom: 14px;
-  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+  font-size: 15px;
 }
 .big-eq {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 20px 24px;
-  margin: 16px 0;
+  padding: 24px;
+  margin: 20px 0;
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 2.2;
   color: var(--text);
 }
@@ -318,19 +325,19 @@ input[type=range] {
 .derivation-step {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  padding: 10px 0;
+  gap: 16px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
 }
 .derivation-step:last-child { border-bottom: none; }
 .step-num {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   min-width: 24px;
 }
-.step-eq { font-family: var(--mono); font-size: 13px; color: var(--text); }
-.step-desc { font-size: 12px; color: var(--muted); margin-left: auto; font-style: italic; }
+.step-eq { font-family: var(--mono); font-size: 14px; color: var(--text); }
+.step-desc { font-size: 13px; color: var(--muted); margin-left: auto; font-style: italic; }
 `;
 
 const TAU = 2 * Math.PI;
@@ -349,7 +356,7 @@ export default function ExperimentoPlanoInclinado() {
             <div className="header-title">Plano Inclinado com Atrito</div>
             <div className="header-sub">Física I · Dinâmica · Leis de Newton</div>
           </div>
-          <span className="header-tag">v2.0 · Interativo</span>
+          <span className="header-tag">v3.0 · Dinâmico</span>
         </header>
 
         <nav className="tabs">
@@ -375,7 +382,7 @@ export default function ExperimentoPlanoInclinado() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ABA 1 — SIMULAÇÃO (Plano Inclinado com Atrito)
+// ABA 1 — SIMULAÇÃO
 // ═══════════════════════════════════════════════════════════════════════════════
 function SimTab() {
   const [angulo, setAngulo] = useState(25);
@@ -397,7 +404,7 @@ function SimTab() {
   const rafRef = useRef(null);
   const lastRef = useRef(null);
 
-  const angRad = angulo * Math.PI / 180;
+  const angRad = (angulo * Math.PI) / 180;
   const senθ = Math.sin(angRad);
   const cosθ = Math.cos(angRad);
 
@@ -411,18 +418,16 @@ function SimTab() {
   const forcaResultante = estaEmRepouso ? 0 : PesoParalelo - Math.sign(velocidade) * AtritoCinetico;
   const aceleracao = forcaResultante / massa;
 
-  const anguloCritico = Math.atan(muEstatico) * 180 / Math.PI;
+  const anguloCritico = (Math.atan(muEstatico) * 180) / Math.PI;
   const comprimentoPlano = 8.0;
 
   const podeIniciar = PesoParalelo > AtritoEstaticoMax;
 
   const iniciarMovimento = () => {
-    if (podeIniciar) {
-      setRodando(true);
-    }
+    if (podeIniciar) setRodando(true);
   };
 
-  // Animação
+  // Lógica da Física (Euler integration)
   useEffect(() => {
     if (!rodando) {
       lastRef.current = null;
@@ -433,18 +438,12 @@ function SimTab() {
       if (lastRef.current !== null) {
         let dt = Math.min((now - lastRef.current) / 1000, 0.05);
 
-        const P_paralelo = massa * g * senθ;
-        const N = massa * g * cosθ;
-        const F_atrito_max = muEstatico * N;
-        const F_atrito_cin = muCinetico * N;
-
         let aAtual;
-        if (Math.abs(velocidade) < 0.01 && P_paralelo <= F_atrito_max) {
+        if (Math.abs(velocidade) < 0.01 && PesoParalelo <= AtritoEstaticoMax) {
           aAtual = 0;
         } else {
           const sinalVel = Math.sign(velocidade);
-          const forcaResult = P_paralelo - sinalVel * F_atrito_cin;
-          aAtual = forcaResult / massa;
+          aAtual = (PesoParalelo - sinalVel * AtritoCinetico) / massa;
         }
 
         const newVel = velocidade + aAtual * dt;
@@ -472,7 +471,7 @@ function SimTab() {
 
     rafRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [rodando, massa, angulo, muEstatico, muCinetico, velocidade, posicao, senθ, cosθ]);
+  }, [rodando, massa, angulo, muEstatico, muCinetico, velocidade, posicao, PesoParalelo, AtritoEstaticoMax, AtritoCinetico]);
 
   const resetSimulacao = () => {
     setRodando(false);
@@ -482,7 +481,7 @@ function SimTab() {
     histRef.current = { pos: [], vel: [], acc: [], t: [] };
   };
 
-  // Histórico
+  // Hitórico Gráficos
   useEffect(() => {
     const h = histRef.current;
     const aAtual = estaEmRepouso ? 0 : aceleracao;
@@ -494,14 +493,14 @@ function SimTab() {
     }
   }, [posicao, velocidade, estaEmRepouso, aceleracao]);
 
-  // Trail
+  // Rastro (Trail)
   useEffect(() => {
     if (!showTrail) { trailRef.current = []; return; }
     trailRef.current.push({ pos: posicao });
     if (trailRef.current.length > 150) trailRef.current.shift();
   }, [posicao, showTrail]);
 
-  // Desenho do canvas com qualidade melhorada
+  // ─── RENDERIZAÇÃO PRINCIPAL DO CANVAS ───
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -511,79 +510,78 @@ function SimTab() {
 
     ctx.clearRect(0, 0, W, H);
 
-    // Configuração da perspectiva do plano
-    const margemEsq = W * 0.12;
-    const margemDir = W * 0.88;
-    const topoY = H * 0.18;
-    const baseY = H * 0.88;
+    // Mapeamento de coordenadas (cálculo dinâmico da rampa)
+    const margemEsq = W * 0.15;
+    const margemDir = W * 0.85;
+    const baseY = H * 0.85;
 
-    const x1 = margemEsq;
-    const y1 = topoY;
+    // Fixo o canto inferior direito como base de ancoragem da rampa
     const x2 = margemDir;
     const y2 = baseY;
+
+    // Hipotenusa máxima para não sair da tela
+    const maxHipotenusa = margemDir - margemEsq;
+    let L_ramp = maxHipotenusa;
+    
+    // Evita que o topo da rampa corte o cabeçalho do canvas em ângulos agudos
+    const maxH = y2 - (H * 0.15); 
+    if (L_ramp * Math.sin(angRad) > maxH) {
+      L_ramp = maxH / Math.sin(angRad);
+    }
+
+    // Calcula origem (x1, y1) usando a trigonometria atual baseada no controle do usuário
+    const x1 = x2 - L_ramp * Math.cos(angRad);
+    const y1 = y2 - L_ramp * Math.sin(angRad);
+
     const dxVis = x2 - x1;
     const dyVis = y2 - y1;
-    const anguloVis = Math.atan2(-dyVis, dxVis);
+    const anguloVis = Math.atan2(dyVis, dxVis); // anguloVis corresponde a descida
+
+    // Posição linear mapeada na rampa
     const tBloco = posicao / comprimentoPlano;
     const blocoX = x1 + tBloco * dxVis;
     const blocoY = y1 + tBloco * dyVis;
 
-    // ─── Desenho do plano inclinado (3D falso) ───
-    // Face superior do plano
+    // ─── DESENHO DA ESTRUTURA FÍSICA ───
+    
+    // Desenho da Rampa (Triângulo Sólido)
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
-    ctx.lineTo(x2 + 12, y2 + 8);
-    ctx.lineTo(x1 + 12, y1 + 8);
+    ctx.lineTo(x1, y2);
     ctx.closePath();
-    ctx.fillStyle = '#2a3a4a';
+    ctx.fillStyle = '#1e293b'; // Slate escuro
     ctx.fill();
-    ctx.strokeStyle = '#4a6a7a';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Face lateral (profundidade)
+    // Superfície de Deslizamento (Linha superior)
     ctx.beginPath();
-    ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 + 12, y2 + 8);
-    ctx.lineTo(x1 + 12, y1 + 8);
-    ctx.lineTo(x1, y1);
-    ctx.closePath();
-    ctx.fillStyle = '#1a2a35';
-    ctx.fill();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Superfície principal com textura
+    // Chão (Base horizontal)
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(x1, y1);
-    ctx.fillStyle = '#3a5a6a';
-    ctx.fill();
-
-    // Linhas de textura do plano (estilo grid)
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 0.8;
-    for (let i = 0; i <= 10; i++) {
-      const t = i / 10;
-      const lx = x1 + t * dxVis;
-      const ly = y1 + t * dyVis;
-      ctx.beginPath();
-      ctx.moveTo(lx - 15, ly + 3);
-      ctx.lineTo(lx + 15, ly + 3);
-      ctx.stroke();
-    }
-
-    // Borda superior do plano (linha de destaque)
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.strokeStyle = '#7ab8d0';
+    ctx.moveTo(x1 - 40, y2);
+    ctx.lineTo(x2 + 40, y2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Trail (rastro com efeito de brilho)
+    // Linhas verticais indicativas de altura (grid estrutural)
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x1, y2);
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // ─── RASTRO (Trail) ───
     if (showTrail && trailRef.current.length > 1) {
       for (let i = 1; i < trailRef.current.length; i++) {
         const t1 = trailRef.current[i - 1].pos / comprimentoPlano;
@@ -592,181 +590,137 @@ function SimTab() {
         const ya = y1 + t1 * dyVis;
         const xb = x1 + t2 * dxVis;
         const yb = y1 + t2 * dyVis;
-        const alpha = Math.min(0.7, i / trailRef.current.length);
+        const alpha = Math.min(0.6, i / trailRef.current.length);
+        
         ctx.beginPath();
-        ctx.moveTo(xa, ya - 8);
-        ctx.lineTo(xb, yb - 8);
-        ctx.strokeStyle = `rgba(96,165,250,${alpha * 0.5})`;
-        ctx.lineWidth = 4;
-        ctx.stroke();
-        // Brilho central
-        ctx.beginPath();
-        ctx.moveTo(xa, ya - 8);
-        ctx.lineTo(xb, yb - 8);
-        ctx.strokeStyle = `rgba(150,200,255,${alpha * 0.3})`;
-        ctx.lineWidth = 2;
+        ctx.moveTo(xa, ya);
+        ctx.lineTo(xb, yb);
+        ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
+        ctx.lineWidth = 3;
         ctx.stroke();
       }
     }
 
-    // ─── Vetores de força (melhorados) ───
+    // ─── RENDERIZAÇÃO ROTACIONADA DO BLOCO ───
+    const blocow = 40;
+    const blocoh = 36;
+    
+    ctx.save();
+    // Translada a origem do canvas para o ponto exato de contato na hipotenusa
+    ctx.translate(blocoX, blocoY);
+    // Rotaciona todo o contexto do canvas para o ângulo visual (o bloco desenha-se alinhado)
+    ctx.rotate(anguloVis);
+
+    // Bloco centralizado horizontalmente no eixo de deslocamento (-blocow/2)
+    // Deslocado para cima da linha da rampa (-blocoh)
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(-blocow / 2, -blocoh, blocow, blocoh);
+    
+    // Detalhes internos da malha do bloco
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-blocow / 2, -blocoh, blocow, blocoh);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(-blocow / 2 + 4, -blocoh + 4, blocow - 8, 4);
+
+    // Massa renderizada no centro
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px "Fira Code"';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 0;
+    ctx.fillText(`${fmt(massa, 1)}kg`, 0, -blocoh / 2);
+
+    ctx.restore();
+
+    // ─── VETORES DE FORÇA ───
     if (showVetores) {
-      const escala = 0.065;
-      const cxBloco = blocoX;
-      const cyBloco = blocoY - 10;
+      // Centro de massa global para a origem dos vetores
+      const cxBloco = blocoX + (blocoh / 2) * Math.sin(anguloVis);
+      const cyBloco = blocoY - (blocoh / 2) * Math.cos(anguloVis);
 
-      const desenhaVetor = (x, y, fx, fy, cor, label, lineWidth = 2.5) => {
-        const mag = Math.hypot(fx, fy);
-        if (mag < 0.3) return;
-        const ang = Math.atan2(fy, fx);
-        const comp = Math.min(mag * escala, 70);
-        const xf = x + Math.cos(ang) * comp;
-        const yf = y + Math.sin(ang) * comp;
-
-        // Sombra do vetor
-        ctx.shadowBlur = 4;
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      // Função de desenho vetorial (trabalha com magnitudes e ângulos absolutos)
+      const desenhaVetor = (x, y, mag, angAbsoluto, cor, label) => {
+        if (mag < 0.2) return;
+        
+        // Mapeamento logarítmico brando para escalar força para pixels
+        // (impede vetores de quebrarem a interface, mas os mantêm proporcionais)
+        const comp = Math.min(Math.max(mag * 4, 30), 120); 
+        
+        const xf = x + Math.cos(angAbsoluto) * comp;
+        const yf = y + Math.sin(angAbsoluto) * comp;
 
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(xf, yf);
         ctx.strokeStyle = cor;
-        ctx.lineWidth = lineWidth;
+        ctx.lineWidth = 3;
         ctx.stroke();
 
-        // Ponta da seta (melhorada)
-        const hs = 8;
-        const ang1 = ang + Math.PI * 0.85;
-        const ang2 = ang - Math.PI * 0.85;
+        // Cabeça da Seta (Arrowhead)
+        const tamanhoSeta = 10;
+        const ang1 = angAbsoluto + Math.PI * 0.85;
+        const ang2 = angAbsoluto - Math.PI * 0.85;
         ctx.beginPath();
         ctx.moveTo(xf, yf);
-        ctx.lineTo(xf + Math.cos(ang1) * hs, yf + Math.sin(ang1) * hs);
-        ctx.lineTo(xf + Math.cos(ang2) * hs, yf + Math.sin(ang2) * hs);
+        ctx.lineTo(xf + Math.cos(ang1) * tamanhoSeta, yf + Math.sin(ang1) * tamanhoSeta);
+        ctx.lineTo(xf + Math.cos(ang2) * tamanhoSeta, yf + Math.sin(ang2) * tamanhoSeta);
         ctx.fillStyle = cor;
         ctx.fill();
 
-        // Label com fundo semi-transparente
-        ctx.shadowBlur = 0;
-        ctx.font = 'bold 10px Fira Code';
+        // Rótulo alinhado ao lado da extremidade da seta
+        ctx.font = 'bold 11px "Fira Code"';
         ctx.fillStyle = cor;
-        ctx.shadowBlur = 2;
-        ctx.fillText(label, xf + 6, yf - 4);
-        ctx.shadowBlur = 0;
+        ctx.fillText(label, xf + 6, yf + 4);
       };
 
-      // Peso (vertical)
-      desenhaVetor(cxBloco, cyBloco, 0, Peso, '#f87171', `P = ${fmt(Peso)}N`, 2.5);
+      // Peso P (sempre aponta reto para o centro da Terra -> 90° ou PI/2 radianos)
+      desenhaVetor(cxBloco, cyBloco, Peso, Math.PI / 2, '#ef4444', `P=${fmt(Peso)}N`);
 
-      // Normal (perpendicular ao plano)
-      const angNormal = anguloVis - Math.PI / 2;
-      desenhaVetor(cxBloco, cyBloco, Math.cos(angNormal) * Normal, Math.sin(angNormal) * Normal, '#60a5fa', `N = ${fmt(Normal)}N`, 2.5);
+      // Normal N (perpendicular ao plano, apontando para fora)
+      desenhaVetor(cxBloco, cyBloco, Normal, anguloVis - Math.PI / 2, '#3b82f6', `N=${fmt(Normal)}N`);
 
-      // Atrito (paralelo ao plano, oposto ao movimento)
+      // Atrito (sempre paralelo ao plano, em oposição à tendência/movimento)
       if (!estaEmRepouso && Math.abs(velocidade) > 0.01) {
-        const sinalAtrito = velocidade >= 0 ? -1 : 1;
-        const atritoX = Math.cos(anguloVis) * sinalAtrito * AtritoCinetico;
-        const atritoY = Math.sin(anguloVis) * sinalAtrito * AtritoCinetico;
-        desenhaVetor(cxBloco, cyBloco, atritoX, atritoY, '#a78bfa', `f = ${fmt(AtritoCinetico)}N`, 2.5);
+        // Atrito Dinâmico
+        const dirAtrito = velocidade >= 0 ? anguloVis + Math.PI : anguloVis;
+        desenhaVetor(cxBloco, cyBloco, AtritoCinetico, dirAtrito, '#8b5cf6', `f꜀=${fmt(AtritoCinetico)}N`);
       } else if (PesoParalelo > AtritoEstaticoMax && estaEmRepouso) {
-        // Atrito estático máximo (prestes a deslizar)
-        const sinalAtrito = 1;
-        const atritoX = -Math.cos(anguloVis) * sinalAtrito * AtritoEstaticoMax;
-        const atritoY = -Math.sin(anguloVis) * sinalAtrito * AtritoEstaticoMax;
-        desenhaVetor(cxBloco, cyBloco, atritoX, atritoY, '#a78bfa', `fₑ = ${fmt(AtritoEstaticoMax)}N`, 2.5);
-      }
-
-      // Força resultante (apenas quando em movimento)
-      if (!estaEmRepouso && Math.abs(forcaResultante) > 0.05) {
-        const angResultante = forcaResultante >= 0 ? anguloVis : anguloVis + Math.PI;
-        const rx = Math.cos(angResultante) * Math.abs(forcaResultante);
-        const ry = Math.sin(angResultante) * Math.abs(forcaResultante);
-        desenhaVetor(cxBloco, cyBloco, rx, ry, '#34d399', `Fᵣ = ${fmt(Math.abs(forcaResultante))}N`, 3);
+        // Iminência de Deslizar (Atrito Estático Máx superado)
+        desenhaVetor(cxBloco, cyBloco, AtritoEstaticoMax, anguloVis + Math.PI, '#8b5cf6', `fₑ=${fmt(AtritoEstaticoMax)}N`);
+      } else if (estaEmRepouso) {
+        // Atrito Estático estabilizador equilibra exatemente a componente de descida (P∥)
+        desenhaVetor(cxBloco, cyBloco, PesoParalelo, anguloVis + Math.PI, '#8b5cf6', `f=${fmt(PesoParalelo)}N`);
       }
     }
 
-    // ─── Bloco (cubo 3D com qualidade melhorada) ───
-    const blocow = 32;
-    const blocoh = 28;
-    const blocoXc = blocoX - blocow / 2;
-    const blocoYc = blocoY - blocoh - 4;
+    // ─── INFORMAÇÕES GEOMÉTRICAS (Overlay Analítico) ───
+    ctx.fillStyle = '#eab308';
+    ctx.font = 'bold 13px "Fira Code"';
+    // Colocamos a etiqueta do ângulo perto da base (onde visualmente forma a quina)
+    ctx.fillText(`θ = ${fmt(angulo)}°`, x1 + 20, y2 - 10);
 
-    // Sombra do bloco
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-
-    // Face frontal
-    ctx.fillStyle = '#e55a5a';
-    ctx.fillRect(blocoXc, blocoYc, blocow, blocoh);
-    // Face superior (efeito 3D)
-    ctx.fillStyle = '#ff7a7a';
-    ctx.beginPath();
-    ctx.moveTo(blocoXc, blocoYc);
-    ctx.lineTo(blocoXc + blocow, blocoYc);
-    ctx.lineTo(blocoXc + blocow - 6, blocoYc - 8);
-    ctx.lineTo(blocoXc - 6, blocoYc - 8);
-    ctx.fill();
-    // Face lateral direita
-    ctx.fillStyle = '#b54545';
-    ctx.beginPath();
-    ctx.moveTo(blocoXc + blocow, blocoYc);
-    ctx.lineTo(blocoXc + blocow, blocoYc + blocoh);
-    ctx.lineTo(blocoXc + blocow - 6, blocoYc + blocoh - 8);
-    ctx.lineTo(blocoXc + blocow - 6, blocoYc - 8);
-    ctx.fill();
-
-    // Detalhes do bloco (linhas de borda)
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(blocoXc, blocoYc, blocow, blocoh);
-
-    // Textura/metais do bloco
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(blocoXc + 4, blocoYc + 4, blocow - 8, 3);
-    ctx.fillRect(blocoXc + 4, blocoYc + 10, blocow - 8, 2);
-
-    // Texto da massa dentro do bloco
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 10px Fira Code';
-    ctx.textAlign = 'center';
-    ctx.shadowBlur = 2;
-    ctx.fillText(`${fmt(massa)} kg`, blocoX, blocoYc + 18);
-    ctx.textAlign = 'left';
-    ctx.shadowBlur = 0;
-
-    // ─── Informações geométricas ───
-    ctx.fillStyle = 'rgba(251,191,36,0.9)';
-    ctx.font = 'bold 11px Fira Code';
-    ctx.fillText(`θ = ${fmt(angulo)}°`, x1 + 15, y1 - 12);
-
-    // Indicador de estado
-    ctx.font = '10px Fira Code';
+    ctx.font = '11px "Fira Code"';
     if (PesoParalelo > AtritoEstaticoMax) {
-      ctx.fillStyle = 'rgba(52,211,153,0.9)';
-      ctx.fillText('⚡ DESLIZANDO', x1 + 15, y1 + 18);
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('⚡ DESLIZANDO', 20, 30);
     } else {
-      ctx.fillStyle = 'rgba(100,116,139,0.9)';
-      ctx.fillText('● EM REPOUSO', x1 + 15, y1 + 18);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('● EM REPOUSO', 20, 30);
     }
 
-    // Ângulo crítico
-    if (angulo >= anguloCritico - 5 && angulo < anguloCritico) {
-      ctx.fillStyle = 'rgba(251,191,36,0.7)';
-      ctx.font = '9px Fira Code';
-      ctx.fillText(`θ crítico = ${fmt(anguloCritico, 1)}°`, x1 + 15, y1 + 32);
-    }
-
-    // Informações de tempo/posição/velocidade
-    ctx.fillStyle = 'rgba(100,116,139,0.9)';
-    ctx.font = '10px Fira Code';
-    ctx.fillText(`s = ${fmt(posicao, 2)} m`, 12, H - 20);
-    ctx.fillText(`v = ${fmt(velocidade, 2)} m/s`, 12, H - 36);
-    ctx.fillStyle = 'rgba(96,165,250,0.7)';
-    ctx.fillText(`a = ${fmt(estaEmRepouso ? 0 : aceleracao, 3)} m/s²`, 12, H - 52);
+    // Régua linear de monitoramento
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText(`s(t) = ${fmt(posicao, 2)} m`, 20, H - 40);
+    ctx.fillText(`v(t) = ${fmt(velocidade, 2)} m/s`, 20, H - 24);
 
   }, [angulo, massa, posicao, velocidade, Peso, Normal, AtritoCinetico, AtritoEstaticoMax, 
-      estaEmRepouso, PesoParalelo, forcaResultante, aceleracao, showVetores, showTrail, trailRef, anguloCritico]);
+      estaEmRepouso, PesoParalelo, forcaResultante, angRad, showVetores, showTrail]);
 
-  // Gráficos
+  // Gráficos (Data plotting)
   const drawPlot = useCallback((ref, data, color, label, yMin, yMax, unidade = '') => {
     const canvas = ref.current;
     if (!canvas || !data || data.length < 2) return;
@@ -775,14 +729,10 @@ function SimTab() {
     const H = canvas.height = canvas.offsetHeight;
     ctx.clearRect(0, 0, W, H);
 
-    // Eixos
-    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, H*0.25); ctx.lineTo(W, H*0.25); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, H*0.75); ctx.lineTo(W, H*0.75); ctx.stroke();
 
-    // Curva com gradiente de cor
     const range = (yMax - yMin) || 1;
     ctx.beginPath();
     data.forEach((v, i) => {
@@ -795,35 +745,25 @@ function SimTab() {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Área sob a curva (efeito de preenchimento suave)
-    ctx.beginPath();
-    data.forEach((v, i) => {
-      const x = (i / (data.length - 1)) * W;
-      const y = H - ((v - yMin) / range) * H;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
     ctx.lineTo(W, H);
     ctx.lineTo(0, H);
     ctx.closePath();
-    ctx.fillStyle = `${color}15`;
+    ctx.fillStyle = `${color}10`;
     ctx.fill();
 
-    // Label e valor atual
     ctx.fillStyle = color;
-    ctx.font = 'bold 10px Fira Code';
-    ctx.fillText(label, 6, 14);
+    ctx.font = 'bold 10px "Fira Code"';
+    ctx.fillText(label, 8, 16);
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.font = '10px Fira Code';
-    const ultimoValor = data[data.length - 1];
-    ctx.fillText(`${fmt(ultimoValor, 2)} ${unidade}`, 6, 28);
+    ctx.font = '10px "Fira Code"';
+    ctx.fillText(`${fmt(data[data.length - 1], 2)} ${unidade}`, 8, 30);
   }, []);
 
   useEffect(() => {
     const h = histRef.current;
-    drawPlot(plotPosRef, h.pos, '#60a5fa', 's(t) posição', 0, comprimentoPlano, 'm');
-    drawPlot(plotVelRef, h.vel, '#34d399', 'v(t) velocidade', -3, 8, 'm/s');
-    drawPlot(plotAccRef, h.acc, '#f87171', 'a(t) aceleração', -2, 6, 'm/s²');
+    drawPlot(plotPosRef, h.pos, '#3b82f6', 's(t) Posição', 0, comprimentoPlano, 'm');
+    drawPlot(plotVelRef, h.vel, '#10b981', 'v(t) Velocidade', -3, 8, 'm/s');
+    drawPlot(plotAccRef, h.acc, '#ef4444', 'a(t) Aceleração', -2, 6, 'm/s²');
   }, [posicao, velocidade, drawPlot]);
 
   return (
@@ -841,28 +781,28 @@ function SimTab() {
           <input type="range" min="0.5" max="10" step="0.1" value={massa} onChange={e => setMassa(+e.target.value)} />
         </div>
 
-        <div className="section-label">Atrito</div>
+        <div className="section-label">Coeficientes de Atrito</div>
 
         <div className="ctrl">
-          <div className="ctrl-head"><span className="ctrl-name">μₑ (estático)</span><span className="ctrl-num">{fmt(muEstatico, 3)}</span></div>
+          <div className="ctrl-head"><span className="ctrl-name">Estático (μₑ)</span><span className="ctrl-num">{fmt(muEstatico, 3)}</span></div>
           <input type="range" min="0" max="1.2" step="0.01" value={muEstatico} onChange={e => setMuEstatico(+e.target.value)} />
         </div>
 
         <div className="ctrl">
-          <div className="ctrl-head"><span className="ctrl-name">μ꜀ (cinético)</span><span className="ctrl-num">{fmt(muCinetico, 3)}</span></div>
+          <div className="ctrl-head"><span className="ctrl-name">Cinético (μ꜀)</span><span className="ctrl-num">{fmt(muCinetico, 3)}</span></div>
           <input type="range" min="0" max="1.2" step="0.01" value={muCinetico} onChange={e => setMuCinetico(+e.target.value)} />
         </div>
 
-        <div className="section-label">Visualização</div>
+        <div className="section-label">Overlay & Visualização</div>
 
         <label className="toggle-row">
           <input type="checkbox" checked={showVetores} onChange={e => setShowVetores(e.target.checked)} />
-          <span className="toggle-label" style={{ color: '#a78bfa' }}>Mostrar vetores de força</span>
+          <span className="toggle-label" style={{ color: '#8b5cf6' }}>Vetores Dinâmicos</span>
         </label>
 
         <label className="toggle-row">
           <input type="checkbox" checked={showTrail} onChange={e => setShowTrail(e.target.checked)} />
-          <span className="toggle-label" style={{ color: '#60a5fa' }}>Rastro da partícula</span>
+          <span className="toggle-label" style={{ color: '#10b981' }}>Traçado s(t)</span>
         </label>
 
         <div className="btn-row">
@@ -872,66 +812,59 @@ function SimTab() {
           <button className="btn btn-secondary" onClick={() => setRodando(false)}>⏸ Pausar</button>
         </div>
         <div className="btn-row">
-          <button className="btn btn-danger" onClick={resetSimulacao}>↩ Reset</button>
+          <button className="btn btn-danger" onClick={resetSimulacao}>↩ Resetar Instância</button>
         </div>
       </div>
 
       <div className="main-area">
         <div className="canvas-wrap">
-          <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
+          <canvas ref={canvasRef} />
         </div>
         <div className="plots-strip">
-          <div className="plot-box"><div className="plot-title">Posição s(t)</div><canvas ref={plotPosRef} style={{ width: '100%', height: '120px' }} /></div>
-          <div className="plot-box"><div className="plot-title">Velocidade v(t)</div><canvas ref={plotVelRef} style={{ width: '100%', height: '120px' }} /></div>
-          <div className="plot-box"><div className="plot-title">Aceleração a(t)</div><canvas ref={plotAccRef} style={{ width: '100%', height: '120px' }} /></div>
+          <div className="plot-box"><canvas ref={plotPosRef} /></div>
+          <div className="plot-box"><canvas ref={plotVelRef} /></div>
+          <div className="plot-box"><canvas ref={plotAccRef} /></div>
         </div>
       </div>
 
       <div className="sidebar-r">
-        <div className="section-label">Grandezas Calculadas</div>
+        <div className="section-label">Vetor Resultante</div>
         <div className="card">
           <div className="stat-row"><span className="stat-label">Peso P</span><span className="stat-val accent">{fmt(Peso)} N</span></div>
-          <div className="stat-row"><span className="stat-label">Componente paralela P∥</span><span className="stat-val gold">{fmt(PesoParalelo)} N</span></div>
+          <div className="stat-row"><span className="stat-label">Plano Paralelo P∥</span><span className="stat-val gold">{fmt(PesoParalelo)} N</span></div>
           <div className="stat-row"><span className="stat-label">Força Normal N</span><span className="stat-val">{fmt(Normal)} N</span></div>
-          <div className="stat-row"><span className="stat-label">Atrito estático máx</span><span className="stat-val purple">{fmt(AtritoEstaticoMax)} N</span></div>
-          <div className="stat-row"><span className="stat-label">Atrito cinético</span><span className="stat-val purple">{fmt(AtritoCinetico)} N</span></div>
-          <div className="stat-row"><span className="stat-label">Força Resultante</span><span className="stat-val green">{fmt(Math.abs(forcaResultante), 2)} N</span></div>
+          <div className="stat-row"><span className="stat-label">Atrito Estático Máx</span><span className="stat-val purple">{fmt(AtritoEstaticoMax)} N</span></div>
+          <div className="stat-row"><span className="stat-label">Atrito Cinético</span><span className="stat-val purple">{fmt(AtritoCinetico)} N</span></div>
+          <div className="stat-row"><span className="stat-label">Força Resultante Fᵣ</span><span className="stat-val green">{fmt(Math.abs(forcaResultante), 2)} N</span></div>
           <div className="stat-row"><span className="stat-label">Aceleração a</span><span className="stat-val red">{fmt(estaEmRepouso ? 0 : aceleracao, 3)} m/s²</span></div>
         </div>
 
-        <div className="section-label">Condições de Deslizamento</div>
+        <div className="section-label">Limiares Físicos</div>
         <div className="card">
           <div className="stat-row"><span className="stat-label">Ângulo crítico θ꜀</span><span className="stat-val gold">{fmt(anguloCritico, 1)}°</span></div>
           <div className="stat-row"><span className="stat-label">Status</span><span className={`stat-val ${PesoParalelo > AtritoEstaticoMax ? 'green' : 'red'}`}>
-            {PesoParalelo > AtritoEstaticoMax ? '🔴 Deslizando' : '🟢 Em repouso'}
+            {PesoParalelo > AtritoEstaticoMax ? '🔴 Dinâmico' : '🟢 Estático'}
           </span></div>
-          <div className="stat-row"><span className="stat-label">Energia Cinética</span><span className="stat-val accent">{fmt(0.5 * massa * velocidade * velocidade)} J</span></div>
         </div>
 
-        <div className="section-label">Equações Fundamentais</div>
+        <div className="section-label">Equações Modelo</div>
 
         <div className="eq-block">
-          <div className="eq-title">Componentes do Peso</div>
-          <span className="sym">P∥</span> <span className="op">=</span> m·g·<span className="sym">sen</span>θ<br />
-          <span className="sym">P⊥</span> <span className="op">=</span> m·g·<span className="sym">cos</span>θ
+          <div className="eq-title">Componentes (Trig)</div>
+          <span className="sym">P∥</span> <span className="op">=</span> m·g·<span className="sym">sin</span>(θ)<br />
+          <span className="sym">P⊥</span> <span className="op">=</span> m·g·<span className="sym">cos</span>(θ)
         </div>
 
         <div className="eq-block">
-          <div className="eq-title">Força de Atrito</div>
-          fₑₘₐₓ <span className="op">=</span> μₑ·N <span className="op">=</span> μₑ·m·g·<span className="sym">cos</span>θ<br />
+          <div className="eq-title">Fricção Superfície</div>
+          fₑₘₐₓ <span className="op">=</span> μₑ·N<br />
           f꜀ <span className="op">=</span> μ꜀·N<br />
-          <span className="cmt">Desliza se: P∥ &gt; fₑₘₐₓ</span>
+          <span className="cmt">// P∥ deve superar fₑₘₐₓ</span>
         </div>
 
         <div className="eq-block">
-          <div className="eq-title">2ª Lei de Newton</div>
-          Fᵣ <span className="op">=</span> m·a<br />
-          a <span className="op">=</span> g·(<span className="sym">sen</span>θ − μ꜀·<span className="sym">cos</span>θ)
-        </div>
-
-        <div className="eq-block">
-          <div className="eq-title">Ângulo Crítico</div>
-          θ꜀ <span className="op">=</span> <span className="sym">arctan</span>(μₑ)
+          <div className="eq-title">Dinâmica (Newton)</div>
+          a <span className="op">=</span> g·(<span className="sym">sin</span>(θ) − μ꜀·<span className="sym">cos</span>(θ))
         </div>
       </div>
     </div>
