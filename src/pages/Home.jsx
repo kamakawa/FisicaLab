@@ -35,11 +35,11 @@ const DATA = {
             disponivel: true
           },
           { 
-            id: 'trabalho-energia', 
-            title: 'Trabalho e Energia Mecânica', 
+            id: 'energia-mecanica', 
+            title: 'Energia Mecânica', 
             desc: 'Sistemas conservativos e dissipativos, integrais de linha de força e teoremas de conservação.', 
             tags: ['Integrais', 'Gráficos'], 
-            disponivel: false 
+            disponivel: true 
           },
           { 
             id: 'colisoes', 

@@ -11,6 +11,8 @@ import ExperimentoMRUV from './pages/ExperimentoMUV';
 import ExperimentoCircular from './pages/ExperimentoCircular';
 import ExperimentoPlanoInclinado from './pages/ExperimentoPlanoInclinado';
 import ExperimentoColisoes from './pages/ExperimentoColisoes';
+import ExperimentoLeisNewton from './pages/ExperimentoLeisNewton';
+import ExperimentoEnergiaMecanica from './pages/ExperimentoEnergiaMecanica';
 
 /* ========================================================= */
 /* TITULOS */
@@ -30,6 +32,8 @@ const TITULOS = {
   'plano-inclinado': 'Planos Inclinados e Atrito',
 
   'colisoes': 'Colisões',
+
+  'energia-mecanica': 'Energia Mecânica',
 };
 
 /* ========================================================= */
@@ -62,6 +66,8 @@ const EXPERIMENTO_FISICA = {
   'plano-inclinado': 'fisica1',
 
   'colisoes': 'fisica1',
+
+  'energia-mecanica': 'fisica1',
 };
 
 export default function App() {
@@ -412,8 +418,18 @@ export default function App() {
           )}
 
         {pagina === 'experimento' &&
+          experimento === 'leis-newton' && (
+            <ExperimentoLeisNewton />
+          )}
+
+        {pagina === 'experimento' &&
           experimento === 'plano-inclinado' && (
             <ExperimentoPlanoInclinado />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'energia-mecanica' && (
+            <ExperimentoEnergiaMecanica />
           )}
 
         {pagina === 'experimento' &&
