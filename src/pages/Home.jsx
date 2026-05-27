@@ -46,7 +46,7 @@ const DATA = {
             title: 'Sistemas de Partículas e Colisões', 
             desc: 'Conservação da quantidade de movimento, centro de massa e coeficiente de restituição.', 
             tags: ['Momento', 'Colisões'], 
-            disponivel: false 
+            disponivel: true 
           },
         ],
       }

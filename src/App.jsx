@@ -10,6 +10,7 @@ import ExperimentoMRU from './pages/ExperimentoMRU';
 import ExperimentoMRUV from './pages/ExperimentoMUV';
 import ExperimentoCircular from './pages/ExperimentoCircular';
 import ExperimentoPlanoInclinado from './pages/ExperimentoPlanoInclinado';
+import ExperimentoColisoes from './pages/ExperimentoColisoes';
 
 /* ========================================================= */
 /* TITULOS */
@@ -27,6 +28,8 @@ const TITULOS = {
   'leis-newton': 'Leis de Newton e Sistemas Acoplados',
 
   'plano-inclinado': 'Planos Inclinados e Atrito',
+
+  'colisoes': 'Colisões',
 };
 
 /* ========================================================= */
@@ -57,6 +60,8 @@ const EXPERIMENTO_FISICA = {
   'leis-newton': 'fisica1',
 
   'plano-inclinado': 'fisica1',
+
+  'colisoes': 'fisica1',
 };
 
 export default function App() {
@@ -409,6 +414,11 @@ export default function App() {
         {pagina === 'experimento' &&
           experimento === 'plano-inclinado' && (
             <ExperimentoPlanoInclinado />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'colisoes' && (
+            <ExperimentoColisoes />
           )}
 
       </div>
