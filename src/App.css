@@ -1,140 +1,267 @@
 /* src/App.css */
 :root {
+  /* Cores Base do App */
   --bg-dark: #0B0F19;
+  --bg-panel: rgba(15, 20, 30, 0.85); /* Fundo dos painéis laterais */
+  --bg-viewer: #05070D;               /* Fundo de onde a física acontece */
+  
+  /* Bordas e Efeito Vidro */
   --panel-glass: rgba(17, 25, 40, 0.75);
-  --border-glass: rgba(255, 255, 255, 0.125);
-  --neon-orange: #F97316;
-  --neon-cyan: #06B6D4;
-  --neon-green: #4ADE80;
+  --border-glass: rgba(0, 212, 255, 0.2);
+  
+  /* Paleta Unificada do FisicaLab */
+  --primary: #00D4FF;       /* Ciano - Elementos principais, UI e UI ativa */
+  --primary-hover: #00e5ff;
+  --secondary: #00F5C4;     /* Verde Água - Valores matemáticos / Posição */
+  --accent: #F97316;        /* Laranja - Aceleração / Destaques */
+  
+  /* Textos e Fontes */
   --text-main: #F3F4F6;
   --text-muted: #9CA3AF;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-math: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 body {
   margin: 0;
   background-color: var(--bg-dark);
   color: var(--text-main);
-  font-family: 'Inter', system-ui, sans-serif;
-  background-size: 40px 40px;
+  font-family: var(--font-ui);
 }
 
-.app-container {
-  max-width: 1200px;
-  margin: 0 auto;
+/* =========================================
+   ESTRUTURA GLOBAL DOS EXPERIMENTOS
+========================================= */
+.exp-container {
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: calc(100vh - 40px);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 10px 0;
+.exp-header {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-glass);
 }
 
-.header h1 {
+.exp-header h1 {
   margin: 0;
+  color: var(--primary);
+  font-family: var(--font-math);
   font-size: 1.5rem;
-  color: var(--text-main);
+  letter-spacing: 1px;
 }
 
-.dashboard {
+.exp-header p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 4px 0 0 0;
+}
+
+/* Layout Principal (Sidebar + Visualizador) */
+.exp-grid {
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: 340px minmax(0, 1fr);
   gap: 20px;
+  align-items: stretch;
 }
 
-.glass-panel {
-  background: var(--panel-glass);
-  backdrop-filter: blur(16px);
+@media (max-width: 950px) {
+  .exp-grid { grid-template-columns: 1fr; }
+}
+
+/* Sidebar e Cards */
+.exp-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.exp-sidebar::-webkit-scrollbar { width: 4px; }
+.exp-sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+.exp-sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+.exp-card {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-glass);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.3s ease;
 }
 
-.control-group {
-  margin-bottom: 20px;
+.exp-card:hover { border-color: rgba(0, 212, 255, 0.4); }
+
+.exp-card-title {
+  font-family: var(--font-math);
+  font-size: 0.85rem;
+  color: var(--primary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.control-group label {
+/* Controles (Inputs, Ranges, Selects) */
+.exp-control { margin-bottom: 16px; }
+
+.exp-control-label {
   display: flex;
   justify-content: space-between;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
   margin-bottom: 8px;
-  font-weight: 600;
-  color: var(--neon-cyan);
 }
 
-input[type=range] {
+.exp-value {
+  color: var(--secondary);
+  font-family: var(--font-math);
+  font-weight: bold;
+}
+
+input[type="range"].exp-range {
   width: 100%;
-  accent-color: var(--neon-orange);
+  accent-color: var(--primary);
+  background: rgba(255,255,255,0.1);
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
 }
 
-.math-font {
-  font-family: 'Fira Code', 'JetBrains Mono', monospace;
-  color: var(--neon-green);
+input[type="range"].exp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+input[type="range"].exp-range::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+select.exp-select {
+  width: 100%;
   background: rgba(0,0,0,0.3);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  outline: none;
 }
 
-.analytics-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 15px;
+/* Botões */
+.exp-btn-group {
+  display: flex;
+  gap: 8px;
 }
 
-.metric {
-  background: rgba(0,0,0,0.4);
+.exp-btn {
+  flex: 1;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  color: var(--primary);
   padding: 10px;
   border-radius: 8px;
-  border-left: 3px solid var(--neon-orange);
-}
-
-.metric.cyan {
-  border-left-color: var(--neon-green);
-}
-
-.metric p {
-  margin: 0 0 5px 0;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.metric h3 {
-  margin: 0;
-  font-family: monospace;
-  font-size: 1.2rem;
-}
-
-.play-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
+  font-family: var(--font-math);
+  font-size: 0.75rem;
+  text-transform: uppercase;
   cursor: pointer;
-  font-weight: bold;
-  background-color: var(--neon-cyan);
+  transition: all 0.2s;
+}
+
+.exp-btn:hover {
+  background: rgba(0, 212, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.exp-btn.primary {
+  background: var(--primary);
   color: var(--bg-dark);
-  transition: opacity 0.2s;
+  font-weight: bold;
 }
 
-button.stop {
-  background-color: var(--border-glass);
-  color: white;
+.exp-btn.primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
 }
 
-button:hover {
-  opacity: 0.8;
+/* Métricas (Stats Box) */
+.exp-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.exp-stat {
+  background: rgba(0,0,0,0.3);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.exp-stat-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.exp-stat-val {
+  font-family: var(--font-math);
+  color: var(--primary);
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Área Central (Viewer) */
+.exp-viewer {
+  background: var(--bg-viewer);
+  border-radius: 20px;
+  border: 1px solid var(--border-glass);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+  position: relative;
+}
+
+.exp-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.2);
+}
+
+.exp-tab {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.exp-tab:hover { color: var(--text-main); }
+
+.exp-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: rgba(0, 212, 255, 0.05);
 }
