@@ -245,7 +245,11 @@ export default function ExperimentoMUV() {
           {/* Conteúdo das abas... */}
           <div style={{ padding: '20px', height: '100%' }}>
             {tab === "sim" && <MUVGraph {...sharedProps} animated />}
-            {/* Outros componentes do MUV */}
+            {tab === "graphs" && <MUVGraph {...sharedProps} showAllCharts />} 
+            {tab === "equations" && <MUVEquations {...sharedProps} />}
+            {tab === "calculus" && <MUVCalculus {...sharedProps} />}
+            {tab === "analysis" && <MUVAnalysis {...sharedProps} />}
+            {tab === "table" && <MUVTable {...sharedProps} />}          
           </div>
         </div>
       </div>
