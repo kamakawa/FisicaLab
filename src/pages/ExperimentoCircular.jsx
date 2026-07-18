@@ -2,24 +2,24 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── Paleta e CSS global ─────────────────────────────────────────────────────
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #07090f;
-  --surface:  #0d1117;
-  --panel:    #111827;
-  --border:   rgba(255,255,255,0.07);
-  --accent:   #60a5fa;
-  --gold:     #fbbf24;
-  --green:    #34d399;
+  --bg:       #0B0F19;
+  --surface:  rgba(15, 20, 30, 0.85);
+  --panel:    rgba(15, 20, 30, 0.85);
+  --border:   rgba(0, 212, 255, 0.2);
+  --accent:   #00D4FF;
+  --gold:     #F97316;
+  --green:    #00F5C4;
   --red:      #f87171;
-  --purple:   #a78bfa;
-  --text:     #e2e8f0;
-  --muted:    #64748b;
-  --mono:     'Fira Code', monospace;
-  --sans:     'Space Grotesk', sans-serif;
+  --purple:   #A855F7;
+  --text:     #F3F4F6;
+  --muted:    #9CA3AF;
+  --mono:     'JetBrains Mono', 'Fira Code', monospace;
+  --sans:     'Inter', system-ui, sans-serif;
 }
 
 body { background: var(--bg); }
@@ -39,7 +39,7 @@ body { background: var(--bg); }
   display: flex;
   align-items: baseline;
   gap: 20px;
-  background: linear-gradient(90deg, rgba(96,165,250,0.06) 0%, transparent 60%);
+  background: linear-gradient(90deg, rgba(0,212,255,0.06) 0%, transparent 60%);
 }
 .header-title {
   font-family: 'Playfair Display', serif;
@@ -58,7 +58,7 @@ body { background: var(--bg); }
   margin-left: auto;
   font-size: 11px;
   color: var(--accent);
-  border: 1px solid rgba(96,165,250,0.3);
+  border: 1px solid rgba(0,212,255,0.3);
   padding: 3px 10px;
   border-radius: 20px;
   font-family: var(--mono);
@@ -103,10 +103,32 @@ body { background: var(--bg); }
   overflow-y: auto;
   padding: 20px;
   background: var(--panel);
+  backdrop-filter: blur(12px);
 }
 .sidebar-r {
   border-right: none;
   border-left: 1px solid var(--border);
+}
+
+.sidebar-l::-webkit-scrollbar,
+.sidebar-r::-webkit-scrollbar,
+.calc-page::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-l::-webkit-scrollbar-track,
+.sidebar-r::-webkit-scrollbar-track,
+.calc-page::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+}
+.sidebar-l::-webkit-scrollbar-thumb,
+.sidebar-r::-webkit-scrollbar-thumb,
+.calc-page::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+.sidebar-l, .sidebar-r, .calc-page {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) rgba(255,255,255,0.05);
 }
 
 .main-area {
@@ -129,11 +151,14 @@ body { background: var(--bg); }
 
 .card {
   background: var(--surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 14px;
   margin-bottom: 10px;
+  transition: border-color 0.3s ease;
 }
+.card:hover { border-color: rgba(0, 212, 255, 0.4); }
 
 .stat-row {
   display: flex;
@@ -190,7 +215,7 @@ input[type=range] {
 }
 .btn-primary {
   background: var(--accent);
-  color: #07090f;
+  color: #0B0F19;
 }
 .btn-primary:hover { filter: brightness(1.15); }
 .btn-secondary {
@@ -210,7 +235,7 @@ input[type=range] {
 .canvas-wrap {
   flex: 1;
   position: relative;
-  background: radial-gradient(ellipse at 50% 50%, #0f1829 0%, #07090f 80%);
+  background: radial-gradient(ellipse at 50% 50%, #0f1829 0%, #0B0F19 80%);
   overflow: hidden;
 }
 canvas { display: block; width: 100%; height: 100%; }
@@ -242,16 +267,19 @@ canvas { display: block; width: 100%; height: 100%; }
 /* ── Equações / Cálculo ── */
 .eq-block {
   background: var(--surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 14px 14px 0;
   padding: 12px 14px;
   margin-bottom: 10px;
   font-family: var(--mono);
   font-size: 12px;
   line-height: 1.9;
   color: var(--text);
+  transition: border-color 0.3s ease;
 }
+.eq-block:hover { border-color: rgba(0, 212, 255, 0.4); border-left-color: var(--accent); }
 .eq-block .eq-title {
   font-family: var(--sans);
   font-size: 10px;
@@ -274,10 +302,10 @@ canvas { display: block; width: 100%; height: 100%; }
   font-family: var(--mono);
   margin-left: 6px;
 }
-.badge-blue   { background: rgba(96,165,250,0.15); color: var(--accent); }
-.badge-green  { background: rgba(52,211,153,0.15); color: var(--green); }
+.badge-blue   { background: rgba(0,212,255,0.15); color: var(--accent); }
+.badge-green  { background: rgba(0,245,196,0.15); color: var(--green); }
 .badge-red    { background: rgba(248,113,113,0.15); color: var(--red); }
-.badge-gold   { background: rgba(251,191,36,0.15);  color: var(--gold); }
+.badge-gold   { background: rgba(249,115,22,0.15);  color: var(--gold); }
 
 /* ── Checkbox ── */
 .toggle-row {
@@ -301,7 +329,7 @@ canvas { display: block; width: 100%; height: 100%; }
   height: calc(100vh - 104px);
 }
 .exp-canvas-wrap {
-  background: radial-gradient(ellipse at 50% 50%, #0f1829 0%, #07090f 80%);
+  background: radial-gradient(ellipse at 50% 50%, #0f1829 0%, #0B0F19 80%);
   position: relative;
   overflow: hidden;
 }
@@ -323,7 +351,9 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #fff;
   margin-bottom: 16px;
   padding-bottom: 10px;
+  padding-left: 14px;
   border-bottom: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
 }
 .calc-p {
   color: var(--muted);
@@ -333,15 +363,19 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .big-eq {
   background: var(--panel);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 16px 16px 0;
   padding: 20px 24px;
   margin: 16px 0;
   font-family: var(--mono);
   font-size: 14px;
   line-height: 2.2;
   color: var(--text);
+  transition: border-color 0.3s ease;
 }
+.big-eq:hover { border-color: rgba(0, 212, 255, 0.4); border-left-color: var(--accent); }
 .big-eq .hi-acc { color: var(--accent); }
 .big-eq .hi-gld { color: var(--gold); }
 .big-eq .hi-grn { color: var(--green); }
@@ -357,10 +391,17 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .derivation-step:last-child { border-bottom: none; }
 .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.12);
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--muted);
-  min-width: 24px;
+  font-weight: 600;
+  color: var(--accent);
 }
 .step-eq { font-family: var(--mono); font-size: 13px; color: var(--text); }
 .step-desc { font-size: 12px; color: var(--muted); margin-left: auto; font-style: italic; }
@@ -510,7 +551,7 @@ function SimTab() {
     // Órbita
     ctx.beginPath();
     ctx.arc(cx, cy, raio * scale, 0, TAU);
-    ctx.strokeStyle = 'rgba(96,165,250,0.25)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.25)';
     ctx.lineWidth = 2;
     ctx.setLineDash([6, 4]);
     ctx.stroke();
@@ -524,7 +565,7 @@ function SimTab() {
         ctx.beginPath();
         ctx.moveTo(cx + trail[i-1].x * raio * scale, cy + trail[i-1].y * raio * scale);
         ctx.lineTo(cx + trail[i].x * raio * scale, cy + trail[i].y * raio * scale);
-        ctx.strokeStyle = `rgba(96,165,250,${alpha * 0.5})`;
+        ctx.strokeStyle = `rgba(0,212,255,${alpha * 0.5})`;
         ctx.lineWidth = 2;
         ctx.stroke();
       }
@@ -538,12 +579,12 @@ function SimTab() {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(px, py);
-    ctx.strokeStyle = 'rgba(251,191,36,0.5)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.5)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
     // Label raio
-    ctx.fillStyle = 'rgba(251,191,36,0.7)';
+    ctx.fillStyle = 'rgba(249,115,22,0.7)';
     ctx.font = '12px Fira Code';
     ctx.fillText(`r = ${fmt(raio)}m`, cx + Math.cos(ang) * raio * scale * 0.5 + 6, cy + Math.sin(ang) * raio * scale * 0.5 - 6);
 
@@ -580,7 +621,7 @@ function SimTab() {
     if (showV) {
       const vx = -Math.sin(ang) * vLin * vScale;
       const vy =  Math.cos(ang) * vLin * vScale;
-      arrow(px, py, vx, vy, '#34d399', `v=${fmt(vLin)}m/s`);
+      arrow(px, py, vx, vy, '#00F5C4', `v=${fmt(vLin)}m/s`);
     }
     if (showA) {
       const ax = -(Math.cos(ang)) * aCent * aScale;
@@ -590,15 +631,15 @@ function SimTab() {
     if (showT) {
       const tx = -(Math.cos(ang)) * T * tScale * 0.3;
       const ty = -(Math.sin(ang)) * T * tScale * 0.3;
-      arrow(px, py, tx, ty, '#a78bfa', `T=${fmt(T)}N`);
+      arrow(px, py, tx, ty, '#A855F7', `T=${fmt(T)}N`);
     }
 
     // Partícula
     ctx.beginPath();
     ctx.arc(px, py, 12, 0, TAU);
     const grd = ctx.createRadialGradient(px, py, 0, px, py, 12);
-    grd.addColorStop(0, '#93c5fd');
-    grd.addColorStop(1, '#3b82f6');
+    grd.addColorStop(0, '#7EE8FA');
+    grd.addColorStop(1, '#0091AD');
     ctx.fillStyle = grd;
     ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,0.3)';
@@ -621,15 +662,15 @@ function SimTab() {
     // Ângulo arc
     ctx.beginPath();
     ctx.arc(cx, cy, 28, 0, ang % TAU, omega < 0);
-    ctx.strokeStyle = 'rgba(251,191,36,0.5)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.5)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
-    ctx.fillStyle = 'rgba(251,191,36,0.8)';
+    ctx.fillStyle = 'rgba(249,115,22,0.8)';
     ctx.font = '11px Fira Code';
     ctx.fillText(`θ=${fmt((ang % TAU) * 180 / Math.PI, 0)}°`, cx + 32, cy - 10);
 
     // Info tempo
-    ctx.fillStyle = 'rgba(100,116,139,0.9)';
+    ctx.fillStyle = 'rgba(156,163,175,0.9)';
     ctx.font = '12px Fira Code';
     ctx.fillText(`t = ${fmt(t, 2)} s`, 12, H - 12);
   }, [t, raio, omega, massa, vLin, aCent, T, showV, showA, showT, showTrail]);
@@ -672,8 +713,8 @@ function SimTab() {
 
   useEffect(() => {
     const h = histRef.current;
-    drawPlot(plotPosRef, h.px, '#60a5fa', 'x(t) = cos(ωt)', -1.1, 1.1);
-    drawPlot(plotVRef,   h.vy, '#34d399', 'vy(t) = ω·cos(ωt)', -1.1, 1.1);
+    drawPlot(plotPosRef, h.px, '#00D4FF', 'x(t) = cos(ωt)', -1.1, 1.1);
+    drawPlot(plotVRef,   h.vy, '#00F5C4', 'vy(t) = ω·cos(ωt)', -1.1, 1.1);
     drawPlot(plotARef,   h.ay.map(v => -v), '#f87171', 'ay(t) = −ω²sin(ωt)', -1.1, 1.1);
   }, [t, drawPlot]);
 
@@ -713,10 +754,10 @@ function SimTab() {
         <div className="section-label">Visualização</div>
 
         {[
-          [showV,     setShowV,     'Vetor Velocidade', '#34d399'],
+          [showV,     setShowV,     'Vetor Velocidade', '#00F5C4'],
           [showA,     setShowA,     'Vetor Aceleração Centrípeta', '#f87171'],
-          [showT,     setShowT,     'Força Centrípeta (Tensão)', '#a78bfa'],
-          [showTrail, setShowTrail, 'Rastro da Partícula', '#60a5fa'],
+          [showT,     setShowT,     'Força Centrípeta (Tensão)', '#A855F7'],
+          [showTrail, setShowTrail, 'Rastro da Partícula', '#00D4FF'],
         ].map(([val, fn, label, c]) => (
           <label className="toggle-row" key={label}>
             <input type="checkbox" checked={val} onChange={e => fn(e.target.checked)} />
@@ -843,8 +884,11 @@ function ExpTab() {
         const hh    = fio * Math.cos(angR);
         const omEq  = Math.sqrt(g / hh);
 
-        // Equação dinâmica simplificada: ω tende ao equilíbrio com amortecimento
-        const dOmega = (omEq - s.omega) * 0.8 - atrito * s.omega;
+        // Equação dinâmica simplificada: ω tende ao equilíbrio com amortecimento.
+        // O atrito reduz a taxa de aproximação, mas o ponto de equilíbrio final
+        // continua sendo omEq (sem deixar diferença residual permanente).
+        const rate = Math.max(0.05, 0.8 - atrito);
+        const dOmega = (omEq - s.omega) * rate;
         const newOmega = Math.max(0, s.omega + dOmega * dt);
 
         // Ângulo do fio evolui até equilíbrio
@@ -892,7 +936,7 @@ function ExpTab() {
     // Elipse (trajetória projetada)
     ctx.beginPath();
     ctx.ellipse(cx, massaY, rr, rr * 0.25, 0, 0, TAU);
-    ctx.strokeStyle = 'rgba(96,165,250,0.2)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.2)';
     ctx.lineWidth = 1.5;
     ctx.setLineDash([4, 4]);
     ctx.stroke();
@@ -902,7 +946,7 @@ function ExpTab() {
     ctx.beginPath();
     ctx.moveTo(cx, pivY);
     ctx.lineTo(cx, massaY);
-    ctx.strokeStyle = 'rgba(251,191,36,0.25)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.25)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
@@ -910,7 +954,7 @@ function ExpTab() {
     ctx.beginPath();
     ctx.moveTo(cx, pivY);
     ctx.lineTo(massaX, massaY);
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = '#F3F4F6';
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -918,19 +962,19 @@ function ExpTab() {
     ctx.beginPath();
     ctx.moveTo(cx, massaY);
     ctx.lineTo(massaX, massaY);
-    ctx.strokeStyle = 'rgba(96,165,250,0.5)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.5)';
     ctx.lineWidth = 1.5;
     ctx.setLineDash([4,4]);
     ctx.stroke();
     ctx.setLineDash([]);
 
     // Labels geométricos
-    ctx.fillStyle = 'rgba(251,191,36,0.8)';
+    ctx.fillStyle = 'rgba(249,115,22,0.8)';
     ctx.font = '11px Fira Code';
     ctx.fillText(`L=${fmt(fio,1)}m`, cx + rr/2 - 10, pivY + hh/2 - 8);
-    ctx.fillStyle = 'rgba(96,165,250,0.8)';
+    ctx.fillStyle = 'rgba(0,212,255,0.8)';
     ctx.fillText(`r=${fmt(rr/scale,2)}m`, cx + rr/2 - 5, massaY + 18);
-    ctx.fillStyle = 'rgba(100,116,139,0.8)';
+    ctx.fillStyle = 'rgba(156,163,175,0.8)';
     ctx.fillText(`h=${fmt(hh/scale,2)}m`, cx - 56, pivY + hh/2 + 4);
 
     // Ângulo arc
@@ -966,19 +1010,19 @@ function ExpTab() {
       const dx_t = -(Math.sin(angR));
       const dy_t = -(Math.cos(angR));
       arrow2(massaX, massaY, dx_t * T_fio * fScale * 0.6, dy_t * T_fio * fScale * 0.6,
-        '#a78bfa', `T=${fmt(T_fio,1)}N`);
+        '#A855F7', `T=${fmt(T_fio,1)}N`);
 
       // Peso
       arrow2(massaX, massaY, 0, massa * g * fScale * 0.6, '#f87171', `mg=${fmt(massa*g,1)}N`);
 
       // Centrípeta
-      arrow2(massaX, massaY, -Fc * fScale * 0.6, 0, '#34d399', `Fc=${fmt(Fc,1)}N`);
+      arrow2(massaX, massaY, -Fc * fScale * 0.6, 0, '#00F5C4', `Fc=${fmt(Fc,1)}N`);
     }
 
     // Massa (bola)
     const grd = ctx.createRadialGradient(massaX, massaY, 0, massaX, massaY, 16);
-    grd.addColorStop(0, '#93c5fd');
-    grd.addColorStop(1, '#3b82f6');
+    grd.addColorStop(0, '#7EE8FA');
+    grd.addColorStop(1, '#0091AD');
     ctx.beginPath();
     ctx.arc(massaX, massaY, 16, 0, TAU);
     ctx.fillStyle = grd;
@@ -993,7 +1037,7 @@ function ExpTab() {
     ctx.textAlign = 'left';
 
     // Tempo e ω
-    ctx.fillStyle = 'rgba(100,116,139,0.9)';
+    ctx.fillStyle = 'rgba(156,163,175,0.9)';
     ctx.font = '12px Fira Code';
     ctx.fillText(`ω = ${fmt(omega, 2)} rad/s`, 12, H - 28);
     ctx.fillText(`t = ${fmt(t, 2)} s`, 12, H - 12);
@@ -1035,7 +1079,7 @@ function ExpTab() {
 
         <label className="toggle-row">
           <input type="checkbox" checked={showForce} onChange={e => setShowForce(e.target.checked)} />
-          <span className="toggle-label" style={{color:'#a78bfa'}}>Mostrar vetores de força</span>
+          <span className="toggle-label" style={{color:'#A855F7'}}>Mostrar vetores de força</span>
         </label>
 
         <div className="btn-row">
@@ -1085,8 +1129,8 @@ function ExpTab() {
         </div>
         <div className="eq-block">
           <div className="eq-title">Equação de Movimento c/ Atrito</div>
-          dω/dt <span className="op">=</span> (ω_eq − ω) − β·ω<br/>
-          <span className="cmt">// amortecimento viscoso do ar</span>
+          dω/dt <span className="op">=</span> (ω_eq − ω)·(k − β)<br/>
+          <span className="cmt">// atrito reduz a taxa de aproximação, mas ω → ω_eq</span>
         </div>
       </div>
     </div>

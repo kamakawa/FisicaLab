@@ -66,7 +66,12 @@ function ParabolaCanvas({ vx, vy0, g, t, color, height = 160 }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.clientWidth || canvas.width;
+    const H = canvas.clientHeight || canvas.height;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const PAD = { top: 16, bottom: 24, left: 36, right: 16 };
     const plotW = W - PAD.left - PAD.right;
     const plotH = H - PAD.top - PAD.bottom;
@@ -110,12 +115,27 @@ function ParabolaCanvas({ vx, vy0, g, t, color, height = 160 }) {
     const vxt = vx;
     const vyt = vy0 - g * tEnd;
     const scale = 6;
-    ctx.beginPath();
+    const startX = toX(cx), startY = toY(cy);
+    const endX = startX + vxt * scale / maxX * plotW;
+    const endY = startY - vyt * scale / maxY * plotH;
+    const arrowLen = 8;
+    const arrowAngle = Math.atan2(endY - startY, endX - startX);
+
     ctx.strokeStyle = "#F59E0B";
+    ctx.fillStyle = "#F59E0B";
     ctx.lineWidth = 1.5;
-    ctx.moveTo(toX(cx), toY(cy));
-    ctx.lineTo(toX(cx) + vxt * scale / maxX * plotW, toY(cy) - vyt * scale / maxY * plotH);
+
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(endX, endY);
+    ctx.lineTo(endX - arrowLen * Math.cos(arrowAngle - Math.PI / 6), endY - arrowLen * Math.sin(arrowAngle - Math.PI / 6));
+    ctx.lineTo(endX - arrowLen * Math.cos(arrowAngle + Math.PI / 6), endY - arrowLen * Math.sin(arrowAngle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fill();
 
     ctx.fillStyle = "rgba(148,163,184,0.7)";
     ctx.font = "10px 'JetBrains Mono', monospace";

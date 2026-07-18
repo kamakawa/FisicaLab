@@ -1,8 +1,63 @@
 // src/components/MRU3D.jsx
 import React, { useRef, useState, useLayoutEffect, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Text, Line, Html } from "@react-three/drei";
 import * as THREE from "three";
+
+// Câmera que acompanha a partícula, afastando-se conforme ela se distancia da origem
+function CameraRig({ velocidade, posInicial, tempo }) {
+  const { camera } = useThree();
+  const controlsRef = useRef();
+  const prevDistRef = useRef(0);
+  const initialOffsetRef = useRef(null);
+  const smoothedTarget = useRef(new THREE.Vector3(posInicial.x, posInicial.y, posInicial.z));
+
+  useFrame(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+
+    if (initialOffsetRef.current === null) {
+      initialOffsetRef.current = camera.position.clone().sub(controls.target);
+    }
+
+    const x = posInicial.x + velocidade.x * tempo;
+    const y = posInicial.y + velocidade.y * tempo;
+    const z = posInicial.z + velocidade.z * tempo;
+    const targetPos = new THREE.Vector3(x, y, z);
+    smoothedTarget.current.lerp(targetPos, 0.08);
+
+    const distFromStart = Math.hypot(x - posInicial.x, y - posInicial.y, z - posInicial.z);
+
+    if (distFromStart < prevDistRef.current - 0.5) {
+      // Reset da simulação: volta ao enquadramento inicial
+      camera.position.copy(smoothedTarget.current).add(initialOffsetRef.current);
+      prevDistRef.current = 0;
+    } else {
+      const delta = distFromStart - prevDistRef.current;
+      if (delta > 0) {
+        const offset = camera.position.clone().sub(controls.target);
+        offset.multiplyScalar(1 + delta * 0.05);
+        camera.position.copy(controls.target).add(offset);
+      }
+      prevDistRef.current = distFromStart;
+    }
+
+    controls.target.copy(smoothedTarget.current);
+    controls.update();
+  });
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      enablePan={true}
+      enableZoom={true}
+      zoomSpeed={1.5}
+      panSpeed={1}
+      rotateSpeed={1.2}
+      makeDefault
+    />
+  );
+}
 
 function Particle({ velocidade, posInicial, tempo, setCurrentPos, cor }) {
   const ref = useRef();
@@ -399,14 +454,7 @@ export default function MRU3D({ velocidade, posInicial, tempo }) {
         {/* Luz de preenchimento */}
         <hemisphereLight intensity={0.4} color="#ffffff" groundColor="#111122" />
 
-        <OrbitControls 
-          enablePan={true}
-          enableZoom={true}
-          zoomSpeed={1.5}
-          panSpeed={1}
-          rotateSpeed={1.2}
-          makeDefault
-        />
+        <CameraRig velocidade={velocidade} posInicial={posInicial} tempo={tempo} />
 
         <AxesWithLabels />
 

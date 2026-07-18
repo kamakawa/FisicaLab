@@ -68,6 +68,7 @@ export default function ExperimentoMRU() {
           height: 100%;
           max-height: calc(100vh - 80px);
           overflow-y: auto;
+          overflow-x: hidden;
         }
 
         .mru-panel::-webkit-scrollbar {
@@ -291,13 +292,14 @@ export default function ExperimentoMRU() {
 
         .coord-group {
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 8px;
           margin-bottom: 10px;
         }
 
         .coord-input {
           text-align: center;
+          min-width: 0;
         }
 
         .coord-input label {
@@ -307,6 +309,8 @@ export default function ExperimentoMRU() {
         }
 
         .coord-input input {
+          width: 100%;
+          min-width: 0;
           text-align: center;
         }
       `}</style>

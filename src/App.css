@@ -86,6 +86,11 @@ body {
 .exp-sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
 .exp-sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
 
+.exp-viewer *::-webkit-scrollbar { width: 4px; }
+.exp-viewer *::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+.exp-viewer *::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+.exp-viewer * { scrollbar-width: thin; scrollbar-color: var(--primary) rgba(255,255,255,0.05); }
+
 .exp-card {
   background: var(--bg-panel);
   backdrop-filter: blur(12px);
@@ -151,15 +156,37 @@ input[type="range"].exp-range::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
 
-select.exp-select {
-  width: 100%;
-  background: rgba(0,0,0,0.3);
+/* Seletor de modo (toggle segmentado) */
+.exp-mode-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.exp-mode-btn {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
   border: 1px solid var(--border-glass);
-  border-radius: 8px;
-  padding: 10px;
-  color: var(--text-main);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: center;
   font-family: var(--font-ui);
-  outline: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.exp-mode-btn:hover {
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+
+.exp-mode-btn.active {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 700;
 }
 
 /* Botões */

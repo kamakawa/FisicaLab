@@ -163,11 +163,17 @@ export default function ExperimentoMUV() {
           
           <div className="exp-card">
             <div className="exp-card-title">Modo de Simulação</div>
-            <select className="exp-select" value={modo} onChange={(e) => handleModeChange(e.target.value)}>
+            <div className="exp-mode-selector">
               {MODES.map((m) => (
-                <option key={m.value} value={m.value}>{m.label}</option>
+                <button
+                  key={m.value}
+                  className={`exp-mode-btn ${modo === m.value ? "active" : ""}`}
+                  onClick={() => handleModeChange(m.value)}
+                >
+                  {m.label}
+                </button>
               ))}
-            </select>
+            </div>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
               {MODES.find((m) => m.value === modo)?.desc}
             </p>
@@ -245,7 +251,11 @@ export default function ExperimentoMUV() {
           {/* Conteúdo das abas... */}
           <div style={{ padding: '20px', height: '100%' }}>
             {tab === "sim" && <MUVGraph {...sharedProps} animated />}
-            {/* Outros componentes do MUV */}
+            {tab === "graphs" && <MUVGraph {...sharedProps} showAllCharts />} 
+            {tab === "equations" && <MUVEquations {...sharedProps} />}
+            {tab === "calculus" && <MUVCalculus {...sharedProps} />}
+            {tab === "analysis" && <MUVAnalysis {...sharedProps} />}
+            {tab === "table" && <MUVTable {...sharedProps} />}          
           </div>
         </div>
       </div>

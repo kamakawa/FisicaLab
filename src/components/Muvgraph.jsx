@@ -23,11 +23,13 @@ function SimCanvas({ v0, a, s0, t, tmax, modo, showVectors = true }) {
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
     const W = canvas.offsetWidth;
     const H = 420;
 
-    canvas.width = W;
-    canvas.height = H;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.clearRect(0, 0, W, H);
 
