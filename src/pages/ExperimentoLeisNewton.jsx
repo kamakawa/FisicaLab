@@ -5,24 +5,24 @@ import NewtonCalculus from '../components/NewtonCalculus';
 
 // ─── Estilos globais ─────────────────────────────────────────────────────────
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #07090f;
-  --surface:  #0d1117;
-  --panel:    #111827;
-  --border:   rgba(255,255,255,0.07);
-  --accent:   #60a5fa;
-  --gold:     #fbbf24;
-  --green:    #34d399;
+  --bg:       #0B0F19;
+  --surface:  rgba(15, 20, 30, 0.85);
+  --panel:    rgba(15, 20, 30, 0.85);
+  --border:   rgba(0, 212, 255, 0.2);
+  --accent:   #00D4FF;
+  --gold:     #F97316;
+  --green:    #00F5C4;
   --red:      #f87171;
-  --purple:   #a78bfa;
-  --text:     #e2e8f0;
-  --muted:    #64748b;
-  --mono:     'Fira Code', monospace;
-  --sans:     'Space Grotesk', sans-serif;
+  --purple:   #A855F7;
+  --text:     #F3F4F6;
+  --muted:    #9CA3AF;
+  --mono:     'JetBrains Mono', 'Fira Code', monospace;
+  --sans:     'Inter', system-ui, sans-serif;
 }
 
 body { background: var(--bg); }
@@ -42,7 +42,7 @@ body { background: var(--bg); }
   display: flex;
   align-items: baseline;
   gap: 20px;
-  background: linear-gradient(90deg, rgba(96,165,250,0.06) 0%, transparent 60%);
+  background: linear-gradient(90deg, rgba(0,212,255,0.06) 0%, transparent 60%);
 }
 .header-title-newton {
   font-family: 'Playfair Display', serif;
@@ -61,7 +61,7 @@ body { background: var(--bg); }
   margin-left: auto;
   font-size: 11px;
   color: var(--accent);
-  border: 1px solid rgba(96,165,250,0.3);
+  border: 1px solid rgba(0,212,255,0.3);
   padding: 3px 10px;
   border-radius: 20px;
   font-family: var(--mono);
@@ -106,6 +106,7 @@ body { background: var(--bg); }
   overflow-y: auto;
   padding: 20px;
   background: var(--panel);
+  backdrop-filter: blur(12px);
 }
 .sidebar-left-newton {
   border-right: 1px solid var(--border);
@@ -114,12 +115,33 @@ body { background: var(--bg); }
   border-left: 1px solid var(--border);
 }
 
+.sidebar-left-newton::-webkit-scrollbar,
+.sidebar-right-newton::-webkit-scrollbar,
+.calc-scroll-newton::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-left-newton::-webkit-scrollbar-track,
+.sidebar-right-newton::-webkit-scrollbar-track,
+.calc-scroll-newton::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+}
+.sidebar-left-newton::-webkit-scrollbar-thumb,
+.sidebar-right-newton::-webkit-scrollbar-thumb,
+.calc-scroll-newton::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+.sidebar-left-newton, .sidebar-right-newton, .calc-scroll-newton {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) rgba(255,255,255,0.05);
+}
+
 /* Área central */
 .main-area-newton {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: radial-gradient(ellipse at 50% 50%, #0f1829 0%, #07090f 80%);
+  background: radial-gradient(ellipse at 50% 50%, #0f1829 0%, #0B0F19 80%);
 }
 
 .canvas-wrap-newton {
@@ -159,9 +181,11 @@ body { background: var(--bg); }
 .theory-note-newton {
   margin: 0 20px 20px 20px;
   padding: 16px 20px;
-  background: rgba(96,165,250,0.05);
+  background: rgba(0,212,255,0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: 10px;
+  border-radius: 0 14px 14px 0;
 }
 .theory-note-newton h4 {
   font-size: 13px;
@@ -248,10 +272,10 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 .btn-primary-newton {
   background: var(--accent);
-  color: #07090f;
+  color: #0B0F19;
 }
 .btn-primary-newton:hover {
-  background: #3b82f6;
+  background: #0091AD;
   transform: translateY(-1px);
 }
 .btn-secondary-newton {
@@ -274,11 +298,14 @@ input[type=range]::-webkit-slider-thumb:hover {
 /* Card de métricas */
 .metrics-card-newton {
   background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 14px;
   margin: 16px 0;
+  transition: border-color 0.3s ease;
 }
+.metrics-card-newton:hover { border-color: rgba(0, 212, 255, 0.4); }
 .metric-row-newton {
   display: flex;
   justify-content: space-between;
@@ -324,16 +351,19 @@ input[type=range]::-webkit-slider-thumb:hover {
 /* Eq blocks na sidebar direita */
 .eq-block-newton {
   background: var(--surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 14px 14px 0;
   padding: 12px 14px;
   margin-bottom: 10px;
   font-family: var(--mono);
   font-size: 11px;
   line-height: 1.8;
   color: var(--text);
+  transition: border-color 0.3s ease;
 }
+.eq-block-newton:hover { border-color: rgba(0, 212, 255, 0.4); border-left-color: var(--accent); }
 .eq-block-newton .eq-title-newton {
   font-family: var(--sans);
   font-size: 9px;
@@ -442,7 +472,7 @@ export default function ExperimentoLeisNewton() {
             className={`tab-newton ${activeTab === "calculus" ? "active" : ""}`}
             onClick={() => setActiveTab("calculus")}
           >
-            Análise Matricial
+            ∫ Análise Matricial
           </button>
         </nav>
 
@@ -604,6 +634,13 @@ export default function ExperimentoLeisNewton() {
                     muK={muK}
                     showVectors={showVectors}
                   />
+                  <TheoryPanelNewton
+                    massA={massA}
+                    massB={massB}
+                    aceleracao={aceleracao}
+                    tracao={tracao}
+                    podeMover={podeMover}
+                  />
                 </div>
 
                 <div className="status-bar-newton">
@@ -616,7 +653,7 @@ export default function ExperimentoLeisNewton() {
                   <h4>⚡ Ação e Reação Manifesta (3ª Lei de Newton)</h4>
                   <p>
                     A força que o cabo exerce no Bloco A é exatamente igual em magnitude à força que exerce no Bloco B:
-                    <strong style={{ color: "#a78bfa" }}> T<sub>A</sub> = T<sub>B</sub> = {tracao.toFixed(1)} N</strong>.
+                    <strong style={{ color: "#A855F7" }}> T<sub>A</sub> = T<sub>B</sub> = {tracao.toFixed(1)} N</strong>.
                     As forças internas do par cabo-bloco se cancelam quando analisamos o sistema como um todo,
                     restando apenas as forças externas de gravidade sobre B e o atrito sobre A para ditar a aceleração total.
                   </p>
@@ -625,7 +662,7 @@ export default function ExperimentoLeisNewton() {
             )}
 
             {activeTab === "calculus" && (
-              <div style={{ overflowY: "auto", height: "100%", padding: "20px" }}>
+              <div className="calc-scroll-newton" style={{ overflowY: "auto", height: "100%", padding: "20px" }}>
                 <NewtonCalculus
                   massA={massA}
                   massB={massB}
@@ -717,5 +754,41 @@ export default function ExperimentoLeisNewton() {
         </div>
       </div>
     </>
+  );
+}
+
+/* Painel Teórico Flutuante Interno do Gráfico */
+function TheoryPanelNewton({ massA, massB, aceleracao, tracao, podeMover }) {
+  return (
+    <div style={{
+      position: 'absolute',
+      top: 16,
+      right: 16,
+      width: 250,
+      background: 'rgba(8, 12, 20, 0.9)',
+      backdropFilter: 'blur(14px)',
+      borderRadius: 12,
+      border: '1px solid rgba(0, 212, 255, 0.2)',
+      padding: '14px',
+      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+      zIndex: 20,
+      color: '#F3F4F6',
+      fontSize: '11px'
+    }}>
+      <div style={{ fontSize: '10px', letterSpacing: '1.5px', color: '#00F5C4', marginBottom: '8px', fontWeight: 'bold' }}>
+        📘 SISTEMA ACOPLADO
+      </div>
+      <div style={{ color: '#9CA3AF', marginBottom: '8px', lineHeight: 1.4 }}>
+        O bloco B puxa o bloco A através de uma polia ideal; a tração é a mesma nas duas pontas do fio.
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div>→ m_A (mesa): <span style={{ color: '#00D4FF' }}>{massA.toFixed(1)} kg</span></div>
+        <div>→ m_B (suspenso): <span style={{ color: '#F97316' }}>{massB.toFixed(1)} kg</span></div>
+        <div>→ Tração T: <span style={{ color: '#A855F7' }}>{tracao.toFixed(2)} N</span></div>
+        <div style={{ marginTop: '6px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '6px', color: '#9CA3AF' }}>
+          Status: {podeMover ? <span style={{ color: '#00F5C4' }}>Acelerando ↗</span> : <span style={{ color: '#f87171' }}>Travado pelo atrito ⊘</span>}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -10,17 +10,17 @@ const toRad = d => d * Math.PI / 180;
 
 // ── design tokens — mesma paleta do projeto ────────────────────────────────────
 const C = {
-  bg:      '#0B0C10',
-  card:    '#161B22',
-  card2:   '#1F2833',
-  neon:    '#66FCF1',
-  emerald: '#45A29E',
-  amber:   '#F5A623',
-  rose:    '#FF6B9D',
-  white:   '#C5C6C7',
-  muted:   '#4A5568',
-  border:  'rgba(102,252,241,0.10)',
-  border2: 'rgba(102,252,241,0.22)',
+  bg:      '#0B0F19',
+  card:    '#0F141E',
+  card2:   '#161F30',
+  neon:    '#00D4FF',
+  emerald: '#00F5C4',
+  amber:   '#F97316',
+  rose:    '#A855F7',
+  white:   '#F3F4F6',
+  muted:   '#9CA3AF',
+  border:  'rgba(0,212,255,0.15)',
+  border2: 'rgba(0,212,255,0.3)',
 };
 
 // ── CSS global ──────────────────────────────────────────────────────────────────

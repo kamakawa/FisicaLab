@@ -3,24 +3,24 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── Paleta e CSS global ─────────────────────────
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #05060a;
-  --surface:  #0a0d14;
-  --panel:    #0f141f;
-  --border:   rgba(255, 255, 255, 0.08);
-  --accent:   #3b82f6;
-  --gold:     #eab308;
-  --green:    #10b981;
-  --red:      #ef4444;
-  --purple:   #8b5cf6;
-  --text:     #f1f5f9;
-  --muted:    #94a3b8;
-  --mono:     'Fira Code', monospace;
-  --sans:     'Space Grotesk', sans-serif;
+  --bg:       #0B0F19;
+  --surface:  rgba(15, 20, 30, 0.85);
+  --panel:    rgba(15, 20, 30, 0.85);
+  --border:   rgba(0, 212, 255, 0.2);
+  --accent:   #00D4FF;
+  --gold:     #F97316;
+  --green:    #00F5C4;
+  --red:      #f87171;
+  --purple:   #A855F7;
+  --text:     #F3F4F6;
+  --muted:    #9CA3AF;
+  --mono:     'JetBrains Mono', 'Fira Code', monospace;
+  --sans:     'Inter', system-ui, sans-serif;
 }
 
 body { background: var(--bg); }
@@ -39,7 +39,7 @@ body { background: var(--bg); }
   display: flex;
   align-items: baseline;
   gap: 24px;
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.05) 0%, transparent 40%);
 }
 .header-title {
   font-family: 'Playfair Display', serif;
@@ -58,8 +58,8 @@ body { background: var(--bg); }
   margin-left: auto;
   font-size: 12px;
   color: var(--accent);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(0, 212, 255, 0.05);
   padding: 4px 12px;
   border-radius: 24px;
   font-family: var(--mono);
@@ -102,10 +102,32 @@ body { background: var(--bg); }
   overflow-y: auto;
   padding: 24px;
   background: var(--panel);
+  backdrop-filter: blur(12px);
 }
 .sidebar-r {
   border-right: none;
   border-left: 1px solid var(--border);
+}
+
+.sidebar-l::-webkit-scrollbar,
+.sidebar-r::-webkit-scrollbar,
+.calc-page::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-l::-webkit-scrollbar-track,
+.sidebar-r::-webkit-scrollbar-track,
+.calc-page::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+}
+.sidebar-l::-webkit-scrollbar-thumb,
+.sidebar-r::-webkit-scrollbar-thumb,
+.calc-page::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+.sidebar-l, .sidebar-r, .calc-page {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) rgba(255,255,255,0.05);
 }
 
 .main-area {
@@ -117,7 +139,7 @@ body { background: var(--bg); }
 .canvas-wrap {
   flex: 1;
   position: relative;
-  background: radial-gradient(ellipse at 50% 50%, #0d1424 0%, #05060a 100%);
+  background: radial-gradient(ellipse at 50% 50%, #0d1424 0%, #0B0F19 100%);
   overflow: hidden;
 }
 canvas { display: block; width: 100%; height: 100%; }
@@ -158,12 +180,15 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .card {
   background: var(--surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
 }
+.card:hover { border-color: rgba(0, 212, 255, 0.4); }
 
 .stat-row {
   display: flex;
@@ -196,7 +221,7 @@ canvas { display: block; width: 100%; height: 100%; }
   font-size: 13px;
 }
 .ctrl-name { color: var(--text); font-weight: 500; }
-.ctrl-num  { font-family: var(--mono); color: var(--accent); background: rgba(59, 130, 246, 0.1); padding: 2px 8px; border-radius: 4px; }
+.ctrl-num  { font-family: var(--mono); color: var(--accent); background: rgba(0, 212, 255, 0.1); padding: 2px 8px; border-radius: 4px; }
 input[type=range] {
   width: 100%;
   accent-color: var(--accent);
@@ -220,7 +245,7 @@ input[type=range] {
 .btn-primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
 }
 .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
 .btn-primary:disabled {
@@ -237,11 +262,11 @@ input[type=range] {
 }
 .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
 .btn-danger {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(248, 113, 113, 0.1);
   color: var(--red);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(248, 113, 113, 0.2);
 }
-.btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
+.btn-danger:hover { background: rgba(248, 113, 113, 0.2); }
 
 .toggle-row {
   display: flex;
@@ -258,16 +283,19 @@ input[type=range] {
 
 .eq-block {
   background: var(--surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 14px 14px 0;
   padding: 16px;
   margin-bottom: 12px;
   font-family: var(--mono);
   font-size: 13px;
   line-height: 2;
   color: var(--text);
+  transition: border-color 0.3s ease;
 }
+.eq-block:hover { border-color: rgba(0, 212, 255, 0.4); border-left-color: var(--accent); }
 .eq-block .eq-title {
   font-family: var(--sans);
   font-size: 11px;
@@ -297,7 +325,9 @@ input[type=range] {
   color: #fff;
   margin-bottom: 20px;
   padding-bottom: 12px;
+  padding-left: 14px;
   border-bottom: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
 }
 .calc-p {
   color: var(--muted);
@@ -307,15 +337,19 @@ input[type=range] {
 }
 .big-eq {
   background: var(--panel);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 16px 16px 0;
   padding: 24px;
   margin: 20px 0;
   font-family: var(--mono);
   font-size: 15px;
   line-height: 2.2;
   color: var(--text);
+  transition: border-color 0.3s ease;
 }
+.big-eq:hover { border-color: rgba(0, 212, 255, 0.4); border-left-color: var(--accent); }
 .big-eq .hi-acc { color: var(--accent); }
 .big-eq .hi-gld { color: var(--gold); }
 .big-eq .hi-grn { color: var(--green); }
@@ -331,10 +365,17 @@ input[type=range] {
 }
 .derivation-step:last-child { border-bottom: none; }
 .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.12);
   font-family: var(--mono);
   font-size: 12px;
-  color: var(--muted);
-  min-width: 24px;
+  font-weight: 600;
+  color: var(--accent);
 }
 .step-eq { font-family: var(--mono); font-size: 14px; color: var(--text); }
 .step-desc { font-size: 13px; color: var(--muted); margin-left: auto; font-style: italic; }
@@ -550,19 +591,25 @@ function SimTab() {
     ctx.lineTo(x2, y2);
     ctx.lineTo(x1, y2);
     ctx.closePath();
-    ctx.fillStyle = '#1e293b'; // Slate escuro
+    const gradRampa = ctx.createLinearGradient(x1, y1, x1, y2);
+    gradRampa.addColorStop(0, '#1e2942');
+    gradRampa.addColorStop(1, '#141b2c');
+    ctx.fillStyle = gradRampa;
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Superfície de Deslizamento (Linha superior)
+    // Superfície de Deslizamento (Linha superior, com brilho)
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
-    ctx.strokeStyle = '#3b82f6';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(0, 212, 255, 0.6)';
+    ctx.strokeStyle = '#00D4FF';
     ctx.lineWidth = 3;
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
     // Chão (Base horizontal)
     ctx.beginPath();
@@ -595,7 +642,7 @@ function SimTab() {
         ctx.beginPath();
         ctx.moveTo(xa, ya);
         ctx.lineTo(xb, yb);
-        ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
+        ctx.strokeStyle = `rgba(0, 245, 196, ${alpha})`;
         ctx.lineWidth = 3;
         ctx.stroke();
       }
@@ -616,14 +663,17 @@ function SimTab() {
     ctx.shadowBlur = 12;
     ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
 
-    ctx.fillStyle = '#ef4444';
+    const gradBloco = ctx.createLinearGradient(-blocow / 2, -blocoh, blocow / 2, 0);
+    gradBloco.addColorStop(0, '#94A3B8');
+    gradBloco.addColorStop(1, '#475569');
+    ctx.fillStyle = gradBloco;
     ctx.fillRect(-blocow / 2, -blocoh, blocow, blocoh);
-    
+
     // Detalhes internos da malha do bloco
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.strokeStyle = 'rgba(0, 212, 255, 0.35)';
     ctx.lineWidth = 2;
     ctx.strokeRect(-blocow / 2, -blocoh, blocow, blocoh);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.fillRect(-blocow / 2 + 4, -blocoh + 4, blocow - 8, 4);
 
     // Massa renderizada no centro
@@ -678,42 +728,42 @@ function SimTab() {
       };
 
       // Peso P (sempre aponta reto para o centro da Terra -> 90° ou PI/2 radianos)
-      desenhaVetor(cxBloco, cyBloco, Peso, Math.PI / 2, '#ef4444', `P=${fmt(Peso)}N`);
+      desenhaVetor(cxBloco, cyBloco, Peso, Math.PI / 2, '#f87171', `P=${fmt(Peso)}N`);
 
       // Normal N (perpendicular ao plano, apontando para fora)
-      desenhaVetor(cxBloco, cyBloco, Normal, anguloVis - Math.PI / 2, '#3b82f6', `N=${fmt(Normal)}N`);
+      desenhaVetor(cxBloco, cyBloco, Normal, anguloVis - Math.PI / 2, '#00D4FF', `N=${fmt(Normal)}N`);
 
       // Atrito (sempre paralelo ao plano, em oposição à tendência/movimento)
       if (!estaEmRepouso && Math.abs(velocidade) > 0.01) {
         // Atrito Dinâmico
         const dirAtrito = velocidade >= 0 ? anguloVis + Math.PI : anguloVis;
-        desenhaVetor(cxBloco, cyBloco, AtritoCinetico, dirAtrito, '#8b5cf6', `f꜀=${fmt(AtritoCinetico)}N`);
+        desenhaVetor(cxBloco, cyBloco, AtritoCinetico, dirAtrito, '#A855F7', `f꜀=${fmt(AtritoCinetico)}N`);
       } else if (PesoParalelo > AtritoEstaticoMax && estaEmRepouso) {
         // Iminência de Deslizar (Atrito Estático Máx superado)
-        desenhaVetor(cxBloco, cyBloco, AtritoEstaticoMax, anguloVis + Math.PI, '#8b5cf6', `fₑ=${fmt(AtritoEstaticoMax)}N`);
+        desenhaVetor(cxBloco, cyBloco, AtritoEstaticoMax, anguloVis + Math.PI, '#A855F7', `fₑ=${fmt(AtritoEstaticoMax)}N`);
       } else if (estaEmRepouso) {
         // Atrito Estático estabilizador equilibra exatemente a componente de descida (P∥)
-        desenhaVetor(cxBloco, cyBloco, PesoParalelo, anguloVis + Math.PI, '#8b5cf6', `f=${fmt(PesoParalelo)}N`);
+        desenhaVetor(cxBloco, cyBloco, PesoParalelo, anguloVis + Math.PI, '#A855F7', `f=${fmt(PesoParalelo)}N`);
       }
     }
 
     // ─── INFORMAÇÕES GEOMÉTRICAS (Overlay Analítico) ───
-    ctx.fillStyle = '#eab308';
+    ctx.fillStyle = '#F97316';
     ctx.font = 'bold 13px "Fira Code"';
     // Colocamos a etiqueta do ângulo perto da base (onde visualmente forma a quina)
     ctx.fillText(`θ = ${fmt(angulo)}°`, x1 + 20, y2 - 10);
 
     ctx.font = '11px "Fira Code"';
     if (PesoParalelo > AtritoEstaticoMax) {
-      ctx.fillStyle = '#10b981';
+      ctx.fillStyle = '#00F5C4';
       ctx.fillText('⚡ DESLIZANDO', 20, 30);
     } else {
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = '#9CA3AF';
       ctx.fillText('● EM REPOUSO', 20, 30);
     }
 
     // Régua linear de monitoramento
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#9CA3AF';
     ctx.fillText(`s(t) = ${fmt(posicao, 2)} m`, 20, H - 40);
     ctx.fillText(`v(t) = ${fmt(velocidade, 2)} m/s`, 20, H - 24);
 
@@ -761,9 +811,9 @@ function SimTab() {
 
   useEffect(() => {
     const h = histRef.current;
-    drawPlot(plotPosRef, h.pos, '#3b82f6', 's(t) Posição', 0, comprimentoPlano, 'm');
-    drawPlot(plotVelRef, h.vel, '#10b981', 'v(t) Velocidade', -3, 8, 'm/s');
-    drawPlot(plotAccRef, h.acc, '#ef4444', 'a(t) Aceleração', -2, 6, 'm/s²');
+    drawPlot(plotPosRef, h.pos, '#00D4FF', 's(t) Posição', 0, comprimentoPlano, 'm');
+    drawPlot(plotVelRef, h.vel, '#00F5C4', 'v(t) Velocidade', -3, 8, 'm/s');
+    drawPlot(plotAccRef, h.acc, '#f87171', 'a(t) Aceleração', -2, 6, 'm/s²');
   }, [posicao, velocidade, drawPlot]);
 
   return (
@@ -797,12 +847,12 @@ function SimTab() {
 
         <label className="toggle-row">
           <input type="checkbox" checked={showVetores} onChange={e => setShowVetores(e.target.checked)} />
-          <span className="toggle-label" style={{ color: '#8b5cf6' }}>Vetores Dinâmicos</span>
+          <span className="toggle-label" style={{ color: '#A855F7' }}>Vetores Dinâmicos</span>
         </label>
 
         <label className="toggle-row">
           <input type="checkbox" checked={showTrail} onChange={e => setShowTrail(e.target.checked)} />
-          <span className="toggle-label" style={{ color: '#10b981' }}>Traçado s(t)</span>
+          <span className="toggle-label" style={{ color: '#00F5C4' }}>Traçado s(t)</span>
         </label>
 
         <div className="btn-row">

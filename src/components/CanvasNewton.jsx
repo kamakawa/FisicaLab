@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-export default function CanvasNewton({ massA, massB, deslocamento, aceleração, muK }) {
+export default function CanvasNewton({ massA, massB, deslocamento, aceleracao, muK, showVectors = true }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -8,19 +8,25 @@ export default function CanvasNewton({ massA, massB, deslocamento, aceleração,
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    const W = canvas.width = 700;
-    const H = canvas.height = 300;
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.clientWidth || 700;
+    const H = canvas.clientHeight || 300;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // Limpar o fundo com a identidade visual dark do FísicaLab
-    ctx.fillStyle = '#0d1117';
+    // Fundo com a identidade visual dark do FísicaLab
+    ctx.fillStyle = '#05070D';
     ctx.fillRect(0, 0, W, H);
 
-    // ─── 1. DESENHAR A MESA E A ROLDANA ──────────────────────────────────────
-    const mesaX = 50;
-    const mesaY = 180;
-    const mesaW = 450;
-    
-    // Tampo da mesa
+    const scaleX = W / 700;
+    const scaleY = H / 300;
+
+    // ─── 1. MESA E ROLDANA ───────────────────────────────────────────────────
+    const mesaX = 50 * scaleX;
+    const mesaY = 180 * scaleY;
+    const mesaW = 450 * scaleX;
+
     ctx.strokeStyle = '#334155';
     ctx.lineWidth = 4;
     ctx.beginPath();
@@ -28,18 +34,16 @@ export default function CanvasNewton({ massA, massB, deslocamento, aceleração,
     ctx.lineTo(mesaX + mesaW, mesaY);
     ctx.stroke();
 
-    // Suporte da mesa (pés)
     ctx.strokeStyle = 'rgba(51, 65, 85, 0.4)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(mesaX + 40, mesaY); ctx.lineTo(mesaX + 40, H - 40);
-    ctx.moveTo(mesaX + mesaW - 40, mesaY); ctx.lineTo(mesaX + mesaW - 40, H - 40);
+    ctx.moveTo(mesaX + 40 * scaleX, mesaY); ctx.lineTo(mesaX + 40 * scaleX, H - 40 * scaleY);
+    ctx.moveTo(mesaX + mesaW - 40 * scaleX, mesaY); ctx.lineTo(mesaX + mesaW - 40 * scaleX, H - 40 * scaleY);
     ctx.stroke();
 
-    // Roldana (Centro fixo no canto da mesa)
     const roldanaX = mesaX + mesaW;
-    const roldanaY = mesaY - 12;
-    const raioRoldana = 12;
+    const roldanaY = mesaY - 12 * scaleY;
+    const raioRoldana = 12 * scaleY;
 
     ctx.fillStyle = '#475569';
     ctx.beginPath();
@@ -49,69 +53,70 @@ export default function CanvasNewton({ massA, massB, deslocamento, aceleração,
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // ─── 2. CÁLCULO DE POSIÇÃO ESCALADA ─────────────────────────────────────
-    // O deslocamento físico máximo vai até 4 metros. Mapeamos isso para pixels.
+    // ─── 2. POSIÇÃO ESCALADA ─────────────────────────────────────────────────
     const maxDeslocamentoFisico = 4.0;
-    const maxPixelsMesa = 250; // Limite de movimento na mesa
+    const maxPixelsMesa = 250 * scaleX;
     const proporcao = maxPixelsMesa / maxDeslocamentoFisico;
 
     const pixelsMovidos = deslocamento * proporcao;
 
-    // Posições iniciais dos blocos
-    const inicialA_X = 120; 
-    const inicialA_Y = mesaY - 40; // Bloco apoiado na mesa (altura 40)
-    
+    const inicialA_X = 120 * scaleX;
+    const inicialA_Y = mesaY - 40 * scaleY;
+
     const atualA_X = inicialA_X + pixelsMovidos;
     const atualA_Y = inicialA_Y;
 
-    const inicialB_X = roldanaX + raioRoldana - 15; // Alinhado com a borda da roldana
-    const inicialB_Y = roldanaY + 40;
-    
+    const inicialB_X = roldanaX + raioRoldana - 15 * scaleX;
+    const inicialB_Y = roldanaY + 40 * scaleY;
+
     const atualB_X = inicialB_X;
     const atualB_Y = inicialB_Y + pixelsMovidos;
 
-    // ─── 3. DESENHAR O CABO DE CONEXÃO ───────────────────────────────────────
+    // ─── 3. CABO DE CONEXÃO ──────────────────────────────────────────────────
     ctx.strokeStyle = '#94a3b8';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    // Do Bloco A até o topo da roldana
-    ctx.moveTo(atualA_X + 40, atualA_Y + 20); 
+    ctx.moveTo(atualA_X + 40 * scaleX, atualA_Y + 20 * scaleY);
     ctx.lineTo(roldanaX, roldanaY - raioRoldana);
-    // Tangenciando a roldana até descer para o Bloco B
     ctx.moveTo(roldanaX + raioRoldana, roldanaY);
-    ctx.lineTo(atualB_X + 15, atualB_Y);
+    ctx.lineTo(atualB_X + 15 * scaleX, atualB_Y);
     ctx.stroke();
 
-    // ─── 4. DESENHAR BLOCO A (Mesa) ──────────────────────────────────────────
-    ctx.fillStyle = 'rgba(96, 165, 250, 0.2)'; // Azul translúcido
-    ctx.strokeStyle = '#60a5fa';
+    // ─── 4. BLOCO A (mesa) ───────────────────────────────────────────────────
+    const blocoA_W = 50 * scaleX, blocoA_H = 40 * scaleY;
+    const gradA = ctx.createLinearGradient(atualA_X, atualA_Y, atualA_X, atualA_Y + blocoA_H);
+    gradA.addColorStop(0, 'rgba(0, 212, 255, 0.28)');
+    gradA.addColorStop(1, 'rgba(0, 212, 255, 0.08)');
+    ctx.fillStyle = gradA;
+    ctx.strokeStyle = '#00D4FF';
     ctx.lineWidth = 2;
-    ctx.fillRect(atualA_X, atualA_Y, 50, 40);
-    ctx.strokeRect(atualA_X, atualA_Y, 50, 40);
-    
-    // Label Massa A
-    ctx.fillStyle = '#60a5fa';
-    ctx.font = '12px monospace';
+    ctx.fillRect(atualA_X, atualA_Y, blocoA_W, blocoA_H);
+    ctx.strokeRect(atualA_X, atualA_Y, blocoA_W, blocoA_H);
+
+    ctx.fillStyle = '#00D4FF';
+    ctx.font = `${12 * scaleY}px 'JetBrains Mono', monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`A (${massA}kg)`, atualA_X + 25, atualA_Y + 20);
+    ctx.fillText(`A (${massA}kg)`, atualA_X + blocoA_W / 2, atualA_Y + blocoA_H / 2);
 
-    // ─── 5. DESENHAR BLOCO B (Suspenso) ──────────────────────────────────────
-    ctx.fillStyle = 'rgba(251, 191, 36, 0.2)'; // Âmbar translúcido
-    ctx.strokeStyle = '#fbbf24';
+    // ─── 5. BLOCO B (suspenso) ───────────────────────────────────────────────
+    const blocoB_W = 30 * scaleX, blocoB_H = 45 * scaleY;
+    const gradB = ctx.createLinearGradient(atualB_X, atualB_Y, atualB_X + blocoB_W, atualB_Y);
+    gradB.addColorStop(0, 'rgba(249, 115, 22, 0.28)');
+    gradB.addColorStop(1, 'rgba(249, 115, 22, 0.08)');
+    ctx.fillStyle = gradB;
+    ctx.strokeStyle = '#F97316';
     ctx.lineWidth = 2;
-    ctx.fillRect(atualB_X, atualB_Y, 30, 45);
-    ctx.strokeRect(atualB_X, atualB_Y, 30, 45);
+    ctx.fillRect(atualB_X, atualB_Y, blocoB_W, blocoB_H);
+    ctx.strokeRect(atualB_X, atualB_Y, blocoB_W, blocoB_H);
 
-    // Label Massa B
-    ctx.fillStyle = '#fbbf24';
-    ctx.font = '12px monospace';
-    ctx.fillText(`B`, atualB_X + 15, atualB_Y + 22);
+    ctx.fillStyle = '#F97316';
+    ctx.font = `${12 * scaleY}px 'JetBrains Mono', monospace`;
+    ctx.fillText('B', atualB_X + blocoB_W / 2, atualB_Y + blocoB_H / 2);
 
-    // ─── 6. VETORES DE FORÇA (DIAGRAMA DE CORPO LIVRE EM TEMPO REAL) ──────────
-    // Função auxiliar para desenhar as setas dos vetores
+    // ─── 6. VETORES DE FORÇA (DIAGRAMA DE CORPO LIVRE) ──────────────────────
     const drawArrow = (x1, y1, x2, y2, color) => {
-      const headlen = 8;
+      const headlen = 8 * scaleY;
       const angle = Math.atan2(y2 - y1, x2 - x1);
       ctx.strokeStyle = color;
       ctx.fillStyle = color;
@@ -127,43 +132,41 @@ export default function CanvasNewton({ massA, massB, deslocamento, aceleração,
       ctx.fill();
     };
 
-    if (aceleração >= 0) {
-      // Forças no Bloco A
-      const centroA_X = atualA_X + 25;
-      const centroA_Y = atualA_Y + 20;
+    if (showVectors && aceleracao >= 0) {
+      ctx.textAlign = 'center';
+      const centroA_X = atualA_X + blocoA_W / 2;
+      const centroA_Y = atualA_Y + blocoA_H / 2;
 
-      // Tração para a direita (verde)
-      drawArrow(centroA_X + 25, centroA_Y, centroA_X + 65, centroA_Y, '#34d399');
-      ctx.fillStyle = '#34d399';
-      ctx.fillText('T', centroA_X + 55, centroA_Y - 12);
+      // Tração para a direita (verde-água)
+      drawArrow(centroA_X + 25 * scaleX, centroA_Y, centroA_X + 65 * scaleX, centroA_Y, '#00F5C4');
+      ctx.fillStyle = '#00F5C4';
+      ctx.fillText('T', centroA_X + 55 * scaleX, centroA_Y - 12 * scaleY);
 
-      // Força de Atrito para a esquerda (vermelha) se muK > 0
       if (muK > 0) {
-        drawArrow(centroA_X - 25, centroA_Y, centroA_X - 65, centroA_Y, '#f87171');
+        drawArrow(centroA_X - 25 * scaleX, centroA_Y, centroA_X - 65 * scaleX, centroA_Y, '#f87171');
         ctx.fillStyle = '#f87171';
-        ctx.fillText('fat', centroA_X - 55, centroA_Y - 12);
+        ctx.fillText('fat', centroA_X - 55 * scaleX, centroA_Y - 12 * scaleY);
       }
 
-      // Forças no Bloco B
-      const centroB_X = atualB_X + 15;
-      const centroB_Y = atualB_Y + 22;
+      const centroB_X = atualB_X + blocoB_W / 2;
+      const centroB_Y = atualB_Y + blocoB_H / 2;
 
-      // Peso de B para baixo (roxo/azul)
-      drawArrow(centroB_X, centroB_Y + 22, centroB_X, centroB_Y + 67, '#a78bfa');
-      ctx.fillStyle = '#a78bfa';
-      ctx.fillText('P_B', centroB_X + 18, centroB_Y + 55);
+      // Peso de B para baixo (roxo)
+      drawArrow(centroB_X, centroB_Y + 22 * scaleY, centroB_X, centroB_Y + 67 * scaleY, '#A855F7');
+      ctx.fillStyle = '#A855F7';
+      ctx.fillText('P_B', centroB_X + 18 * scaleX, centroB_Y + 55 * scaleY);
 
-      // Tração de B para cima (verde)
-      drawArrow(centroB_X, centroB_Y - 22, centroB_X, centroB_Y - 62, '#34d399');
-      ctx.fillStyle = '#34d399';
-      ctx.fillText('T', centroB_X + 12, centroB_Y - 50);
+      // Tração de B para cima (verde-água)
+      drawArrow(centroB_X, centroB_Y - 22 * scaleY, centroB_X, centroB_Y - 62 * scaleY, '#00F5C4');
+      ctx.fillStyle = '#00F5C4';
+      ctx.fillText('T', centroB_X + 12 * scaleX, centroB_Y - 50 * scaleY);
     }
 
-  }, [massA, massB, deslocamento, aceleração, muK]);
+  }, [massA, massB, deslocamento, aceleracao, muK, showVectors]);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', background: '#0d1117', borderRadius: '12px', padding: '10px', border: '1px solid rgba(255,255,255,0.03)' }}>
-      <canvas ref={canvasRef} style={{ maxWidth: '100%', height: 'auto' }} />
+    <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <canvas ref={canvasRef} style={{ width: '100%', maxWidth: 760, height: '100%', maxHeight: 340, display: 'block' }} />
     </div>
   );
 }

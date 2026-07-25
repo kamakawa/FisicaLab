@@ -3,29 +3,29 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── ESTILOS ────────────────────────────────────────────────────────────────
 const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #080c14;
-  --surface:   #0c1120;
-  --panel:     #0f1523;
-  --card:      #141c2e;
-  --border:    rgba(100,140,255,0.10);
-  --border2:   rgba(100,140,255,0.18);
-  --accent:    #5b9cf6;
-  --accent2:   #3b7de8;
-  --gold:      #f0b429;
-  --green:     #2dd4a4;
-  --red:       #f06080;
-  --purple:    #9d80f5;
-  --orange:    #fb8b3a;
-  --text:      #dde4f0;
-  --text2:     #8896b0;
-  --mono:      'IBM Plex Mono', monospace;
-  --sans:      'DM Sans', sans-serif;
-  --serif:     'DM Serif Display', serif;
+  --bg:        #0B0F19;
+  --surface:   rgba(15, 20, 30, 0.85);
+  --panel:     rgba(15, 20, 30, 0.85);
+  --card:      rgba(15, 20, 30, 0.85);
+  --border:    rgba(0, 212, 255, 0.15);
+  --border2:   rgba(0, 212, 255, 0.3);
+  --accent:    #00D4FF;
+  --accent2:   #0091AD;
+  --gold:      #F97316;
+  --green:     #00F5C4;
+  --red:       #f87171;
+  --purple:    #A855F7;
+  --orange:    #FBBF24;
+  --text:      #F3F4F6;
+  --text2:     #9CA3AF;
+  --mono:      'JetBrains Mono', 'Fira Code', monospace;
+  --sans:      'Inter', system-ui, sans-serif;
+  --serif:     'Playfair Display', serif;
 }
 
 body { background: var(--bg); }
@@ -55,7 +55,7 @@ body { background: var(--bg); }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(91,156,246,0.08) 0%, transparent 50%);
+  background: linear-gradient(90deg, rgba(0,212,255,0.08) 0%, transparent 50%);
   pointer-events: none;
 }
 .header-title {
@@ -78,11 +78,11 @@ body { background: var(--bg); }
   margin-left: auto;
   font-size: 10px;
   color: var(--accent);
-  border: 1px solid rgba(91,156,246,0.3);
+  border: 1px solid rgba(0,212,255,0.3);
   padding: 3px 10px;
   border-radius: 20px;
   font-family: var(--mono);
-  background: rgba(91,156,246,0.06);
+  background: rgba(0,212,255,0.06);
 }
 .btn-back {
   font-size: 11px;
@@ -136,9 +136,14 @@ body { background: var(--bg); }
   overflow-y: auto;
   padding: 16px;
   background: var(--panel);
+  backdrop-filter: blur(12px);
   scrollbar-width: thin;
-  scrollbar-color: var(--border2) transparent;
+  scrollbar-color: var(--accent) rgba(255,255,255,0.05);
 }
+.sidebar::-webkit-scrollbar, .calc-page::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-track, .calc-page::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+.sidebar::-webkit-scrollbar-thumb, .calc-page::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+.calc-page { scrollbar-width: thin; scrollbar-color: var(--accent) rgba(255,255,255,0.05); }
 .sidebar-right {
   border-left: 1px solid var(--border);
   border-right: none;
@@ -202,18 +207,21 @@ canvas { display: block; width: 100%; height: 100%; }
 /* ── CARD ── */
 .card {
   background: var(--card);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 14px;
   padding: 12px;
   margin-bottom: 8px;
+  transition: border-color 0.3s ease;
 }
+.card:hover { border-color: rgba(0, 212, 255, 0.4); }
 .card.warn {
-  background: rgba(240,96,128,0.06);
-  border-color: rgba(240,96,128,0.3);
+  background: rgba(248,113,113,0.06);
+  border-color: rgba(248,113,113,0.3);
 }
 .card.ok {
-  background: rgba(45,212,164,0.05);
-  border-color: rgba(45,212,164,0.2);
+  background: rgba(0,245,196,0.05);
+  border-color: rgba(0,245,196,0.2);
 }
 
 /* ── STAT ── */
@@ -270,8 +278,8 @@ input[type=range] {
   letter-spacing: 0.03em;
   transition: all 0.13s;
 }
-.btn-primary  { background: var(--accent); color: #05090f; }
-.btn-primary:hover { background: #6aa8ff; }
+.btn-primary  { background: var(--accent); color: #0B0F19; }
+.btn-primary:hover { background: #33e0ff; }
 .btn-secondary {
   background: rgba(255,255,255,0.05);
   color: var(--text);
@@ -279,11 +287,11 @@ input[type=range] {
 }
 .btn-secondary:hover { background: rgba(255,255,255,0.09); }
 .btn-danger {
-  background: rgba(240,96,128,0.12);
+  background: rgba(248,113,113,0.12);
   color: var(--red);
-  border: 1px solid rgba(240,96,128,0.22);
+  border: 1px solid rgba(248,113,113,0.22);
 }
-.btn-danger:hover { background: rgba(240,96,128,0.22); }
+.btn-danger:hover { background: rgba(248,113,113,0.22); }
 
 /* ── TOGGLE ── */
 .toggle-row {
@@ -299,16 +307,19 @@ input[type=range] {
 /* ── EQUAÇÕES ── */
 .eq-block {
   background: var(--card);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 14px 14px 0;
   padding: 10px 12px;
   margin-bottom: 8px;
   font-family: var(--mono);
   font-size: 11px;
   line-height: 1.8;
   color: var(--text);
+  transition: border-color 0.3s ease;
 }
+.eq-block:hover { border-color: rgba(0, 212, 255, 0.4); border-left-color: var(--accent); }
 .eq-title {
   font-family: var(--sans);
   font-size: 9px;
@@ -333,7 +344,9 @@ input[type=range] {
   color: #fff;
   margin-bottom: 12px;
   padding-bottom: 8px;
+  padding-left: 14px;
   border-bottom: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
 }
 .calc-section { margin-bottom: 36px; }
 .calc-p {
@@ -344,15 +357,19 @@ input[type=range] {
 }
 .big-eq {
   background: var(--panel);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border2);
-  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 14px 14px 0;
   padding: 18px 22px;
   margin: 14px 0;
   font-family: var(--mono);
   font-size: 13px;
   line-height: 2.1;
   color: var(--text);
+  transition: border-color 0.3s ease;
 }
+.big-eq:hover { border-color: rgba(0, 212, 255, 0.4); border-left-color: var(--accent); }
 .hi-acc { color: var(--accent); }
 .hi-gld { color: var(--gold); }
 .hi-grn { color: var(--green); }
@@ -368,13 +385,25 @@ input[type=range] {
   border-bottom: 1px solid var(--border);
 }
 .derivation-step:last-child { border-bottom: none; }
-.step-num { font-family: var(--mono); font-size: 10px; color: var(--text2); min-width: 22px; }
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.12);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+}
 .step-eq { font-family: var(--mono); font-size: 12px; color: var(--text); }
 .step-desc { font-size: 11px; color: var(--text2); margin-left: auto; font-style: italic; }
 
 .alert-box {
-  background: rgba(240,180,41,0.07);
-  border: 1px solid rgba(240,180,41,0.3);
+  background: rgba(249,115,22,0.07);
+  border: 1px solid rgba(249,115,22,0.3);
   border-radius: 8px;
   padding: 10px 14px;
   margin: 12px 0;
@@ -503,12 +532,16 @@ function SimulacaoPendulo() {
   useEffect(() => {
     const cv = canvasRef.current; if (!cv) return;
     const ctx = cv.getContext('2d');
-    const W = cv.width = cv.offsetWidth;
-    const H = cv.height = cv.offsetHeight;
+    const dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth || cv.offsetWidth;
+    const H = cv.clientHeight || cv.offsetHeight;
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0,0,W,H);
 
     // Grid sutil
-    ctx.strokeStyle = 'rgba(91,156,246,0.04)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.04)';
     ctx.lineWidth = 1;
     for (let x=0;x<W;x+=40) { ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
     for (let y=0;y<H;y+=40) { ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
@@ -523,7 +556,7 @@ function SimulacaoPendulo() {
     // Traço de arco do pêndulo
     ctx.beginPath();
     ctx.arc(cx, pivotY, comprimento*esc, -Math.PI/2-0.8, -Math.PI/2+0.8);
-    ctx.strokeStyle = 'rgba(91,156,246,0.12)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.12)';
     ctx.lineWidth = 1;
     ctx.setLineDash([4,6]);
     ctx.stroke();
@@ -533,7 +566,7 @@ function SimulacaoPendulo() {
     ctx.beginPath();
     ctx.moveTo(cx-60, pivotY+comprimento*esc);
     ctx.lineTo(cx+60, pivotY+comprimento*esc);
-    ctx.strokeStyle = 'rgba(45,212,164,0.2)';
+    ctx.strokeStyle = 'rgba(0,245,196,0.2)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
@@ -550,8 +583,8 @@ function SimulacaoPendulo() {
 
     // Fio
     const grad = ctx.createLinearGradient(cx, pivotY, px, py);
-    grad.addColorStop(0,'rgba(200,220,255,0.9)');
-    grad.addColorStop(1,'rgba(150,180,255,0.5)');
+    grad.addColorStop(0,'rgba(200,245,255,0.9)');
+    grad.addColorStop(1,'rgba(0,212,255,0.5)');
     ctx.beginPath();
     ctx.moveTo(cx, pivotY);
     ctx.lineTo(px, py);
@@ -570,9 +603,9 @@ function SimulacaoPendulo() {
       ctx.strokeStyle = var_color('--red');
       ctx.lineWidth = 2;
       ctx.stroke();
-      arrowHead(ctx, px+Px*esc2, py+Py*esc2*esc, '#f06080');
-      ctx.fillStyle = '#f06080';
-      ctx.font = '10px IBM Plex Mono';
+      arrowHead(ctx, px+Px*esc2, py+Py*esc2*esc, '#f87171');
+      ctx.fillStyle = '#f87171';
+      ctx.font = '10px JetBrains Mono';
       ctx.fillText('P', px+8, py+Py*esc2*esc+4);
 
       // Tensão (direção do fio)
@@ -584,19 +617,19 @@ function SimulacaoPendulo() {
       ctx.strokeStyle = var_color('--purple');
       ctx.lineWidth = 2;
       ctx.stroke();
-      arrowHead(ctx, px+tx, py+ty, '#9d80f5');
-      ctx.fillStyle = '#9d80f5';
+      arrowHead(ctx, px+tx, py+ty, '#A855F7');
+      ctx.fillStyle = '#A855F7';
       ctx.fillText('T', px+tx+6, py+ty-3);
     }
 
     // Esfera
     ctx.shadowBlur = 16;
-    ctx.shadowColor = 'rgba(91,156,246,0.6)';
+    ctx.shadowColor = 'rgba(0,212,255,0.6)';
     ctx.beginPath();
     ctx.arc(px, py, 16+massa*3, 0, TAU);
     const rg = ctx.createRadialGradient(px-5,py-5,1,px,py,16+massa*3);
-    rg.addColorStop(0,'#7eb8ff');
-    rg.addColorStop(1,'#2563c4');
+    rg.addColorStop(0,'#7EE8FA');
+    rg.addColorStop(1,'#0091AD');
     ctx.fillStyle = rg;
     ctx.fill();
     ctx.shadowBlur = 0;
@@ -604,7 +637,7 @@ function SimulacaoPendulo() {
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.fillStyle = '#fff';
-    ctx.font = `bold ${10}px IBM Plex Mono`;
+    ctx.font = `bold ${10}px JetBrains Mono`;
     ctx.textAlign = 'center';
     ctx.fillText(`${fmt(massa,1)}kg`, px, py+4);
 
@@ -613,23 +646,23 @@ function SimulacaoPendulo() {
     ctx.setLineDash([3,5]);
     ctx.moveTo(px, py);
     ctx.lineTo(px, pivotY+comprimento*esc);
-    ctx.strokeStyle = 'rgba(240,180,41,0.4)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.4)';
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(240,180,41,0.9)';
-    ctx.font = '10px IBM Plex Mono';
+    ctx.fillStyle = 'rgba(249,115,22,0.9)';
+    ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'left';
     ctx.fillText(`h=${fmt(h,3)}m`, px+8, (py + pivotY+comprimento*esc)/2);
 
     // Ângulo θ
     ctx.beginPath();
     ctx.arc(cx, pivotY, 30, -Math.PI/2, -Math.PI/2 + disp.ang, disp.ang>0);
-    ctx.strokeStyle = 'rgba(157,128,245,0.6)';
+    ctx.strokeStyle = 'rgba(168,85,247,0.6)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
-    ctx.fillStyle = '#9d80f5';
-    ctx.font = '11px IBM Plex Mono';
+    ctx.fillStyle = '#A855F7';
+    ctx.font = '11px JetBrains Mono';
     ctx.textAlign = 'center';
     ctx.fillText(`θ=${fmt(disp.ang*180/Math.PI,1)}°`, cx + 50*Math.sin(disp.ang/2), pivotY + 20);
 
@@ -643,11 +676,15 @@ function SimulacaoPendulo() {
   const drawPlot = useCallback((ref, data, color, label, yMin, yMax, unit='') => {
     const cv = ref.current; if (!cv||!data||data.length<2) return;
     const ctx = cv.getContext('2d');
-    const W = cv.width = cv.offsetWidth;
-    const H = cv.height = cv.offsetHeight;
+    const dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth || cv.offsetWidth;
+    const H = cv.clientHeight || cv.offsetHeight;
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0,0,W,H);
     const range = (yMax-yMin)||1;
-    ctx.strokeStyle = 'rgba(91,156,246,0.06)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.06)';
     ctx.lineWidth = 1;
     [0.25,0.5,0.75].forEach(f => {
       const y = H*(1-f); ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
@@ -673,16 +710,16 @@ function SimulacaoPendulo() {
     ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath(); ctx.fill();
 
     ctx.fillStyle = color;
-    ctx.font = '9px IBM Plex Mono';
+    ctx.font = '9px JetBrains Mono';
     ctx.fillText(label, 5, 12);
     ctx.fillStyle = 'rgba(255,255,255,0.65)';
     ctx.fillText(`${fmt(data[data.length-1],2)} ${unit}`, 5, 24);
   },[]);
 
   useEffect(() => {
-    drawPlot(plotAngRef, hist.ang, '#9d80f5', 'θ(t)', -anguloInicial*1.1, anguloInicial*1.1, '°');
-    drawPlot(plotEnRef,  hist.E,   '#2dd4a4', 'E(t)',  0, E0*1.1, 'J');
-    drawPlot(plotVelRef, hist.v,   '#5b9cf6', 'v(t)',  0, Math.sqrt(2*g*comprimento*(1-Math.cos(anguloInicial*Math.PI/180)))*1.2, 'm/s');
+    drawPlot(plotAngRef, hist.ang, '#A855F7', 'θ(t)', -anguloInicial*1.1, anguloInicial*1.1, '°');
+    drawPlot(plotEnRef,  hist.E,   '#00F5C4', 'E(t)',  0, E0*1.1, 'J');
+    drawPlot(plotVelRef, hist.v,   '#00D4FF', 'v(t)',  0, Math.sqrt(2*g*comprimento*(1-Math.cos(anguloInicial*Math.PI/180)))*1.2, 'm/s');
   }, [hist, drawPlot, anguloInicial, E0, comprimento]);
 
   return (
@@ -910,12 +947,16 @@ function SimulacaoLoop() {
   useEffect(() => {
     const cv = canvasRef.current; if (!cv) return;
     const ctx = cv.getContext('2d');
-    const W = cv.width = cv.offsetWidth;
-    const H = cv.height = cv.offsetHeight;
+    const dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth || cv.offsetWidth;
+    const H = cv.clientHeight || cv.offsetHeight;
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0,0,W,H);
 
     // Grid
-    ctx.strokeStyle = 'rgba(91,156,246,0.04)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.04)';
     ctx.lineWidth = 1;
     for (let x=0;x<W;x+=40) { ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
     for (let y=0;y<H;y+=40) { ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
@@ -947,25 +988,29 @@ function SimulacaoLoop() {
     const loopCX = rampaPeX + raio; // centro do loop
     const loopCY = raio;
 
-    // Chão
-    ctx.fillStyle = '#0a1020';
-    ctx.fillRect(0, toY(0), W, H);
-    ctx.fillStyle = '#141f35';
-    ctx.fillRect(0, toY(0), W, margB);
-    // Linha do chão
+    // Chão (gradiente com brilho no horizonte)
+    const groundGrad = ctx.createLinearGradient(0, toY(0), 0, H);
+    groundGrad.addColorStop(0, '#182338');
+    groundGrad.addColorStop(1, '#0a0e18');
+    ctx.fillStyle = groundGrad;
+    ctx.fillRect(0, toY(0), W, H - toY(0));
+    // Linha do chão (com brilho)
     ctx.beginPath();
     ctx.moveTo(0, toY(0));
     ctx.lineTo(W, toY(0));
-    ctx.strokeStyle = 'rgba(91,156,246,0.2)';
-    ctx.lineWidth = 1;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0,212,255,0.5)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.35)';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
     // Marcador h0
     ctx.setLineDash([4,6]);
     ctx.beginPath();
     ctx.moveTo(toX(rampaTopoX)-40, toY(rampaTopoY));
     ctx.lineTo(toX(rampaTopoX)+20, toY(rampaTopoY));
-    ctx.strokeStyle = 'rgba(240,180,41,0.4)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.4)';
     ctx.lineWidth = 1;
     ctx.stroke();
     // Seta h0
@@ -973,12 +1018,12 @@ function SimulacaoLoop() {
     ctx.beginPath();
     ctx.moveTo(toX(rampaTopoX)-28, toY(0));
     ctx.lineTo(toX(rampaTopoX)-28, toY(h0));
-    ctx.strokeStyle = 'rgba(240,180,41,0.6)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.6)';
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.fillStyle = 'var(--gold)';
-    ctx.fillStyle = '#f0b429';
-    ctx.font = '11px IBM Plex Mono';
+    ctx.fillStyle = '#F97316';
+    ctx.font = '11px JetBrains Mono';
     ctx.textAlign = 'right';
     ctx.fillText(`h₀=${fmt(h0,1)}m`, toX(rampaTopoX)-32, toY(h0/2)+4);
 
@@ -987,12 +1032,12 @@ function SimulacaoLoop() {
     ctx.beginPath();
     ctx.moveTo(toX(loopCX)+raio*esc+30, toY(0));
     ctx.lineTo(toX(loopCX)+raio*esc+30, toY(2*raio));
-    ctx.strokeStyle = 'rgba(91,156,246,0.3)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.3)';
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#5b9cf6';
-    ctx.font = '10px IBM Plex Mono';
+    ctx.fillStyle = '#00D4FF';
+    ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'left';
     ctx.fillText(`2R=${fmt(2*raio,1)}m`, toX(loopCX)+raio*esc+34, toY(raio)+4);
 
@@ -1002,56 +1047,135 @@ function SimulacaoLoop() {
     ctx.beginPath();
     ctx.moveTo(toX(rampaTopoX)-60, yHmin);
     ctx.lineTo(toX(rampaTopoX)+40, yHmin);
-    ctx.strokeStyle = podeCompletar ? 'rgba(45,212,164,0.5)' : 'rgba(240,96,128,0.5)';
+    ctx.strokeStyle = podeCompletar ? 'rgba(0,245,196,0.5)' : 'rgba(248,113,113,0.5)';
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = podeCompletar ? '#2dd4a4' : '#f06080';
-    ctx.font = '9px IBM Plex Mono';
+    ctx.fillStyle = podeCompletar ? '#00F5C4' : '#f87171';
+    ctx.font = '9px JetBrains Mono';
     ctx.textAlign = 'left';
     ctx.fillText(`h_min=2.5R=${fmt(h_min,1)}m`, toX(rampaTopoX)-58, yHmin-3);
 
-    // ─ Trilho: rampa ─
-    ctx.beginPath();
-    ctx.moveTo(toX(rampaTopoX), toY(rampaTopoY));
-    ctx.lineTo(toX(rampaPeX), toY(rampaPeY));
-    ctx.strokeStyle = '#3a5080';
-    ctx.lineWidth = 5;
-    ctx.lineJoin = 'round';
-    ctx.stroke();
-    // Sombra/brilho do trilho
-    ctx.beginPath();
-    ctx.moveTo(toX(rampaTopoX), toY(rampaTopoY));
-    ctx.lineTo(toX(rampaPeX), toY(rampaPeY));
-    ctx.strokeStyle = 'rgba(91,156,246,0.25)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    // Posições-chave em pixels (reutilizadas pelos suportes e pelo trilho)
+    const rampaX1 = toX(rampaTopoX), rampaY1 = toY(rampaTopoY);
+    const rampaX2 = toX(rampaPeX), rampaY2 = toY(rampaPeY);
+    const loopCXs = toX(loopCX), loopCYs = toY(loopCY), loopRs = raio*esc;
+    const groundYs = toY(0);
 
-    // ─ Trilho: loop ─
-    ctx.beginPath();
-    for (let a = -Math.PI/2; a <= 3*Math.PI/2; a += 0.02) {
-      const lx = toX(loopCX + raio*Math.cos(a));
-      const ly = toY(loopCY + raio*Math.sin(a));
-      a === -Math.PI/2 ? ctx.moveTo(lx,ly) : ctx.lineTo(lx,ly);
+    // Helper: torre de sustentação treliçada (estilo montanha russa de aço)
+    const drawSuporte = (trackX, trackY) => {
+      const alturaY = groundYs - trackY;
+      if (alturaY < 8) return;
+      const spread = Math.min(16, Math.max(7, alturaY*0.14));
+      ctx.lineCap = 'round';
+      // Pernas do "A"
+      ctx.beginPath();
+      ctx.moveTo(trackX, trackY);
+      ctx.lineTo(trackX - spread, groundYs);
+      ctx.moveTo(trackX, trackY);
+      ctx.lineTo(trackX + spread, groundYs);
+      // Contraventamento em X
+      ctx.moveTo(trackX - spread*0.55, trackY + alturaY*0.42);
+      ctx.lineTo(trackX + spread*0.55, trackY + alturaY*0.72);
+      ctx.moveTo(trackX + spread*0.55, trackY + alturaY*0.42);
+      ctx.lineTo(trackX - spread*0.55, trackY + alturaY*0.72);
+      ctx.strokeStyle = '#233252';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+      // Brilho sutil nas pernas
+      ctx.beginPath();
+      ctx.moveTo(trackX, trackY);
+      ctx.lineTo(trackX - spread, groundYs);
+      ctx.moveTo(trackX, trackY);
+      ctx.lineTo(trackX + spread, groundYs);
+      ctx.strokeStyle = 'rgba(0,212,255,0.18)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      // Base
+      ctx.beginPath();
+      ctx.moveTo(trackX-spread-4, groundYs);
+      ctx.lineTo(trackX+spread+4, groundYs);
+      ctx.strokeStyle = 'rgba(0,212,255,0.25)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    };
+
+    // ─ Suportes: rampa (duas torres) ─
+    [0.3, 0.68].forEach(t => {
+      drawSuporte(rampaX1 + (rampaX2-rampaX1)*t, rampaY1 + (rampaY2-rampaY1)*t);
+    });
+    // ─ Suportes: loop (laterais, na meia-altura) ─
+    drawSuporte(loopCXs - loopRs, loopCYs);
+    drawSuporte(loopCXs + loopRs, loopCYs);
+
+    // Helper: traça um trecho de trilho com gradiente metálico + brilho central
+    const strokeTrilho = (drawPath) => {
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      drawPath();
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.strokeStyle = '#2a3a5c';
+      ctx.lineWidth = 7;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      drawPath();
+      ctx.strokeStyle = '#5b7bb0';
+      ctx.lineWidth = 4.5;
+      ctx.stroke();
+      drawPath();
+      ctx.strokeStyle = 'rgba(0,212,255,0.55)';
+      ctx.lineWidth = 1.3;
+      ctx.stroke();
+    };
+
+    // Helper: desenha "dormentes" (traços perpendiculares) ao longo de um segmento reto
+    const tiesRetos = (x1, y1, x2, y2) => {
+      const dx = x2-x1, dy = y2-y1;
+      const len = Math.hypot(dx,dy);
+      const nx = -dy/len, ny = dx/len;
+      const count = Math.max(3, Math.round(len/22));
+      for (let i=1;i<count;i++) {
+        const t = i/count;
+        const px = x1+dx*t, py = y1+dy*t;
+        ctx.beginPath();
+        ctx.moveTo(px-nx*6, py-ny*6);
+        ctx.lineTo(px+nx*6, py+ny*6);
+        ctx.strokeStyle = 'rgba(8,12,22,0.6)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+    };
+
+    // ─ Trilho: rampa ─
+    tiesRetos(rampaX1, rampaY1, rampaX2, rampaY2);
+    strokeTrilho(() => { ctx.beginPath(); ctx.moveTo(rampaX1, rampaY1); ctx.lineTo(rampaX2, rampaY2); });
+
+    // ─ Trilho: loop ─ (dormentes radiais)
+    for (let a = -Math.PI/2; a <= 3*Math.PI/2; a += Math.PI/9) {
+      const dirx = Math.cos(a), diry = -Math.sin(a);
+      const px = loopCXs + dirx*loopRs, py = loopCYs + diry*loopRs;
+      ctx.beginPath();
+      ctx.moveTo(px - dirx*3, py - diry*3);
+      ctx.lineTo(px + dirx*9, py + diry*9);
+      ctx.strokeStyle = 'rgba(8,12,22,0.55)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
     }
-    ctx.strokeStyle = '#3a5080';
-    ctx.lineWidth = 5;
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(91,156,246,0.25)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    strokeTrilho(() => {
+      ctx.beginPath();
+      for (let a = -Math.PI/2; a <= 3*Math.PI/2; a += 0.02) {
+        const lx = toX(loopCX + raio*Math.cos(a));
+        const ly = toY(loopCY + raio*Math.sin(a));
+        a === -Math.PI/2 ? ctx.moveTo(lx,ly) : ctx.lineTo(lx,ly);
+      }
+    });
 
     // Trecho final (saída do loop)
     const saidaX = rampaPeX + 2*raio;
-    ctx.beginPath();
-    ctx.moveTo(toX(saidaX), toY(0));
-    ctx.lineTo(toX(saidaX + raio*0.7), toY(0));
-    ctx.strokeStyle = '#3a5080';
-    ctx.lineWidth = 5;
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(91,156,246,0.25)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    const saidaX1 = toX(saidaX), saidaY1 = toY(0);
+    const saidaX2 = toX(saidaX + raio*0.7), saidaY2 = toY(0);
+    strokeTrilho(() => { ctx.beginPath(); ctx.moveTo(saidaX1, saidaY1); ctx.lineTo(saidaX2, saidaY2); });
 
     // ─ Posição do carrinho ─
     let carX, carY, carAng = 0;
@@ -1072,25 +1196,72 @@ function SimulacaoLoop() {
     // Sombra do carrinho
     ctx.save();
     ctx.shadowBlur = 18;
-    ctx.shadowColor = 'rgba(240,96,128,0.5)';
+    ctx.shadowColor = 'rgba(248,113,113,0.5)';
 
-    // Carrinho (retângulo rotacionado)
+    // Carrinho (corpo em gradiente, cantos arredondados)
     ctx.save();
     ctx.translate(carX, carY);
     ctx.rotate(carAng);
-    ctx.fillStyle = '#c0283a';
-    ctx.fillRect(-13, -7, 26, 14);
-    ctx.fillStyle = '#e83050';
-    ctx.fillRect(-13, -7, 26, 5);
-    // Rodas
-    [[-8,7],[8,7]].forEach(([ox,oy]) => {
+
+    const bodyGrad = ctx.createLinearGradient(0, -7, 0, 7);
+    bodyGrad.addColorStop(0, '#ff9d9d');
+    bodyGrad.addColorStop(0.5, '#f87171');
+    bodyGrad.addColorStop(1, '#b91c1c');
+
+    // Corpo principal
+    ctx.beginPath();
+    ctx.roundRect(-13, -6, 23, 12, 3);
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Nariz aerodinâmico (frente = sentido do movimento)
+    ctx.beginPath();
+    ctx.moveTo(10, -6);
+    ctx.lineTo(17, 0);
+    ctx.lineTo(10, 6);
+    ctx.closePath();
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Encosto (traseira)
+    ctx.beginPath();
+    ctx.roundRect(-16, -5, 5, 10, 2);
+    ctx.fillStyle = '#8f1717';
+    ctx.fill();
+
+    // Reflexo/vidro superior
+    ctx.beginPath();
+    ctx.roundRect(-8, -4, 15, 3, 1.5);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fill();
+
+    // Farol dianteiro
+    ctx.beginPath();
+    ctx.arc(14.5, 0, 1.6, 0, TAU);
+    ctx.fillStyle = '#FEF3C7';
+    ctx.fill();
+
+    // Rodas (com suporte curto, "abraçando" o trilho)
+    [[-7,6],[7,6]].forEach(([ox,oy]) => {
       ctx.beginPath();
-      ctx.arc(ox,oy,3.5,0,TAU);
-      ctx.fillStyle = '#888';
+      ctx.moveTo(ox, 1);
+      ctx.lineTo(ox, oy);
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(ox,oy,3.2,0,TAU);
+      ctx.fillStyle = '#334155';
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(ox,oy,1.5,0,TAU);
-      ctx.fillStyle = '#ccc';
+      ctx.arc(ox,oy,1.4,0,TAU);
+      ctx.fillStyle = '#00D4FF';
       ctx.fill();
     });
     ctx.restore();
@@ -1098,7 +1269,7 @@ function SimulacaoLoop() {
 
     // Texto da massa no carrinho
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 8px IBM Plex Mono';
+    ctx.font = 'bold 8px JetBrains Mono';
     ctx.textAlign = 'center';
     ctx.fillText(`${fmt(massa/1000,1)}t`, carX, carY+3);
 
@@ -1116,12 +1287,12 @@ function SimulacaoLoop() {
         ctx.beginPath();
         ctx.moveTo(carX, carY);
         ctx.lineTo(carX+nx, carY+ny);
-        ctx.strokeStyle = N_val>=0 ? '#5b9cf6' : '#f06080';
+        ctx.strokeStyle = N_val>=0 ? '#00D4FF' : '#f87171';
         ctx.lineWidth = 2;
         ctx.stroke();
-        arrowHead(ctx, carX+nx, carY+ny, N_val>=0 ? '#5b9cf6' : '#f06080');
-        ctx.fillStyle = N_val>=0 ? '#5b9cf6' : '#f06080';
-        ctx.font = '10px IBM Plex Mono';
+        arrowHead(ctx, carX+nx, carY+ny, N_val>=0 ? '#00D4FF' : '#f87171');
+        ctx.fillStyle = N_val>=0 ? '#00D4FF' : '#f87171';
+        ctx.font = '10px JetBrains Mono';
         ctx.textAlign = 'left';
         ctx.fillText(`N=${fmt(N_val/1000,2)}kN`, carX+nx+5, carY+ny-4);
       }
@@ -1132,13 +1303,13 @@ function SimulacaoLoop() {
 
     // ─ Status ─
     ctx.textAlign = 'left';
-    ctx.font = '10px IBM Plex Mono';
-    ctx.fillStyle = '#5b9cf6';
+    ctx.font = '10px JetBrains Mono';
+    ctx.fillStyle = '#00D4FF';
     ctx.fillText(`v = ${fmt(disp.v,2)} m/s   h = ${fmt(alt,2)} m`, 14, 24);
-    ctx.fillStyle = podeCompletar ? '#2dd4a4' : '#f06080';
+    ctx.fillStyle = podeCompletar ? '#00F5C4' : '#f87171';
     ctx.fillText(podeCompletar ? '✓ h₀ ≥ 2.5R — completa o loop' : `⚠ h₀ < 2.5R — falta ${fmt(h_min-h0,2)}m`, 14, 40);
     if (noLoop && N_atual < 0) {
-      ctx.fillStyle = '#f06080';
+      ctx.fillStyle = '#f87171';
       ctx.fillText('⚠ N < 0: carrinho perderia contato!', 14, 56);
     }
 
@@ -1150,11 +1321,15 @@ function SimulacaoLoop() {
   const drawPlot = useCallback((ref, data, color, label, yMin, yMax, unit='') => {
     const cv = ref.current; if (!cv||!data||data.length<2) return;
     const ctx = cv.getContext('2d');
-    const W = cv.width = cv.offsetWidth;
-    const H = cv.height = cv.offsetHeight;
+    const dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth || cv.offsetWidth;
+    const H = cv.clientHeight || cv.offsetHeight;
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0,0,W,H);
     const range = (yMax-yMin)||1;
-    ctx.strokeStyle = 'rgba(91,156,246,0.06)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.06)';
     ctx.lineWidth = 1;
     [0.5].forEach(f => {
       const y=H*(1-f); ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
@@ -1174,16 +1349,16 @@ function SimulacaoLoop() {
     data.forEach((v,i)=>{const x=(i/(data.length-1))*W,y=H-((v-yMin)/range)*H;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
     ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
     ctx.fillStyle = color;
-    ctx.font = '9px IBM Plex Mono';
+    ctx.font = '9px JetBrains Mono';
     ctx.fillText(label, 5, 12);
     ctx.fillStyle='rgba(255,255,255,0.65)';
     ctx.fillText(`${fmt(data[data.length-1],2)} ${unit}`, 5, 24);
   },[]);
 
   useEffect(() => {
-    drawPlot(plotHRef, hist.h, '#f0b429','h(t)', 0, h0*1.1,'m');
-    drawPlot(plotERef, hist.E, '#2dd4a4','E(t)', 0, E0*1.05,'J');
-    drawPlot(plotVRef, hist.v, '#5b9cf6','v(t)', 0, Math.sqrt(2*g*h0)*1.1,'m/s');
+    drawPlot(plotHRef, hist.h, '#F97316','h(t)', 0, h0*1.1,'m');
+    drawPlot(plotERef, hist.E, '#00F5C4','E(t)', 0, E0*1.05,'J');
+    drawPlot(plotVRef, hist.v, '#00D4FF','v(t)', 0, Math.sqrt(2*g*h0)*1.1,'m/s');
   },[hist, drawPlot, h0, E0]);
 
   return (
@@ -1476,9 +1651,9 @@ function drawEnergyBars(ctx, W, H, Ep, Ec, Et, E0) {
   const bW = 160, bH = 9, bX = W-bW-16, bY = H-90;
   const max = Math.max(E0, 1);
   const entries = [
-    ['Ep', Ep, '#f0b429'],
-    ['Ec', Ec, '#2dd4a4'],
-    ['Et', Et, '#5b9cf6'],
+    ['Ep', Ep, '#F97316'],
+    ['Ec', Ec, '#00F5C4'],
+    ['Et', Et, '#00D4FF'],
   ];
   entries.forEach(([label, val, color], i) => {
     const y = bY + i*20;
@@ -1487,7 +1662,7 @@ function drawEnergyBars(ctx, W, H, Ep, Ec, Et, E0) {
     ctx.fillStyle = color;
     ctx.fillRect(bX, y, Math.max(0, (val/max)*bW), bH);
     ctx.fillStyle = color;
-    ctx.font = '8px IBM Plex Mono';
+    ctx.font = '8px JetBrains Mono';
     ctx.textAlign = 'right';
     ctx.fillText(label, bX-4, y+bH-1);
   });
