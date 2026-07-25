@@ -55,14 +55,21 @@ const DATA = {
   f2: {
     label: 'FÍSICA 2',
     sub: 'TERMODINÂMICA · FLUIDOS · ONDAS',
-    cor: '#FF6B9D',
-    corRgb: '255,107,157',
+    cor: '#EF4444',
+    corRgb: '239,68,68',
     chapters: [
       {
         title: 'TERMODINÂMICA',
         topics: [
-          { id: 'gases', title: 'Gases Ideais', desc: 'Lei dos gases, transformações isotérmica, isobárica e adiabática.', tags: ['PVT', 'Gás'], disponivel: false },
-          { id: 'leis-termo', title: '1ª e 2ª Lei da Termodinâmica', desc: 'Energia interna, entropia, ciclo de Carnot e rendimento máximo.', tags: ['Carnot', 'Entropia'], disponivel: false },
+          { id: 'gases', title: 'Gases Ideais', desc: 'Lei dos gases, transformações isotérmica, isobárica e adiabática.', tags: ['PVT', 'Gás', 'Disponível'], disponivel: true },
+          { id: 'leis-termo', title: '1ª e 2ª Lei da Termodinâmica', desc: 'Energia interna, entropia, ciclo de Carnot e rendimento máximo.', tags: ['Carnot', 'Entropia', 'Disponível'], disponivel: true },
+        ],
+      },
+      {
+        title: 'FLUIDOS',
+        topics: [
+          { id: 'hidrostatica', title: 'Hidrostática e Empuxo', desc: 'Pressão hidrostática, princípio de Pascal e o Princípio de Arquimedes.', tags: ['Pressão', 'Empuxo', 'Disponível'], disponivel: true },
+          { id: 'dinamica-fluidos', title: 'Dinâmica dos Fluidos', desc: 'Equação da continuidade, teorema de Bernoulli e vazão em tubulações.', tags: ['Bernoulli', 'Vazão', 'Disponível'], disponivel: true },
         ],
       },
       {
@@ -104,8 +111,8 @@ const TABS = [
   { key: 'f3', label: 'FÍSICA 3' },
 ];
 
-export default function Home({ onNavegar }) {
-  const [tabAtiva, setTabAtiva] = useState('f1');
+export default function Home({ onNavegar, tabInicial = 'f1' }) {
+  const [tabAtiva, setTabAtiva] = useState(tabInicial);
   const [inkStyle, setInkStyle] = useState({});
   const [heroVisible, setHeroVisible] = useState(true);
   const [panelKey, setPanelKey] = useState(0);
@@ -333,12 +340,17 @@ export default function Home({ onNavegar }) {
         }
 
         .fl-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
           gap: 14px;
+          max-width: 700px;
+          margin: 0 auto;
         }
 
         .fl-card {
+          flex: 1 1 280px;
+          max-width: 340px;
           background: rgba(13,14,20,0.8);
           border: 1px solid var(--border);
           border-radius: 10px;

@@ -13,6 +13,10 @@ import ExperimentoPlanoInclinado from './pages/ExperimentoPlanoInclinado';
 import ExperimentoColisoes from './pages/ExperimentoColisoes';
 import ExperimentoLeisNewton from './pages/ExperimentoLeisNewton';
 import ExperimentoEnergiaMecanica from './pages/ExperimentoEnergiaMecanica';
+import ExperimentoGasesIdeais from './pages/ExperimentoGasesIdeais';
+import ExperimentoLeisTermo from './pages/ExperimentoLeisTermo';
+import ExperimentoHidrostatica from './pages/ExperimentoHidrostatica';
+import ExperimentoDinamicaFluidos from './pages/ExperimentoDinamicaFluidos';
 
 /* ========================================================= */
 /* TITULOS */
@@ -34,6 +38,14 @@ const TITULOS = {
   'colisoes': 'Colisões',
 
   'energia-mecanica': 'Energia Mecânica',
+
+  gases: 'Gases Ideais',
+
+  'leis-termo': '1ª e 2ª Lei da Termodinâmica',
+
+  hidrostatica: 'Hidrostática e Empuxo',
+
+  'dinamica-fluidos': 'Dinâmica dos Fluidos',
 };
 
 /* ========================================================= */
@@ -43,9 +55,17 @@ const TITULOS = {
 const CORES_FISICA = {
   fisica1: '#00D4FF',
 
-  fisica2: '#FF6B9D',
+  fisica2: '#EF4444',
 
   fisica3: '#00F5C4',
+};
+
+const CORES_FISICA_RGB = {
+  fisica1: '0,212,255',
+
+  fisica2: '239,68,68',
+
+  fisica3: '0,245,196',
 };
 
 /* ========================================================= */
@@ -68,12 +88,28 @@ const EXPERIMENTO_FISICA = {
   'colisoes': 'fisica1',
 
   'energia-mecanica': 'fisica1',
+
+  gases: 'fisica2',
+
+  'leis-termo': 'fisica2',
+
+  hidrostatica: 'fisica2',
+
+  'dinamica-fluidos': 'fisica2',
+};
+
+const FISICA_PARA_TAB_HOME = {
+  fisica1: 'f1',
+  fisica2: 'f2',
+  fisica3: 'f3',
 };
 
 export default function App() {
   const [pagina, setPagina] = useState('home');
 
   const [experimento, setExperimento] = useState(null);
+
+  const [homeTab, setHomeTab] = useState('f1');
 
   /* ========================================================= */
   /* NAVEGAÇÃO */
@@ -86,6 +122,10 @@ export default function App() {
   };
 
   const voltarHome = () => {
+    const fisica = EXPERIMENTO_FISICA[experimento];
+
+    if (fisica) setHomeTab(FISICA_PARA_TAB_HOME[fisica] || 'f1');
+
     setPagina('home');
 
     setExperimento(null);
@@ -98,6 +138,10 @@ export default function App() {
   const corAtual = experimento
     ? CORES_FISICA[EXPERIMENTO_FISICA[experimento]]
     : '#FFFFFF';
+
+  const corAtualRgb = experimento
+    ? CORES_FISICA_RGB[EXPERIMENTO_FISICA[experimento]]
+    : '255,255,255';
 
   return (
     <>
@@ -165,9 +209,9 @@ export default function App() {
 
           background:transparent;
 
-          border:1px solid rgba(0,212,255,0.25);
+          border:1px solid rgba(var(--fisica-color-rgb),0.25);
 
-          color:rgba(0,212,255,0.7);
+          color:rgba(var(--fisica-color-rgb),0.7);
 
           border-radius:8px;
 
@@ -183,14 +227,14 @@ export default function App() {
         }
 
         .app-back-btn:hover{
-          background:rgba(0,212,255,0.08);
+          background:rgba(var(--fisica-color-rgb),0.08);
 
-          border-color:#00D4FF;
+          border-color:var(--fisica-color);
 
-          color:#00D4FF;
+          color:var(--fisica-color);
 
           box-shadow:
-            0 0 10px rgba(0,212,255,0.2);
+            0 0 10px rgba(var(--fisica-color-rgb),0.2);
         }
 
         /* ========================================================= */
@@ -304,7 +348,7 @@ export default function App() {
         }
       `}</style>
 
-      <div className="app-container">
+      <div className="app-container" style={{ '--fisica-color': corAtual, '--fisica-color-rgb': corAtualRgb }}>
 
         {/* ========================================================= */}
         {/* HEADER */}
@@ -390,7 +434,7 @@ export default function App() {
         {/* ========================================================= */}
 
         {pagina === 'home' && (
-          <Home onNavegar={navegarPara} />
+          <Home onNavegar={navegarPara} tabInicial={homeTab} />
         )}
 
         {/* ========================================================= */}
@@ -435,6 +479,26 @@ export default function App() {
         {pagina === 'experimento' &&
           experimento === 'colisoes' && (
             <ExperimentoColisoes />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'gases' && (
+            <ExperimentoGasesIdeais />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'leis-termo' && (
+            <ExperimentoLeisTermo />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'hidrostatica' && (
+            <ExperimentoHidrostatica />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'dinamica-fluidos' && (
+            <ExperimentoDinamicaFluidos />
           )}
 
       </div>
