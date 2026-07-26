@@ -88,20 +88,30 @@ const DATA = {
   f3: {
     label: 'FÍSICA 3',
     sub: 'ELETROMAGNETISMO · RELATIVIDADE · QUÂNTICA',
-    cor: '#00F5C4',
-    corRgb: '167,139,250',
+    cor: '#A855F7',
+    corRgb: '168,85,247',
     chapters: [
       {
         title: 'ELETROSTÁTICA',
         topics: [
-          { id: 'coulomb', title: 'Lei de Coulomb e Campo Elétrico', desc: 'Força eletrostática, campo de cargas pontuais e lei de Gauss.', tags: ['Coulomb', 'Campo'], disponivel: false },
-          { id: 'maxwell', title: 'Equações de Maxwell', desc: 'Síntese do eletromagnetismo em 4 equações fundamentais.', tags: ['Maxwell', 'EM'], disponivel: false },
+          { id: 'coulomb', title: 'Lei de Coulomb', desc: 'Força entre cargas puntiformes, atração/repulsão e a lei do inverso do quadrado.', tags: ['Coulomb', 'Força', 'Disponível'], disponivel: true },
+          { id: 'campo-eletrico-3d', title: 'Campo Elétrico em 3D', desc: 'Visualização vetorial do campo elétrico de um dipolo no espaço 3D.', tags: ['Campo', '3D', 'Disponível'], disponivel: true },
+          { id: 'linhas-campo-potencial', title: 'Linhas de Campo e Potencial', desc: 'Linhas de campo, equipotenciais e uma carga de teste seguindo o campo.', tags: ['Campo', 'Potencial', 'Disponível'], disponivel: true },
+          { id: 'lei-gauss', title: 'Lei de Gauss', desc: 'Fluxo elétrico através de superfícies fechadas — por que só a carga interna importa.', tags: ['Gauss', 'Fluxo', 'Disponível'], disponivel: true },
+        ],
+      },
+      {
+        title: 'RELATIVIDADE ESPECIAL',
+        topics: [
+          { id: 'dilatacao-tempo-espaco', title: 'Dilatação do Tempo e Contração do Espaço', desc: 'Relógio de luz, fator de Lorentz e por que "mover-se" desacelera o tempo.', tags: ['Lorentz', 'γ', 'Disponível'], disponivel: true },
+          { id: 'diagrama-minkowski', title: 'Diagrama de Minkowski e Simultaneidade', desc: 'Linhas de mundo, cones de luz e por que "ao mesmo tempo" depende do observador.', tags: ['Minkowski', 'Simultaneidade'], disponivel: false },
+          { id: 'paradoxo-gemeos', title: 'Paradoxo dos Gêmeos', desc: 'Uma viagem interestelar e por que quem viaja envelhece menos.', tags: ['Paradoxo', 'Viagem'], disponivel: false },
+          { id: 'energia-momento-relativistico', title: 'Energia e Momento Relativísticos', desc: 'E=mc², momento relativístico e por que nada com massa atinge a velocidade da luz.', tags: ['E=mc²', 'Momento'], disponivel: false },
         ],
       },
       {
         title: 'FÍSICA MODERNA',
         topics: [
-          { id: 'relatividade', title: 'Relatividade Especial', desc: 'Postulados de Einstein, dilatação temporal e E=mc².', tags: ['Einstein', 'γ'], disponivel: false },
           { id: 'quantica', title: 'Mecânica Quântica', desc: 'Dualidade onda-partícula, Heisenberg e Schrödinger.', tags: ['Planck', 'ℏ'], disponivel: false },
         ],
       },

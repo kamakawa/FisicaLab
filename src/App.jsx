@@ -23,6 +23,11 @@ import ExperimentoCalorimetria from './pages/ExperimentoCalorimetria';
 import ExperimentoOndasEstacionarias from './pages/ExperimentoOndasEstacionarias';
 import ExperimentoDilatacaoTermica from './pages/ExperimentoDilatacaoTermica';
 import ExperimentoTubosSonoros from './pages/ExperimentoTubosSonoros';
+import ExperimentoLeiCoulomb from './pages/ExperimentoLeiCoulomb';
+import ExperimentoCampoEletrico3D from './pages/ExperimentoCampoEletrico3D';
+import ExperimentoLinhasCampo from './pages/ExperimentoLinhasCampo';
+import ExperimentoLeiGauss from './pages/ExperimentoLeiGauss';
+import ExperimentoDilatacaoTempoEspaco from './pages/ExperimentoDilatacaoTempoEspaco';
 
 /* ========================================================= */
 /* TITULOS */
@@ -64,6 +69,16 @@ const TITULOS = {
   'dilatacao-termica': 'Dilatação Térmica',
 
   'tubos-sonoros': 'Ondas Sonoras em Tubos',
+
+  coulomb: 'Lei de Coulomb',
+
+  'campo-eletrico-3d': 'Campo Elétrico em 3D',
+
+  'linhas-campo-potencial': 'Linhas de Campo e Potencial',
+
+  'lei-gauss': 'Lei de Gauss',
+
+  'dilatacao-tempo-espaco': 'Dilatação do Tempo e Contração do Espaço',
 };
 
 /* ========================================================= */
@@ -75,7 +90,7 @@ const CORES_FISICA = {
 
   fisica2: '#EF4444',
 
-  fisica3: '#00F5C4',
+  fisica3: '#A855F7',
 };
 
 const CORES_FISICA_RGB = {
@@ -83,7 +98,7 @@ const CORES_FISICA_RGB = {
 
   fisica2: '239,68,68',
 
-  fisica3: '0,245,196',
+  fisica3: '168,85,247',
 };
 
 /* ========================================================= */
@@ -126,6 +141,16 @@ const EXPERIMENTO_FISICA = {
   'dilatacao-termica': 'fisica2',
 
   'tubos-sonoros': 'fisica2',
+
+  coulomb: 'fisica3',
+
+  'campo-eletrico-3d': 'fisica3',
+
+  'linhas-campo-potencial': 'fisica3',
+
+  'lei-gauss': 'fisica3',
+
+  'dilatacao-tempo-espaco': 'fisica3',
 };
 
 const FISICA_PARA_TAB_HOME = {
@@ -559,6 +584,31 @@ export default function App() {
         {pagina === 'experimento' &&
           experimento === 'tubos-sonoros' && (
             <ExperimentoTubosSonoros />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'coulomb' && (
+            <ExperimentoLeiCoulomb />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'campo-eletrico-3d' && (
+            <ExperimentoCampoEletrico3D />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'linhas-campo-potencial' && (
+            <ExperimentoLinhasCampo />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'lei-gauss' && (
+            <ExperimentoLeiGauss />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'dilatacao-tempo-espaco' && (
+            <ExperimentoDilatacaoTempoEspaco />
           )}
 
       </div>
