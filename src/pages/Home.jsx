@@ -63,6 +63,8 @@ const DATA = {
         topics: [
           { id: 'gases', title: 'Gases Ideais', desc: 'Lei dos gases, transformações isotérmica, isobárica e adiabática.', tags: ['PVT', 'Gás', 'Disponível'], disponivel: true },
           { id: 'leis-termo', title: '1ª e 2ª Lei da Termodinâmica', desc: 'Energia interna, entropia, ciclo de Carnot e rendimento máximo.', tags: ['Carnot', 'Entropia', 'Disponível'], disponivel: true },
+          { id: 'calorimetria', title: 'Calorimetria e Transferência de Calor', desc: 'Calor específico, calor latente, curva de aquecimento e condução de calor.', tags: ['Calorimetria', 'Condução', 'Disponível'], disponivel: true },
+          { id: 'dilatacao-termica', title: 'Dilatação Térmica', desc: 'Dilatação linear, superficial e volumétrica, e a lâmina bimetálica.', tags: ['Dilatação', 'Bimetálica', 'Disponível'], disponivel: true },
         ],
       },
       {
@@ -75,8 +77,10 @@ const DATA = {
       {
         title: 'ONDAS',
         topics: [
-          { id: 'mhs', title: 'Oscilações Harmônicas', desc: 'MHS — posição, velocidade, energia e amortecimento.', tags: ['MHS', 'Amplitude'], disponivel: false },
-          { id: 'som', title: 'Ondas Sonoras e Doppler', desc: 'Velocidade do som, intensidade, decibéis e efeito Doppler.', tags: ['Som', 'Doppler'], disponivel: false },
+          { id: 'mhs', title: 'Oscilações Harmônicas', desc: 'MHS — posição, velocidade, energia e amortecimento.', tags: ['MHS', 'Amplitude', 'Disponível'], disponivel: true },
+          { id: 'som', title: 'Ondas Sonoras e Doppler', desc: 'Velocidade do som, intensidade, decibéis e efeito Doppler.', tags: ['Som', 'Doppler', 'Disponível'], disponivel: true },
+          { id: 'ondas-estacionarias', title: 'Ondas Estacionárias em Cordas', desc: 'Harmônicos, nós, antinós e a série harmônica numa corda vibrante.', tags: ['Harmônicos', 'Ressonância', 'Disponível'], disponivel: true },
+          { id: 'tubos-sonoros', title: 'Ondas Sonoras em Tubos', desc: 'Tubo aberto e fechado — por que um soa uma oitava mais grave que o outro.', tags: ['Tubos', 'Harmônicos', 'Disponível'], disponivel: true },
         ],
       },
     ],

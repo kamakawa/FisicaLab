@@ -17,6 +17,12 @@ import ExperimentoGasesIdeais from './pages/ExperimentoGasesIdeais';
 import ExperimentoLeisTermo from './pages/ExperimentoLeisTermo';
 import ExperimentoHidrostatica from './pages/ExperimentoHidrostatica';
 import ExperimentoDinamicaFluidos from './pages/ExperimentoDinamicaFluidos';
+import ExperimentoMHS from './pages/ExperimentoMHS';
+import ExperimentoOndasSonoras from './pages/ExperimentoOndasSonoras';
+import ExperimentoCalorimetria from './pages/ExperimentoCalorimetria';
+import ExperimentoOndasEstacionarias from './pages/ExperimentoOndasEstacionarias';
+import ExperimentoDilatacaoTermica from './pages/ExperimentoDilatacaoTermica';
+import ExperimentoTubosSonoros from './pages/ExperimentoTubosSonoros';
 
 /* ========================================================= */
 /* TITULOS */
@@ -46,6 +52,18 @@ const TITULOS = {
   hidrostatica: 'Hidrostática e Empuxo',
 
   'dinamica-fluidos': 'Dinâmica dos Fluidos',
+
+  mhs: 'Oscilações Harmônicas',
+
+  som: 'Ondas Sonoras e Doppler',
+
+  calorimetria: 'Calorimetria e Transferência de Calor',
+
+  'ondas-estacionarias': 'Ondas Estacionárias em Cordas',
+
+  'dilatacao-termica': 'Dilatação Térmica',
+
+  'tubos-sonoros': 'Ondas Sonoras em Tubos',
 };
 
 /* ========================================================= */
@@ -96,6 +114,18 @@ const EXPERIMENTO_FISICA = {
   hidrostatica: 'fisica2',
 
   'dinamica-fluidos': 'fisica2',
+
+  mhs: 'fisica2',
+
+  som: 'fisica2',
+
+  calorimetria: 'fisica2',
+
+  'ondas-estacionarias': 'fisica2',
+
+  'dilatacao-termica': 'fisica2',
+
+  'tubos-sonoros': 'fisica2',
 };
 
 const FISICA_PARA_TAB_HOME = {
@@ -499,6 +529,36 @@ export default function App() {
         {pagina === 'experimento' &&
           experimento === 'dinamica-fluidos' && (
             <ExperimentoDinamicaFluidos />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'mhs' && (
+            <ExperimentoMHS />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'som' && (
+            <ExperimentoOndasSonoras />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'calorimetria' && (
+            <ExperimentoCalorimetria />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'ondas-estacionarias' && (
+            <ExperimentoOndasEstacionarias />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'dilatacao-termica' && (
+            <ExperimentoDilatacaoTermica />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'tubos-sonoros' && (
+            <ExperimentoTubosSonoros />
           )}
 
       </div>
