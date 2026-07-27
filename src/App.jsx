@@ -28,6 +28,9 @@ import ExperimentoCampoEletrico3D from './pages/ExperimentoCampoEletrico3D';
 import ExperimentoLinhasCampo from './pages/ExperimentoLinhasCampo';
 import ExperimentoLeiGauss from './pages/ExperimentoLeiGauss';
 import ExperimentoDilatacaoTempoEspaco from './pages/ExperimentoDilatacaoTempoEspaco';
+import ExperimentoDiagramaMinkowski from './pages/ExperimentoDiagramaMinkowski';
+import ExperimentoParadoxoGemeos from './pages/ExperimentoParadoxoGemeos';
+import ExperimentoEnergiaMomentoRelativistico from './pages/ExperimentoEnergiaMomentoRelativistico';
 
 /* ========================================================= */
 /* TITULOS */
@@ -79,6 +82,12 @@ const TITULOS = {
   'lei-gauss': 'Lei de Gauss',
 
   'dilatacao-tempo-espaco': 'Dilatação do Tempo e Contração do Espaço',
+
+  'diagrama-minkowski': 'Diagrama de Minkowski',
+
+  'paradoxo-gemeos': 'Paradoxo dos Gêmeos',
+
+  'energia-momento-relativistico': 'Energia e Momento Relativísticos',
 };
 
 /* ========================================================= */
@@ -151,6 +160,12 @@ const EXPERIMENTO_FISICA = {
   'lei-gauss': 'fisica3',
 
   'dilatacao-tempo-espaco': 'fisica3',
+
+  'diagrama-minkowski': 'fisica3',
+
+  'paradoxo-gemeos': 'fisica3',
+
+  'energia-momento-relativistico': 'fisica3',
 };
 
 const FISICA_PARA_TAB_HOME = {
@@ -609,6 +624,21 @@ export default function App() {
         {pagina === 'experimento' &&
           experimento === 'dilatacao-tempo-espaco' && (
             <ExperimentoDilatacaoTempoEspaco />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'diagrama-minkowski' && (
+            <ExperimentoDiagramaMinkowski />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'paradoxo-gemeos' && (
+            <ExperimentoParadoxoGemeos />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'energia-momento-relativistico' && (
+            <ExperimentoEnergiaMomentoRelativistico />
           )}
 
       </div>

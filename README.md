@@ -50,9 +50,37 @@ O projeto nasceu de uma necessidade real: ferramentas profissionais como MATLAB 
 | **Colisões** | Pêndulo balístico, colisões 1D elásticas/inelásticas | Conservação de momento e energia |
 | **Energia Mecânica** | Pêndulo simples, montanha russa (loop) | Ep ↔ Ec, força normal ao longo do loop |
 
-Cada experimento possui duas abas:
+### 🔴 Física 2 — Termodinâmica, Fluidos e Ondas
+
+| Experimento | Conteúdo | Recursos |
+|---|---|---|
+| **Gases Ideais** | Equação de Clapeyron, transformações isotérmica/isobárica/isocórica | Diagrama p-V animado |
+| **1ª e 2ª Lei da Termodinâmica** | Trabalho, calor, entropia, ciclo de Carnot | Diagrama p-V do ciclo, rendimento |
+| **Hidrostática e Empuxo** | Pressão hidrostática, princípio de Pascal, Arquimedes | Prensa hidráulica, corpo flutuante/submerso |
+| **Dinâmica dos Fluidos** | Equação da continuidade, Bernoulli, Torricelli | Tanque furado com jato d'água, tubo Venturi |
+| **Oscilações Harmônicas (MHS)** | Mola, pêndulo, amortecimento (sub/crítico/super) | Gráfico x(t) em tempo real, espaço de fase |
+| **Ondas Sonoras e Doppler** | Frequência percebida, fonte/observador em movimento | Frentes de onda animadas, efeito Doppler visual |
+| **Ondas Estacionárias em Cordas** | Harmônicos, nós e ventres, ressonância | Corda vibrante, múltiplos harmônicos |
+| **Ondas Sonoras em Tubos** | Tubos abertos e fechados, harmônicos permitidos | Coluna de ar animada |
+| **Calorimetria e Transferência de Calor** | Calor específico, calor latente, curva de aquecimento | Condução/convecção/radiação, mudança de fase |
+| **Dilatação Térmica** | Dilatação linear/superficial/volumétrica, lâmina bimetálica | Barra e lâmina bimetálica se deformando |
+
+### 🟣 Física 3 — Eletromagnetismo e Física Moderna
+
+| Experimento | Conteúdo | Recursos |
+|---|---|---|
+| **Lei de Coulomb** | Força elétrica entre cargas, atração/repulsão | Simulação de soltar cargas, gráfico F(r) |
+| **Campo Elétrico em 3D** | Superposição vetorial, configuração de dipolo | Cena 3D interativa (Three.js), vetores de campo |
+| **Linhas de Campo e Potencial** | Linhas de campo, equipotenciais, carga de teste | Mapa de potencial, carga deslizando pelo campo |
+| **Lei de Gauss** | Fluxo elétrico, simetrias (esférica/cilíndrica/planar) | Superfície gaussiana interativa, fluxo numérico ao vivo |
+| **Dilatação do Tempo e Contração do Espaço** | Postulados de Einstein, fator de Lorentz | Relógio de luz animado (dois referenciais), régua contraída |
+
+> Física 2 e Física 3 seguem em desenvolvimento ativo — novos tópicos de Relatividade Especial (Minkowski, Paradoxo dos Gêmeos, Energia-Momento) e Mecânica Quântica estão planejados.
+
+Cada experimento possui, em geral, três abas:
 - **Simulação** — animação interativa com parâmetros ajustáveis em tempo real
-- **Teoria / Cálculo** — derivações passo a passo com valores numéricos atualizados
+- **Gráficos / Aplicações** — visualizações complementares (gráficos, casos clássicos, comparações)
+- **Cálculo & Derivações** — derivações passo a passo com valores numéricos atualizados
 
 ---
 
@@ -116,10 +144,16 @@ FísicaLab/
 └── src/
     ├── main.jsx               # entry point
     ├── App.jsx                # roteamento entre experimentos
-    ├── App.css                # estilos globais + design tokens
+    ├── App.css                # estilos globais + design tokens (Física 1)
+    │
+    ├── styles/                # temas compartilhados por subárea
+    │   ├── fisica2Theme.js    # paleta vermelha + constantes de gases (R, γ, Cv, Cp)
+    │   └── fisica3Theme.js    # paleta roxa + constantes de eletrostática/relatividade (k, ε₀, c)
     │
     ├── pages/                 # cada experimento = uma página
     │   ├── Home.jsx
+    │   │
+    │   │   # Física 1 — Mecânica
     │   ├── ExperimentoLancamento.jsx
     │   ├── ExperimentoMRU.jsx
     │   ├── ExperimentoMUV.jsx
@@ -127,9 +161,28 @@ FísicaLab/
     │   ├── ExperimentoLeisNewton.jsx
     │   ├── Experimentoplanoinclinado.jsx
     │   ├── ExperimentoColisoes.jsx
-    │   └── ExperimentoEnergiaMecanica.jsx
+    │   ├── ExperimentoEnergiaMecanica.jsx
+    │   │
+    │   │   # Física 2 — Termodinâmica, Fluidos e Ondas
+    │   ├── ExperimentoGasesIdeais.jsx
+    │   ├── ExperimentoLeisTermo.jsx
+    │   ├── ExperimentoHidrostatica.jsx
+    │   ├── ExperimentoDinamicaFluidos.jsx
+    │   ├── ExperimentoMHS.jsx
+    │   ├── ExperimentoOndasSonoras.jsx
+    │   ├── ExperimentoOndasEstacionarias.jsx
+    │   ├── ExperimentoTubosSonoros.jsx
+    │   ├── ExperimentoCalorimetria.jsx
+    │   ├── ExperimentoDilatacaoTermica.jsx
+    │   │
+    │   │   # Física 3 — Eletromagnetismo e Física Moderna
+    │   ├── ExperimentoLeiCoulomb.jsx
+    │   ├── ExperimentoCampoEletrico3D.jsx
+    │   ├── ExperimentoLinhasCampo.jsx
+    │   ├── ExperimentoLeiGauss.jsx
+    │   └── ExperimentoDilatacaoTempoEspaco.jsx
     │
-    └── components/            # componentes reutilizáveis
+    └── components/            # componentes reutilizáveis (Física 1)
         ├── LogoFisicaLab.jsx
         ├── CanvasAnimacao.jsx       # canvas do lançamento
         ├── CanvasNewton.jsx         # canvas das Leis de Newton
@@ -137,9 +190,9 @@ FísicaLab/
         ├── MRU3D.jsx                # cena Three.js do MRU
         ├── MRUCalculus.jsx          # derivações do MRU
         ├── MuvCalculus.jsx          # derivações do MRUV
-        ├── MuvGraph.jsx             # gráficos do MRUV
-        ├── MuvTable.jsx             # tabela de dados MRUV
-        ├── MuvTheory.jsx            # teoria do MRUV
+        ├── Muvgraph.jsx             # gráficos do MRUV
+        ├── Muvtable.jsx             # tabela de dados MRUV
+        ├── Muvtheory.jsx            # teoria do MRUV
         ├── Muvequations.jsx         # equações MRUV
         ├── Muvanalysis.jsx
         ├── LancamentoCalculus.jsx   # derivações do lançamento
@@ -152,9 +205,11 @@ FísicaLab/
 
 ```
 v1.0  ✅  8 experimentos de Física 1 — Mecânica
-v1.1  🔄  Correções físicas (força normal no loop, atrito variável)
-v1.2  🔲  Física 2 — Ondulatória (superposição, interferência)
-v1.3  🔲  Física 3 — Eletromagnetismo (campo elétrico, potencial)
+v1.1  ✅  Correções físicas e modernização de layout (Física 1)
+v1.2  ✅  Física 2 — Termodinâmica, Fluidos e Ondas (10 experimentos)
+v1.3  🔄  Física 3 — Eletrostática completa (4 experimentos) + Relatividade Especial (em andamento)
+v1.4  🔲  Física 3 — Relatividade Especial (Minkowski, Paradoxo dos Gêmeos, Energia-Momento)
+v1.5  🔲  Física 3 — Mecânica Quântica
 v2.0  🔲  Compilação WebAssembly para simulações mais pesadas
 v2.1  🔲  Modo educacional com guia passo a passo
 v2.2  🔲  Exportação de dados (CSV / JSON)
@@ -174,12 +229,15 @@ Nossa missão é transformar conceitos complexos em experiências visuais intuit
 
 Projeto desenvolvido para a disciplina de **Oficina de Integração** — Engenharia de Computação.
 
-<table>
+<table align="center">
 <tr>
-<td align="center" width="200">
+<td align="center" colspan="2">
 <b>Eric Naoki Sugauara Kamakawa</b><br>
-<sub>Engenharia de Computação</sub>
+<sub>Engenharia de Computação</sub><br>
+<sub>💻 Desenvolvimento e Implementação</sub>
 </td>
+</tr>
+<tr>
 <td align="center" width="200">
 <b>Iago Leonardo Sitta</b><br>
 <sub>Engenharia de Computação</sub>

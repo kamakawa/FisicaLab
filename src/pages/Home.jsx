@@ -104,9 +104,9 @@ const DATA = {
         title: 'RELATIVIDADE ESPECIAL',
         topics: [
           { id: 'dilatacao-tempo-espaco', title: 'Dilatação do Tempo e Contração do Espaço', desc: 'Relógio de luz, fator de Lorentz e por que "mover-se" desacelera o tempo.', tags: ['Lorentz', 'γ', 'Disponível'], disponivel: true },
-          { id: 'diagrama-minkowski', title: 'Diagrama de Minkowski e Simultaneidade', desc: 'Linhas de mundo, cones de luz e por que "ao mesmo tempo" depende do observador.', tags: ['Minkowski', 'Simultaneidade'], disponivel: false },
-          { id: 'paradoxo-gemeos', title: 'Paradoxo dos Gêmeos', desc: 'Uma viagem interestelar e por que quem viaja envelhece menos.', tags: ['Paradoxo', 'Viagem'], disponivel: false },
-          { id: 'energia-momento-relativistico', title: 'Energia e Momento Relativísticos', desc: 'E=mc², momento relativístico e por que nada com massa atinge a velocidade da luz.', tags: ['E=mc²', 'Momento'], disponivel: false },
+          { id: 'diagrama-minkowski', title: 'Diagrama de Minkowski e Simultaneidade', desc: 'Linhas de mundo, cones de luz e por que "ao mesmo tempo" depende do observador.', tags: ['Minkowski', 'Simultaneidade', 'Disponível'], disponivel: true },
+          { id: 'paradoxo-gemeos', title: 'Paradoxo dos Gêmeos', desc: 'Uma viagem interestelar e por que quem viaja envelhece menos.', tags: ['Paradoxo', 'Viagem', 'Disponível'], disponivel: true },
+          { id: 'energia-momento-relativistico', title: 'Energia e Momento Relativísticos', desc: 'E=mc², momento relativístico e por que nada com massa atinge a velocidade da luz.', tags: ['E=mc²', 'Momento', 'Disponível'], disponivel: true },
         ],
       },
       {
