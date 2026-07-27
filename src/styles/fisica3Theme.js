@@ -14,6 +14,14 @@ export const RELATIVIDADE = {
   C: 299792458, // m/s — velocidade da luz no vácuo
 };
 
+// Constantes compartilhadas de física quântica.
+export const QUANTICA = {
+  H: 6.626e-34,        // J·s — constante de Planck
+  H_EV: 4.135667e-15,  // eV·s — constante de Planck em elétron-volts
+  HBAR: 1.054571e-34,  // J·s — constante de Planck reduzida (h/2π)
+  E_CHARGE: 1.602176e-19, // C — carga elementar
+};
+
 export const FISICA3_BASE_STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 

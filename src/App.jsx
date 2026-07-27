@@ -31,6 +31,10 @@ import ExperimentoDilatacaoTempoEspaco from './pages/ExperimentoDilatacaoTempoEs
 import ExperimentoDiagramaMinkowski from './pages/ExperimentoDiagramaMinkowski';
 import ExperimentoParadoxoGemeos from './pages/ExperimentoParadoxoGemeos';
 import ExperimentoEnergiaMomentoRelativistico from './pages/ExperimentoEnergiaMomentoRelativistico';
+import ExperimentoFotoeletrico from './pages/ExperimentoFotoeletrico';
+import ExperimentoDualidadeOnda from './pages/ExperimentoDualidadeOnda';
+import ExperimentoIncertezaHeisenberg from './pages/ExperimentoIncertezaHeisenberg';
+import ExperimentoPocoPotencial from './pages/ExperimentoPocoPotencial';
 
 /* ========================================================= */
 /* TITULOS */
@@ -88,6 +92,14 @@ const TITULOS = {
   'paradoxo-gemeos': 'Paradoxo dos Gêmeos',
 
   'energia-momento-relativistico': 'Energia e Momento Relativísticos',
+
+  'efeito-fotoeletrico': 'Efeito Fotoelétrico',
+
+  'dualidade-onda-particula': 'Dualidade Onda-Partícula',
+
+  'incerteza-heisenberg': 'Princípio da Incerteza de Heisenberg',
+
+  'poco-potencial-tunelamento': 'Poço de Potencial e Tunelamento Quântico',
 };
 
 /* ========================================================= */
@@ -166,6 +178,14 @@ const EXPERIMENTO_FISICA = {
   'paradoxo-gemeos': 'fisica3',
 
   'energia-momento-relativistico': 'fisica3',
+
+  'efeito-fotoeletrico': 'fisica3',
+
+  'dualidade-onda-particula': 'fisica3',
+
+  'incerteza-heisenberg': 'fisica3',
+
+  'poco-potencial-tunelamento': 'fisica3',
 };
 
 const FISICA_PARA_TAB_HOME = {
@@ -639,6 +659,26 @@ export default function App() {
         {pagina === 'experimento' &&
           experimento === 'energia-momento-relativistico' && (
             <ExperimentoEnergiaMomentoRelativistico />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'efeito-fotoeletrico' && (
+            <ExperimentoFotoeletrico />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'dualidade-onda-particula' && (
+            <ExperimentoDualidadeOnda />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'incerteza-heisenberg' && (
+            <ExperimentoIncertezaHeisenberg />
+          )}
+
+        {pagina === 'experimento' &&
+          experimento === 'poco-potencial-tunelamento' && (
+            <ExperimentoPocoPotencial />
           )}
 
       </div>

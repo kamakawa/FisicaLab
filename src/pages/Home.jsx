@@ -110,9 +110,12 @@ const DATA = {
         ],
       },
       {
-        title: 'FÍSICA MODERNA',
+        title: 'MECÂNICA QUÂNTICA',
         topics: [
-          { id: 'quantica', title: 'Mecânica Quântica', desc: 'Dualidade onda-partícula, Heisenberg e Schrödinger.', tags: ['Planck', 'ℏ'], disponivel: false },
+          { id: 'efeito-fotoeletrico', title: 'Efeito Fotoelétrico', desc: 'Energia do fóton, função trabalho e a evidência da quantização da luz.', tags: ['Planck', 'Einstein', 'Disponível'], disponivel: true },
+          { id: 'dualidade-onda-particula', title: 'Dualidade Onda-Partícula', desc: 'Comprimento de onda de de Broglie e a experiência da fenda dupla.', tags: ['de Broglie', 'Fenda Dupla', 'Disponível'], disponivel: true },
+          { id: 'incerteza-heisenberg', title: 'Princípio da Incerteza de Heisenberg', desc: 'Δx·Δp≥ℏ/2 e o limite fundamental da precisão simultânea.', tags: ['Heisenberg', 'ℏ', 'Disponível'], disponivel: true },
+          { id: 'poco-potencial-tunelamento', title: 'Poço de Potencial e Tunelamento Quântico', desc: 'Equação de Schrödinger, níveis quantizados e tunelamento através de barreiras.', tags: ['Schrödinger', 'Tunelamento', 'Disponível'], disponivel: true },
         ],
       },
     ],
