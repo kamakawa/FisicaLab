@@ -67,15 +67,34 @@ O projeto nasceu de uma necessidade real: ferramentas profissionais como MATLAB 
 
 ### 🟣 Física 3 — Eletromagnetismo e Física Moderna
 
+#### Eletrostática
+
 | Experimento | Conteúdo | Recursos |
 |---|---|---|
 | **Lei de Coulomb** | Força elétrica entre cargas, atração/repulsão | Simulação de soltar cargas, gráfico F(r) |
 | **Campo Elétrico em 3D** | Superposição vetorial, configuração de dipolo | Cena 3D interativa (Three.js), vetores de campo |
 | **Linhas de Campo e Potencial** | Linhas de campo, equipotenciais, carga de teste | Mapa de potencial, carga deslizando pelo campo |
 | **Lei de Gauss** | Fluxo elétrico, simetrias (esférica/cilíndrica/planar) | Superfície gaussiana interativa, fluxo numérico ao vivo |
-| **Dilatação do Tempo e Contração do Espaço** | Postulados de Einstein, fator de Lorentz | Relógio de luz animado (dois referenciais), régua contraída |
 
-> Física 2 e Física 3 seguem em desenvolvimento ativo — novos tópicos de Relatividade Especial (Minkowski, Paradoxo dos Gêmeos, Energia-Momento) e Mecânica Quântica estão planejados.
+#### Relatividade Especial
+
+| Experimento | Conteúdo | Recursos |
+|---|---|---|
+| **Dilatação do Tempo e Contração do Espaço** | Postulados de Einstein, fator de Lorentz | Relógio de luz animado (dois referenciais), régua contraída |
+| **Diagrama de Minkowski e Simultaneidade** | Linhas de mundo, cone de luz, transformação de Lorentz | Diagrama espaço-tempo interativo, trem de Einstein |
+| **Paradoxo dos Gêmeos** | Assimetria da aceleração, viagem interestelar | Diagrama espaço-tempo com salto de simultaneidade na virada |
+| **Energia e Momento Relativísticos** | E=γmc², p=γmv, relação energia-momento | Gráfico E/K vs β, hipérbole E-p universal |
+
+#### Mecânica Quântica
+
+| Experimento | Conteúdo | Recursos |
+|---|---|---|
+| **Efeito Fotoelétrico** | E=hf, função trabalho, frequência de corte | Simulação de ejeção de elétrons, gráfico K_max vs f |
+| **Dualidade Onda-Partícula** | Comprimento de onda de de Broglie, fenda dupla | Régua log de escalas, acumulação de partículas em franjas |
+| **Princípio da Incerteza de Heisenberg** | Δx·Δp≥ℏ/2, pacote de onda | Espaço de posição vs momento, difração em fenda única |
+| **Poço de Potencial e Tunelamento Quântico** | Equação de Schrödinger, níveis quantizados, tunelamento | Diagrama de níveis de energia, barreira de potencial animada |
+
+> Física 1, 2 e 3 somam **30 experimentos completos** — Mecânica, Termodinâmica/Fluidos/Ondas e Eletromagnetismo/Física Moderna.
 
 Cada experimento possui, em geral, três abas:
 - **Simulação** — animação interativa com parâmetros ajustáveis em tempo real
@@ -141,6 +160,8 @@ FísicaLab/
 ├── index.html
 ├── package.json
 ├── vite.config.js
+├── public/
+│   └── favicon.svg        # ícone da aba do navegador
 └── src/
     ├── main.jsx               # entry point
     ├── App.jsx                # roteamento entre experimentos
@@ -148,7 +169,7 @@ FísicaLab/
     │
     ├── styles/                # temas compartilhados por subárea
     │   ├── fisica2Theme.js    # paleta vermelha + constantes de gases (R, γ, Cv, Cp)
-    │   └── fisica3Theme.js    # paleta roxa + constantes de eletrostática/relatividade (k, ε₀, c)
+    │   └── fisica3Theme.js    # paleta roxa + constantes de eletrostática/relatividade/quântica (k, ε₀, c, h, ℏ)
     │
     ├── pages/                 # cada experimento = uma página
     │   ├── Home.jsx
@@ -175,12 +196,23 @@ FísicaLab/
     │   ├── ExperimentoCalorimetria.jsx
     │   ├── ExperimentoDilatacaoTermica.jsx
     │   │
-    │   │   # Física 3 — Eletromagnetismo e Física Moderna
+    │   │   # Física 3 — Eletrostática
     │   ├── ExperimentoLeiCoulomb.jsx
     │   ├── ExperimentoCampoEletrico3D.jsx
     │   ├── ExperimentoLinhasCampo.jsx
     │   ├── ExperimentoLeiGauss.jsx
-    │   └── ExperimentoDilatacaoTempoEspaco.jsx
+    │   │
+    │   │   # Física 3 — Relatividade Especial
+    │   ├── ExperimentoDilatacaoTempoEspaco.jsx
+    │   ├── ExperimentoDiagramaMinkowski.jsx
+    │   ├── ExperimentoParadoxoGemeos.jsx
+    │   ├── ExperimentoEnergiaMomentoRelativistico.jsx
+    │   │
+    │   │   # Física 3 — Mecânica Quântica
+    │   ├── ExperimentoFotoeletrico.jsx
+    │   ├── ExperimentoDualidadeOnda.jsx
+    │   ├── ExperimentoIncertezaHeisenberg.jsx
+    │   └── ExperimentoPocoPotencial.jsx
     │
     └── components/            # componentes reutilizáveis (Física 1)
         ├── LogoFisicaLab.jsx
@@ -207,9 +239,9 @@ FísicaLab/
 v1.0  ✅  8 experimentos de Física 1 — Mecânica
 v1.1  ✅  Correções físicas e modernização de layout (Física 1)
 v1.2  ✅  Física 2 — Termodinâmica, Fluidos e Ondas (10 experimentos)
-v1.3  🔄  Física 3 — Eletrostática completa (4 experimentos) + Relatividade Especial (em andamento)
-v1.4  🔲  Física 3 — Relatividade Especial (Minkowski, Paradoxo dos Gêmeos, Energia-Momento)
-v1.5  🔲  Física 3 — Mecânica Quântica
+v1.3  ✅  Física 3 — Eletrostática (4 experimentos)
+v1.4  ✅  Física 3 — Relatividade Especial (4 experimentos)
+v1.5  ✅  Física 3 — Mecânica Quântica (4 experimentos)
 v2.0  🔲  Compilação WebAssembly para simulações mais pesadas
 v2.1  🔲  Modo educacional com guia passo a passo
 v2.2  🔲  Exportação de dados (CSV / JSON)
