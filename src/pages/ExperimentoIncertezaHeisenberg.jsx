@@ -1,6 +1,7 @@
 // src/pages/ExperimentoIncertezaHeisenberg.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, QUANTICA } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { H, HBAR } = QUANTICA;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -158,8 +159,34 @@ function PacoteTab() {
     desenhaMomento();
   }, [sigmaX, sigmaP]);
 
+  const situacaoAtual = `Com Δx=${fmtSci(sigmaX)}m, o princípio da incerteza obriga Δp≥ℏ/(2Δx) — agora Δp=${fmtSci(sigmaP)}kg·m/s, e o produto Δx·Δp=${fmtSci(produto)} bate exatamente com ℏ/2 (o mínimo possível, para esse pacote gaussiano).`;
+
+  const perguntasAssistente = [
+    {
+      id: 'deltax',
+      pergunta: 'O que é Δx?',
+      resposta: `Δx é a incerteza (largura) da posição da partícula — o quão "espalhado" é o pacote de onda no espaço. Agora Δx=${fmtSci(sigmaX)}m.`,
+    },
+    {
+      id: 'deltap',
+      pergunta: 'O que é Δp e por que ele muda junto?',
+      resposta: `Δp é a incerteza no momento da partícula. Para esse pacote (gaussiano, de incerteza mínima), Δp=ℏ/(2Δx) — ele SEMPRE cresce quando Δx diminui, e vice-versa. É a assinatura matemática do princípio da incerteza.`,
+    },
+    {
+      id: 'painéis',
+      pergunta: 'Por que tem dois gráficos?',
+      resposta: 'O painel esquerdo mostra a partícula no espaço de posição (onde ela está); o direito, no espaço de momento (com que velocidade/direção ela se move). Eles são transformadas de Fourier um do outro — por isso um fica largo quando o outro fica estreito.',
+    },
+    {
+      id: 'minimo',
+      pergunta: 'Por que Δx·Δp é exatamente ℏ/2 aqui?',
+      resposta: 'Um pacote de onda gaussiano é o caso especial de "incerteza mínima" — ele satura a desigualdade Δx·Δp≥ℏ/2 com igualdade. Qualquer outro formato de pacote teria um produto maior que ℏ/2.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Localização do Pacote</div>
         <div className="ctrl">

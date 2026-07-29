@@ -1,6 +1,7 @@
 // src/pages/ExperimentoEnergiaMomentoRelativistico.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, RELATIVIDADE } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { C } = RELATIVIDADE;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -155,8 +156,39 @@ function EnergiaTab() {
     });
   }, [m, beta, betaClamped, gamma]);
 
+  const situacaoAtual = `Com m=${fmt(m, 3)}kg e β=${fmt(beta, 3)}c (γ=${fmt(gamma, 3)}), a energia cinética real vale K=${fmtSci(K)}J, contra K_clássica=${fmtSci(Kclassico)}J previsto por Newton — uma razão de ${fmt(Kclassico > 0 ? K / Kclassico : 1, 2)}×.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'gamma',
+      pergunta: 'O que é γ e por que ele aparece em tudo?',
+      resposta: `γ=1/√(1−β²) é o fator de Lorentz. Agora γ=${fmt(gamma, 4)}. Ele multiplica tanto o momento (p=γmv) quanto a energia (E=γmc²) — é o "preço" relativístico de se mover rápido.`,
+    },
+    {
+      id: 'Etotal',
+      pergunta: 'O que é a energia total E?',
+      resposta: `E=γmc² é toda a energia da partícula, incluindo a energia de repouso (mc², que ela tem mesmo parada) mais a energia cinética. Agora E=${fmtSci(gamma * m * C * C)}J.`,
+    },
+    {
+      id: 'K',
+      pergunta: 'Por que a curva clássica (azul) se afasta da real?',
+      resposta: 'K_clássica=½mv² é só uma aproximação, válida para v≪c. Conforme β cresce, essa aproximação subestima cada vez mais a energia real — perto de β=1 a diferença é gigantesca, e a energia real diverge para o infinito.',
+    },
+    {
+      id: 'p',
+      pergunta: 'O que é o momento relativístico p?',
+      resposta: `p=γmv é a versão correta do momento — o clássico p=mv só vale para v≪c. Agora p=${fmtSci(gamma * m * betaClamped * C)}kg·m/s, contra ${fmtSci(m * betaClamped * C)}kg·m/s pela fórmula clássica.`,
+    },
+    {
+      id: 'infinito',
+      pergunta: 'Por que a energia "diverge" perto de c?',
+      resposta: 'Porque γ→∞ quando β→1. Como E=γmc², seria necessária energia infinita para acelerar uma partícula com massa até a velocidade da luz — por isso nada com massa consegue atingir c.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Partícula</div>
         <div className="ctrl">

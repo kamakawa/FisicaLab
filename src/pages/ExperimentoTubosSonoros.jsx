@@ -1,6 +1,7 @@
 // src/pages/ExperimentoTubosSonoros.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
 // Velocidade angular usada só para a animação visual — a frequência real de um tubo
@@ -206,8 +207,34 @@ function SimTab() {
     return () => cancelAnimationFrame(raf);
   }, [tipo, n]);
 
+  const situacaoAtual = `Tubo ${tipo === 'aberto' ? 'aberto-aberto' : 'fechado-aberto'}, L=${fmt(L, 2)}m, harmônico n=${n}: λ=${fmt(lambda, 3)}m, f=${fmt(freq, 1)}Hz (som a ${fmt(vSom, 1)}m/s).`;
+
+  const perguntasAssistente = [
+    {
+      id: 'tipo',
+      pergunta: 'Qual a diferença entre tubo aberto e fechado?',
+      resposta: 'No tubo aberto-aberto, as duas pontas são antinós (máxima vibração do ar) — todos os harmônicos (n=1,2,3...) são permitidos. No fechado-aberto, a ponta fechada é sempre um nó — só harmônicos ÍMPARES (n=1,3,5...) são permitidos.',
+    },
+    {
+      id: 'n',
+      pergunta: 'O que é o harmônico n aqui?',
+      resposta: `n indica qual modo de vibração está soando. Agora n=${n} no tubo ${tipo === 'aberto' ? 'aberto' : 'fechado'}, dando λ=${tipo === 'aberto' ? '2L/n' : '4L/n'}=${fmt(lambda, 3)}m.`,
+    },
+    {
+      id: 'porqueImpar',
+      pergunta: 'Por que o tubo fechado só tem harmônicos ímpares?',
+      resposta: 'Porque a ponta fechada precisa ser sempre um nó e a aberta sempre um antinó — geometricamente, só cabem múltiplos ímpares de um quarto de comprimento de onda entre um nó e o antinó mais próximo compatível.',
+    },
+    {
+      id: 'freq',
+      pergunta: 'Como a frequência depende do comprimento L?',
+      resposta: `f=v/λ, e λ depende de L. Tubos mais compridos têm λ maior e, portanto, frequência mais grave — é por isso que instrumentos de tubo longo (como o trombone estendido) soam mais graves.`,
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Tipo de Tubo</div>
         <div className="pill-row">

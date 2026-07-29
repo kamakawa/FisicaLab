@@ -103,6 +103,16 @@ Cada experimento possui, em geral, três abas:
 
 ---
 
+## 💬 Assistente do Experimento
+
+Todo experimento tem um painel flutuante de ajuda contextual (botão "?" no canto da tela) que:
+- Mostra, em tempo real, uma explicação de **o que está acontecendo agora** com base nos parâmetros atuais ajustados nos sliders;
+- Responde perguntas rápidas pré-definidas sobre os parâmetros e resultados daquele experimento específico, em formato de chat.
+
+Não usa IA nem chamadas externas — todo o texto é gerado por template a partir dos mesmos valores que o experimento já calcula (`src/components/PainelExplicativo.jsx`). Isso mantém o app **100% client-side, sem custo por uso e sem risco de a explicação errar a física**.
+
+---
+
 ## 🛠 Stack Tecnológica
 
 ```
@@ -214,7 +224,8 @@ FísicaLab/
     │   ├── ExperimentoIncertezaHeisenberg.jsx
     │   └── ExperimentoPocoPotencial.jsx
     │
-    └── components/            # componentes reutilizáveis (Física 1)
+    └── components/            # componentes reutilizáveis
+        ├── PainelExplicativo.jsx    # assistente flutuante de ajuda contextual (compartilhado por todos os experimentos)
         ├── LogoFisicaLab.jsx
         ├── CanvasAnimacao.jsx       # canvas do lançamento
         ├── CanvasNewton.jsx         # canvas das Leis de Newton
@@ -242,6 +253,7 @@ v1.2  ✅  Física 2 — Termodinâmica, Fluidos e Ondas (10 experimentos)
 v1.3  ✅  Física 3 — Eletrostática (4 experimentos)
 v1.4  ✅  Física 3 — Relatividade Especial (4 experimentos)
 v1.5  ✅  Física 3 — Mecânica Quântica (4 experimentos)
+v1.6  ✅  Assistente do Experimento (painel de ajuda contextual em todos os 30 experimentos)
 v2.0  🔲  Compilação WebAssembly para simulações mais pesadas
 v2.1  🔲  Modo educacional com guia passo a passo
 v2.2  🔲  Exportação de dados (CSV / JSON)

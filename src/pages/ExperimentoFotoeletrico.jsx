@@ -1,6 +1,7 @@
 // src/pages/ExperimentoFotoeletrico.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, RELATIVIDADE, QUANTICA } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { C } = RELATIVIDADE;
 const { H_EV } = QUANTICA;
@@ -199,8 +200,39 @@ function SimTab() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const situacaoAtual = `Com λ=${fmt(lambda, 0)}nm sobre ${MATERIAIS[material].label} (φ=${fmt(phi, 2)}eV), cada fóton carrega E=${fmt(Efoton, 3)}eV. ${ejeta ? `Isso é maior que φ, então elétrons são ejetados com K_max=${fmt(Kmax, 3)}eV.` : 'Isso é menor que φ, então nenhum elétron é ejetado — não importa a intensidade.'}`;
+
+  const perguntasAssistente = [
+    {
+      id: 'lambda',
+      pergunta: 'O que é o comprimento de onda λ?',
+      resposta: `λ é o comprimento de onda da luz incidente, em nanômetros. Agora vale ${fmt(lambda, 0)}nm — quanto menor λ, maior a frequência f=c/λ e maior a energia de cada fóton (E=hf).`,
+    },
+    {
+      id: 'phi',
+      pergunta: 'O que é a função trabalho φ?',
+      resposta: `φ é a energia mínima necessária para arrancar um elétron da superfície do metal. Cada material tem a sua — ${MATERIAIS[material].label} tem φ=${fmt(phi, 2)}eV. Quanto maior φ, mais difícil ejetar elétrons.`,
+    },
+    {
+      id: 'intensidade',
+      pergunta: 'Por que a intensidade não muda K_max?',
+      resposta: 'A intensidade controla quantos fótons chegam por segundo (logo, quantos elétrons são ejetados), mas cada fóton individual continua com a mesma energia E=hf. Se hf<φ, nenhum fóton — por mais que sejam muitos — consegue ejetar um elétron sozinho.',
+    },
+    {
+      id: 'kmax',
+      pergunta: 'O que é K_max?',
+      resposta: `K_max=hf−φ é a energia cinética máxima do elétron ejetado — o que sobra da energia do fóton depois de "pagar" a função trabalho. Agora K_max=${fmt(Kmax, 3)}eV${ejeta ? '' : ' (negativo, ou seja, não há ejeção)'}.`,
+    },
+    {
+      id: 'corte',
+      pergunta: 'O que é a frequência de corte f₀?',
+      resposta: `f₀=φ/h é a frequência mínima de luz capaz de ejetar elétrons desse material — abaixo dela, K_max seria negativo (fisicamente impossível), então simplesmente não há ejeção. Para ${MATERIAIS[material].label}, o comprimento de onda de corte é λ₀=${fmt(lambda0, 0)}nm.`,
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Material da Placa</div>
         <div className="pill-row">

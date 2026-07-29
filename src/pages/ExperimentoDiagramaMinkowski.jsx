@@ -1,6 +1,7 @@
 // src/pages/ExperimentoDiagramaMinkowski.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, RELATIVIDADE } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { C } = RELATIVIDADE;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -77,6 +78,36 @@ function MinkowskiTab() {
 
   const s2AB = Math.pow(ctA - ctB, 2) - Math.pow(xA - xB, 2);
   const tipoAB = s2AB > 1e-6 ? 'temporal (causal)' : s2AB < -1e-6 ? 'espacial (não-causal)' : 'luminoide';
+
+  const situacaoAtual = `Com β=${fmt(beta, 3)} (γ=${fmt(gamma, 3)}), o evento A em (x=${fmt(xA)}, ct=${fmt(ctA)}) tem coordenadas (x'=${fmt(Al.x)}, ct'=${fmt(Al.ct)}) no referencial S'.${mostrarB ? ` A separação entre A e B é do tipo ${tipoAB}.` : ''}`;
+
+  const perguntasAssistente = [
+    {
+      id: 'diagrama',
+      pergunta: 'O que é um diagrama de Minkowski?',
+      resposta: 'É um gráfico com posição (x) no eixo horizontal e tempo×c (ct) no eixo vertical — cada ponto é um "evento" (um lugar e um instante). Retas inclinadas a 45° representam a trajetória da luz (o cone de luz).',
+    },
+    {
+      id: 'eixosS',
+      pergunta: "O que são os eixos x' e ct' (roxos)?",
+      resposta: `São os eixos do referencial S' — um observador se movendo a β=${fmt(beta, 3)}c em relação a S. Eles aparecem inclinados (não perpendiculares na tela) porque S' está em movimento; o ângulo de inclinação cresce com β.`,
+    },
+    {
+      id: 'simultaneidade',
+      pergunta: 'O que são as retas tracejadas?',
+      resposta: 'São as retas de simultaneidade do evento A: a branca (horizontal) mostra tudo que é simultâneo a A em S; a roxa (inclinada, paralela ao eixo x") mostra o que é simultâneo a A em S\'. Elas são diferentes retas — por isso simultaneidade depende do referencial.',
+    },
+    {
+      id: 'intervalo',
+      pergunta: 'O que é o intervalo s²?',
+      resposta: 's²=(Δct)²−(Δx)² é o intervalo espaço-temporal entre dois eventos — um número que não muda ao trocar de referencial. Se s²>0, a separação é temporal (causal); se s²<0, é espacial (sem ordem causal definida); se s²=0, é luminoide (conectados pela luz).',
+    },
+    {
+      id: 'cone',
+      pergunta: 'O que é o cone de luz (linhas amarelas)?',
+      resposta: 'São as trajetórias possíveis de um raio de luz partindo da origem — a velocidade máxima permitida. Nenhum evento causalmente ligado à origem pode estar fora desse cone.',
+    },
+  ];
 
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -205,6 +236,7 @@ function MinkowskiTab() {
 
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Referencial S' (boost)</div>
         <div className="ctrl">

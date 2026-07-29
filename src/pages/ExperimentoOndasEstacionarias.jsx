@@ -1,6 +1,7 @@
 // src/pages/ExperimentoOndasEstacionarias.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
 // Velocidade angular usada só para a animação visual — frequências reais de uma corda
@@ -199,8 +200,34 @@ function SimTab() {
     return () => cancelAnimationFrame(raf);
   }, [n]);
 
+  const situacaoAtual = `Com L=${fmt(L, 2)}m, tensão=${fmt(tensao, 1)}N e densidade linear μ=${fmt(muGm, 1)}g/m, a corda vibra no harmônico n=${n}: λ=${fmt(lambda, 3)}m, f=${fmt(freq, 2)}Hz.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'n',
+      pergunta: 'O que é o harmônico n?',
+      resposta: `n conta quantos "ventres" (pontos de máxima amplitude) cabem na corda — n=1 é o modo fundamental (um ventre), n=2 tem dois, e assim por diante. Agora n=${n}, com λ=2L/n=${fmt(lambda, 3)}m.`,
+    },
+    {
+      id: 'nosVentres',
+      pergunta: 'O que são nós e ventres?',
+      resposta: 'Nós são os pontos que ficam sempre parados (amplitude zero) — sempre nas extremidades da corda e em posições intermediárias para n>1. Ventres são os pontos de máxima oscilação, entre nós consecutivos.',
+    },
+    {
+      id: 'v',
+      pergunta: 'Do que depende a velocidade da onda na corda?',
+      resposta: `v=√(T/μ) — depende só da tensão T e da densidade linear μ da corda, não do harmônico escolhido. Agora v=${fmt(v, 1)}m/s.`,
+    },
+    {
+      id: 'freq',
+      pergunta: 'Como a frequência f é calculada?',
+      resposta: `f=v/λ. Como λ=2L/n muda com o harmônico mas v não muda, cada harmônico tem uma frequência diferente: f_n=n·v/(2L). Agora f=${fmt(freq, 2)}Hz para n=${n}.`,
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Harmônico</div>
         <div className="pill-row">

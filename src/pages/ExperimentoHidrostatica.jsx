@@ -1,6 +1,7 @@
 // src/pages/ExperimentoHidrostatica.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const G = 9.8;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -238,8 +239,36 @@ function SimTab() {
     return () => cancelAnimationFrame(raf);
   }, [rhoObj, rhoFluido]);
 
+  const situacaoAtual = `Com densidade do objeto ρ_obj=${fmt(rhoObj, 0)}kg/m³ e do fluido ρ_fluido=${fmt(rhoFluido, 0)}kg/m³, o objeto ${flutua ? 'flutua' : 'afunda'} — ${flutua ? `ele fica com cerca de ${fmt(fracaoEquilibrio * 100, 0)}% do volume submerso no equilíbrio.` : 'sua densidade é maior que a do fluido, então o empuxo máximo nunca alcança o peso.'}`;
+
+  const perguntasAssistente = [
+    {
+      id: 'rhoObj',
+      pergunta: 'O que é a densidade do objeto?',
+      resposta: `ρ_obj é a massa por volume do objeto, em kg/m³. Agora vale ${fmt(rhoObj, 0)}kg/m³ — é ela que, comparada à densidade do fluido, decide se o objeto flutua ou afunda.`,
+    },
+    {
+      id: 'empuxo',
+      pergunta: 'O que é o empuxo?',
+      resposta: 'É a força para cima que o fluido exerce sobre o objeto submerso, igual ao peso do volume de fluido deslocado (Princípio de Arquimedes): E=ρ_fluido·V_submerso·g.',
+    },
+    {
+      id: 'flutuar',
+      pergunta: 'Por que o objeto flutua ou afunda?',
+      resposta: flutua
+        ? `Porque ρ_obj<ρ_fluido — o objeto desloca fluido suficiente antes de estar totalmente submerso para que o empuxo já equilibre o peso, parando em ${fmt(fracaoEquilibrio * 100, 0)}% de submersão.`
+        : 'Porque ρ_obj≥ρ_fluido — mesmo totalmente submerso, o empuxo máximo (com V_submerso=V_total) não alcança o peso do objeto, então ele continua afundando.',
+    },
+    {
+      id: 'equilibrio',
+      pergunta: 'Como é calculada a fração submersa no equilíbrio?',
+      resposta: 'No equilíbrio, peso=empuxo: ρ_obj·V·g = ρ_fluido·V_submerso·g, logo V_submerso/V = ρ_obj/ρ_fluido. É por isso que um objeto com metade da densidade do fluido flutua com metade do volume submerso.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Objeto</div>
         <div className="ctrl">

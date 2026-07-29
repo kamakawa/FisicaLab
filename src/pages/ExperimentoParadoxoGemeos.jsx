@@ -1,6 +1,7 @@
 // src/pages/ExperimentoParadoxoGemeos.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -145,8 +146,34 @@ function ViagemTab() {
     return () => cancelAnimationFrame(raf);
   }, [D, beta, Tearth]);
 
+  const situacaoAtual = `Com D=${fmt(D, 1)} anos-luz e β=${fmt(beta, 2)}c (γ=${fmt(gamma, 3)}), a viagem toda dura T_Terra=${fmt(Tearth, 2)} anos para o gêmeo terrestre, mas só T_viajante=${fmt(Ttraveler, 2)} anos para quem viaja — uma diferença de ${fmt(ageDiff, 2)} anos ao reencontro.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'D',
+      pergunta: 'O que é a distância D?',
+      resposta: `D é a distância até a estrela de destino, em anos-luz (medida no referencial da Terra). Agora vale ${fmt(D, 1)} anos-luz — a viagem é de ida e volta, então a distância total percorrida é 2D.`,
+    },
+    {
+      id: 'paradoxo',
+      pergunta: 'Qual é o "paradoxo" exatamente?',
+      resposta: 'Como o movimento é relativo, cada gêmeo poderia achar que é o OUTRO quem está se movendo e envelhecendo mais devagar. Mas só o viajante muda de referencial inercial (na volta) — essa assimetria quebra a simetria aparente e torna o resultado (viajante mais jovem) absoluto, sem ambiguidade.',
+    },
+    {
+      id: 'idades',
+      pergunta: 'Por que as idades ficam diferentes?',
+      resposta: `T_Terra = 2D/(βc) é calculado no referencial inercial da Terra. O relógio do viajante, em movimento, sofre dilatação do tempo: T_viajante = T_Terra/γ. Com os valores atuais, isso dá ${fmt(ageDiff, 2)} anos de diferença ao reencontro.`,
+    },
+    {
+      id: 'fase',
+      pergunta: 'O que muda entre "indo" e "voltando"?',
+      resposta: 'Nada muda na física durante a viagem em si — o relógio do viajante sempre atrasa na mesma proporção γ. A troca de fase só marca o instante em que o viajante inverte a velocidade (a virada), que é o evento crucial para resolver o paradoxo (veja a aba "Diagrama Espaço-Tempo").',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">A Viagem</div>
         <div className="ctrl">

@@ -1,5 +1,6 @@
 // ExperimentoPlanoInclinado.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 // ─── Paleta e CSS global ─────────────────────────
 const STYLES = `
@@ -816,8 +817,34 @@ function SimTab() {
     drawPlot(plotAccRef, h.acc, '#f87171', 'a(t) Aceleração', -2, 6, 'm/s²');
   }, [posicao, velocidade, drawPlot]);
 
+  const situacaoAtual = `Com ângulo=${angulo}°, massa=${massa.toFixed(1)}kg, μₑ=${muEstatico.toFixed(2)} e μc=${muCinetico.toFixed(2)}: peso paralelo=${PesoParalelo.toFixed(2)}N, atrito estático máximo=${AtritoEstaticoMax.toFixed(2)}N. ${podeIniciar ? `O bloco desliza (ângulo acima do crítico de ${anguloCritico.toFixed(1)}°).` : 'O bloco permanece parado — atrito estático segura o peso.'}`;
+
+  const perguntasAssistente = [
+    {
+      id: 'componentes',
+      pergunta: 'Como o peso se decompõe no plano?',
+      resposta: `O peso (massa×g) se divide em duas componentes: uma paralela ao plano (Peso×sen(θ)=${PesoParalelo.toFixed(2)}N, que puxa o bloco para baixo do plano) e uma perpendicular (Normal=Peso×cos(θ)=${Normal.toFixed(2)}N, que pressiona o bloco contra a superfície).`,
+    },
+    {
+      id: 'anguloCritico',
+      pergunta: 'O que é o ângulo crítico?',
+      resposta: `É o ângulo em que o peso paralelo passa a superar o atrito estático máximo, fazendo o bloco começar a deslizar sozinho: tan(θ_crítico)=μₑ. Agora θ_crítico=${anguloCritico.toFixed(1)}°.`,
+    },
+    {
+      id: 'atritos',
+      pergunta: 'Qual a diferença entre μₑ e μc?',
+      resposta: `μₑ (atrito estático, agora ${muEstatico.toFixed(2)}) resiste ao bloco começar a se mover — geralmente maior. μc (atrito cinético, agora ${muCinetico.toFixed(2)}) atua enquanto o bloco já está deslizando — geralmente menor, por isso o bloco tende a acelerar assim que começa a se mover.`,
+    },
+    {
+      id: 'normal',
+      pergunta: 'Por que a força normal importa para o atrito?',
+      resposta: 'A força de atrito é proporcional à normal (Atrito=μ×Normal) — como a normal depende de cos(θ), inclinar mais o plano reduz a normal e, portanto, reduz também o atrito máximo disponível.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Parâmetros</div>
 

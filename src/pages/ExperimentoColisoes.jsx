@@ -1,6 +1,7 @@
 // ExperimentoColisoes.jsx — redesign completo v2
 // Foco: Pêndulo Balístico + Colisões 1D com layout moderno
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 // ── constantes ─────────────────────────────────────────────────────────────────
 const G   = 9.81;
@@ -605,8 +606,34 @@ const PenduloBalistico = () => {
   const phaseColor = { repouso: C.muted, projétil: C.rose, pendulo: C.neon, concluído: C.emerald };
   const pc = phaseColor[phase] || C.muted;
 
+  const situacaoAtual = `Projétil de ${fmt(mP * 1000, 0)}g a v₀=${fmt(v0, 1)}m/s incide no bloco de ${fmt(mB, 2)}kg. Pela colisão perfeitamente inelástica, a velocidade comum após o impacto é V=${fmt(vC, 3)}m/s, levando o pêndulo a uma altura máxima h=${fmt(hT, 3)}m (ângulo ${fmt((thetaMax * 180) / Math.PI, 1)}°).`;
+
+  const perguntasAssistente = [
+    {
+      id: 'inelastica',
+      pergunta: 'Por que essa colisão é "perfeitamente inelástica"?',
+      resposta: 'Porque o projétil fica embutido no bloco após o impacto — os dois passam a se mover juntos com a mesma velocidade V. Nesse tipo de colisão, o momento se conserva, mas energia cinética NÃO (parte vira calor/deformação).',
+    },
+    {
+      id: 'momento',
+      pergunta: 'Como o momento é conservado na colisão?',
+      resposta: `m·v₀ = (m+M)·V — o momento do projétil antes do impacto é igual ao momento do conjunto (projétil+bloco) logo depois. Isso dá V=${fmt(vC, 3)}m/s a partir de v₀=${fmt(v0, 1)}m/s.`,
+    },
+    {
+      id: 'altura',
+      pergunta: 'Como a altura h é calculada depois da colisão?',
+      resposta: `Depois do impacto, não há mais atrito com projéteis — só conservação de energia mecânica: ½(m+M)V²=(m+M)gh, logo h=V²/(2g)=${fmt(hT, 3)}m. Essa é a etapa que permite "medir" v₀ a partir da altura observada — a ideia original do pêndulo balístico.`,
+    },
+    {
+      id: 'perdida',
+      pergunta: 'Para onde vai a energia perdida na colisão?',
+      resposta: 'Vira calor, deformação e som na hora do impacto — a energia cinética do sistema depois da colisão é sempre menor que antes (pois só o momento se conserva, não a energia, numa colisão inelástica).',
+    },
+  ];
+
   return (
     <div className="col-grid">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       {/* ── painel esquerdo ── */}
       <div className="col-side">
         <div className="slbl" style={{ '--sc': C.neon }}>PARÂMETROS</div>
@@ -1018,8 +1045,34 @@ const Colisoes1D = () => {
     return () => cancelAnimationFrame(rafRef.current);
   }, [rodando, m1, m2, v1p, v2p]);
 
+  const situacaoAtual = `m₁=${fmt(m1, 1)}kg a v₁=${fmt(v1, 1)}m/s colide com m₂=${fmt(m2, 1)}kg a v₂=${fmt(v2, 1)}m/s, com coeficiente de restituição e=${fmt(e, 2)}. Depois: v₁'=${fmt(v1p, 2)}m/s, v₂'=${fmt(v2p, 2)}m/s — momento total preservado em P=${fmt(pTot, 2)}kg·m/s.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'e',
+      pergunta: 'O que é o coeficiente de restituição e?',
+      resposta: `e mede o quão "elástica" é a colisão: e=1 é perfeitamente elástica (energia cinética conservada), e=0 é perfeitamente inelástica (os corpos ficam juntos após colidir). Agora e=${fmt(e, 2)}.`,
+    },
+    {
+      id: 'momento',
+      pergunta: 'O momento é sempre conservado?',
+      resposta: `Sim — em qualquer colisão sem forças externas, o momento total antes e depois é o mesmo: m₁v₁+m₂v₂=m₁v₁'+m₂v₂'. Agora P=${fmt(pTot, 2)}kg·m/s, igual antes e depois.`,
+    },
+    {
+      id: 'energia',
+      pergunta: 'A energia cinética também se conserva?',
+      resposta: `Só quando e=1 (colisão elástica). Agora, Ek antes=${fmt(Ek0, 2)}J e Ek depois=${fmt(Ekf, 2)}J — ${Math.abs(Ek0 - Ekf) < 0.01 ? 'praticamente iguais (colisão quase elástica).' : 'a diferença virou calor/deformação (colisão parcialmente inelástica).'}`,
+    },
+    {
+      id: 'formula',
+      pergunta: 'Como as velocidades finais são calculadas?',
+      resposta: "Resolvendo simultaneamente a conservação de momento com a definição do coeficiente de restituição (e=−(v₁'−v₂')/(v₁−v₂)), chega-se às fórmulas v₁'=[(m₁−em₂)v₁+(1+e)m₂v₂]/(m₁+m₂), e de forma simétrica para v₂'.",
+    },
+  ];
+
   return (
     <div className="col-grid">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="col-side">
         <div className="slbl" style={{ '--sc': C.rose }}>PARÂMETROS</div>
         <Sl label="Massa m₁"    value={m1} onChange={v=>{setM1(v);reset()}} min={0.5} max={10} step={0.1} unit=" kg" color={C.rose}    />

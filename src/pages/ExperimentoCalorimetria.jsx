@@ -1,6 +1,7 @@
 // src/pages/ExperimentoCalorimetria.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
 
@@ -281,8 +282,35 @@ function AquecimentoTab() {
     return () => cancelAnimationFrame(raf);
   }, [tInicial]);
 
+  const nomesFase = { gelo: 'gelo (sólido)', fundindo: 'fundindo (mudança de fase)', agua: 'água (líquido)', vaporizando: 'vaporizando (mudança de fase)', vapor: 'vapor (gasoso)' };
+  const situacaoAtual = `Com m=${fmt(m, 2)}kg aquecida a P=${fmt(P, 0)}W a partir de ${fmt(tInicial, 0)}°C, a amostra está agora em ${fmt(estadoAtual.T, 1)}°C, na fase: ${nomesFase[estadoAtual.fase]}.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'potencia',
+      pergunta: 'O que é a potência P?',
+      resposta: `P é a taxa de fornecimento de calor, em Watts (joules por segundo). Agora P=${fmt(P, 0)}W — quanto maior P, mais rápido a amostra aquece e muda de fase.`,
+    },
+    {
+      id: 'patamares',
+      pergunta: 'Por que a temperatura para de subir às vezes?',
+      resposta: 'Durante uma mudança de fase (fusão ou vaporização), toda a energia recebida vai para quebrar as ligações entre as moléculas, não para aumentar a temperatura — por isso a curva de aquecimento tem "patamares" planos em 0°C e 100°C.',
+    },
+    {
+      id: 'calorEspecifico',
+      pergunta: 'O que é calor específico?',
+      resposta: 'É a energia necessária para elevar em 1°C a temperatura de 1kg de uma substância (c, em J/kg°C) — cada fase (gelo, água, vapor) tem seu próprio valor de c, por isso a inclinação da curva muda entre elas.',
+    },
+    {
+      id: 'calorLatente',
+      pergunta: 'O que é calor latente?',
+      resposta: 'É a energia necessária para mudar de fase 1kg de substância, sem variar a temperatura (L, em J/kg) — o calor latente de fusão (gelo→água) e o de vaporização (água→vapor) são os responsáveis pelos patamares na curva.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Amostra de Água</div>
         <div className="ctrl">

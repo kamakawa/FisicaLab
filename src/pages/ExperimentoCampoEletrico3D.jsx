@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { FISICA3_BASE_STYLES, ELETRO } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { K } = ELETRO;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -163,9 +164,50 @@ function SimTab() {
   ], [q1, q2, d]);
 
   const p = Math.abs(q1 * 1e-6) * d; // momento de dipolo aproximado (só bem definido se |q1|=|q2|)
+  const ehDipolo = Math.abs(Math.abs(q1) - Math.abs(q2)) < 0.01 && q1 * q2 < 0;
+
+  const situacaoAtual = ehDipolo
+    ? `Com q₁=${fmt(q1, 1)}μC e q₂=${fmt(q2, 1)}μC (cargas opostas de mesmo módulo) separadas por d=${fmt(d, 2)}m, você tem um dipolo elétrico com momento p=${fmtSci(p)}C·m. As setas mostram o campo saindo de q₁ e entrando em q₂.`
+    : `Com q₁=${fmt(q1, 1)}μC e q₂=${fmt(q2, 1)}μC separadas por d=${fmt(d, 2)}m, as setas mostram o campo elétrico resultante (soma vetorial das duas cargas) em cada ponto do espaço — azul fraco, roxo médio, vermelho forte.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'setas',
+      pergunta: 'O que são as setas na cena?',
+      resposta: 'Cada seta é o vetor campo elétrico resultante naquele ponto do espaço — a soma vetorial do campo de q₁ com o de q₂. A direção da seta é a direção do campo; a cor indica a intensidade (azul fraco, roxo médio, vermelho forte).',
+    },
+    {
+      id: 'cargas',
+      pergunta: 'O que são q₁ e q₂?',
+      resposta: `São as duas cargas puntuais da cena. Agora q₁=${fmt(q1, 1)}μC e q₂=${fmt(q2, 1)}μC — os sliders controlam magnitude e sinal de cada uma independentemente.`,
+    },
+    {
+      id: 'd',
+      pergunta: 'O que é a separação d?',
+      resposta: `d é a distância entre as duas cargas, em metros. Agora vale ${fmt(d, 2)}m. Aumentar d afasta as cargas e espalha mais a região onde o campo delas se sobrepõe de forma perceptível.`,
+    },
+    {
+      id: 'dipolo',
+      pergunta: 'O que é o momento de dipolo p?',
+      resposta: ehDipolo
+        ? `p=q·d mede "quão forte" é o dipolo formado pelas duas cargas opostas. Com os valores atuais, p=${fmtSci(p)}C·m.`
+        : 'p=q·d só é um dipolo bem definido quando as duas cargas têm o mesmo módulo e sinais opostos — não é o caso agora (tente a configuração rápida "Dipolo" para ver).',
+    },
+    {
+      id: 'cores',
+      pergunta: 'Como interpreto as cores das setas?',
+      resposta: 'Azul = campo fraco, roxo = campo médio, vermelho = campo forte — a cor é definida pela magnitude do vetor naquele ponto, não pela carga que o originou.',
+    },
+    {
+      id: 'perto',
+      pergunta: 'Por que não há setas bem perto das cargas?',
+      resposta: 'Perto de uma carga puntual, o campo (∝1/r²) tende ao infinito — setas ali teriam tamanho absurdo. Por isso a simulação omite pontos muito próximos das cargas (raio<0,4) e limita o comprimento visual das setas.',
+    },
+  ];
 
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Cargas</div>
         <div className="ctrl">

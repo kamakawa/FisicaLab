@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import MRU3D from "../components/MRU3D";
 import MRUCalculus from "../components/MRUCalculus";
+import PainelExplicativo from "../components/PainelExplicativo";
 
 export default function ExperimentoMRU() {
   const [velocidade, setVelocidade] = useState(5);
@@ -41,8 +42,31 @@ export default function ExperimentoMRU() {
     z: posInicialZ
   };
 
+  const situacaoAtual = modo === "2D"
+    ? `Com posição inicial x₀=${posInicial}m e velocidade v=${velocidade}m/s, em t=${tempo.toFixed(2)}s a posição é x=${x.toFixed(2)}m (deslocamento de ${deslocamento.toFixed(2)}m).`
+    : `No modo 3D, com posição inicial (${posInicialX}, ${posInicialY}, ${posInicialZ}) e velocidade (${velocidadeX}, ${velocidadeY}, ${velocidadeZ})m/s, cada eixo se move de forma independente e uniforme.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'x0',
+      pergunta: 'O que é a posição inicial x₀?',
+      resposta: `x₀ é onde o objeto está no instante t=0. No modo 2D, agora vale ${posInicial}m — é o ponto de partida a partir do qual a posição x(t)=x₀+vt é calculada.`,
+    },
+    {
+      id: 'v',
+      pergunta: 'O que significa a velocidade ser constante?',
+      resposta: 'No MRU (Movimento Retilíneo Uniforme), a velocidade não muda — nem em módulo, nem em direção. Por isso a posição cresce linearmente com o tempo (gráfico x(t) é uma reta), e o gráfico v(t) é uma linha horizontal.',
+    },
+    {
+      id: 'deslocamento',
+      pergunta: 'Qual a diferença entre deslocamento e posição?',
+      resposta: 'Posição x(t) é onde o objeto está em relação à origem do referencial. Deslocamento é a variação da posição em relação ao início (x−x₀) — no MRU, deslocamento=v×t.',
+    },
+  ];
+
   return (
     <div className="mru-container">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <style>{`
         .mru-container {
           padding: 16px;

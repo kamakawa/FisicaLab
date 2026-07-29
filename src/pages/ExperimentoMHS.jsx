@@ -1,6 +1,7 @@
 // src/pages/ExperimentoMHS.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const TAU = 2 * Math.PI;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -291,8 +292,35 @@ function SimTab() {
     drawMiniPlot(plotERef.current, h.E, '#FBBF24', 'E(t)', 'J');
   });
 
+  const regimeAtual = classificar(gamma, omega0);
+  const situacaoAtual = `Com m=${fmt(m, 2)}kg, k=${fmt(k, 1)}N/m e amortecimento γ=${fmt(gamma, 3)}, o sistema está no regime ${regimeAtual.label.toLowerCase()} — ω₀=${fmt(omega0, 2)}rad/s, período natural T₀=${fmt(periodo0, 2)}s.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'k',
+      pergunta: 'O que é a constante elástica k?',
+      resposta: `k mede a "rigidez" da mola — quanta força ela faz por unidade de deslocamento (N/m). Agora k=${fmt(k, 1)}N/m. Molas mais rígidas (k maior) oscilam mais rápido, para a mesma massa.`,
+    },
+    {
+      id: 'gamma',
+      pergunta: 'O que é o coeficiente de amortecimento γ?',
+      resposta: `γ representa o quanto o atrito/resistência dissipa a energia da oscilação. Agora γ=${fmt(gamma, 3)} — comparado a ω₀=${fmt(omega0, 2)}, isso coloca o sistema no regime ${regimeAtual.label.toLowerCase()}.`,
+    },
+    {
+      id: 'omega0',
+      pergunta: 'O que é ω₀ (frequência natural)?',
+      resposta: `ω₀=√(k/m) é a frequência angular com que o sistema oscilaria SEM amortecimento nenhum. Agora ω₀=${fmt(omega0, 2)}rad/s, correspondendo a um período T₀=${fmt(periodo0, 2)}s.`,
+    },
+    {
+      id: 'regimes',
+      pergunta: 'Quais são os regimes de amortecimento?',
+      resposta: 'Subamortecido (γ<ω₀): oscila várias vezes antes de parar. Criticamente amortecido (γ=ω₀): volta ao equilíbrio o mais rápido possível, sem oscilar. Sobreamortecido (γ>ω₀): volta ao equilíbrio devagar, também sem oscilar. Veja a aba "Regimes de Amortecimento" para comparar os três lado a lado.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Sistema Massa-Mola</div>
         <div className="ctrl">

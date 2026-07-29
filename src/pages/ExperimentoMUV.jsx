@@ -13,6 +13,7 @@ import MUVTheory from "../components/Muvtheory";
 import MUVTable from "../components/Muvtable";
 import MUVAnalysis from "../components/Muvanalysis";
 import MUVCalculus from "../components/MuvCalculus";
+import PainelExplicativo from "../components/PainelExplicativo";
 
 const MODES = [
   {
@@ -150,8 +151,34 @@ export default function ExperimentoMUV() {
     showVectors,
   };
 
+  const situacaoAtual = `Com v₀=${v0}m/s, a=${a}m/s² e s₀=${s0}m, no instante t=${t.toFixed(2)}s a posição é s=${s.toFixed(2)}m e a velocidade é v=${v.toFixed(2)}m/s.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'a',
+      pergunta: 'O que é a aceleração a?',
+      resposta: `a=${a}m/s² é a taxa de variação da velocidade — a cada segundo, v muda em ${a}m/s. Aceleração positiva aumenta v; negativa (como na queda livre) diminui.`,
+    },
+    {
+      id: 'v0s0',
+      pergunta: 'O que são v₀ e s₀?',
+      resposta: `v₀=${v0}m/s é a velocidade no instante t=0; s₀=${s0}m é a posição inicial. Ambos entram nas equações horárias: v=v₀+at e s=s₀+v₀t+½at².`,
+    },
+    {
+      id: 'diferencaMRU',
+      pergunta: 'Qual a diferença entre MUV e MRU?',
+      resposta: 'No MRU a velocidade é constante (sem aceleração). No MUV (aqui), a velocidade muda uniformemente com o tempo — por isso o gráfico v(t) é uma reta inclinada (não horizontal), e o gráfico s(t) é uma parábola.',
+    },
+    {
+      id: 'queda',
+      pergunta: 'Como funciona o modo "queda livre"?',
+      resposta: 'É um caso particular do MUV com a=−9,8m/s² (aceleração da gravidade) — a simulação para automaticamente quando a posição s chega a zero (o objeto atinge o solo).',
+    },
+  ];
+
   return (
     <div className="exp-container">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="exp-header">
         <h1>MRU<span>V</span></h1>
         <p>Movimento Retilíneo Uniformemente Variado — Simulador Interativo</p>

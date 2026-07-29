@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import CanvasNewton from '../components/CanvasNewton';
 import NewtonCalculus from '../components/NewtonCalculus';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 // ─── Estilos globais ─────────────────────────────────────────────────────────
 const STYLES = `
@@ -449,10 +450,36 @@ export default function ExperimentoLeisNewton() {
   // Status do movimento
   const movimentoStatus = !podeMover ? "REPOUSO INERCIAL" : aceleracao > 0 ? "ACELERADO" : "VELOCIDADE CONSTANTE";
 
+  const situacaoAtual = `Com massa A=${massA}kg (na mesa, atrito μ=${muK}) e massa B=${massB}kg (pendurada), o sistema está em ${movimentoStatus.toLowerCase()}. ${podeMover ? `Aceleração=${aceleracao.toFixed(2)}m/s², tração=${tracao.toFixed(1)}N.` : `O atrito máximo (${atritoMax.toFixed(1)}N) supera o peso de B (${pesoB.toFixed(1)}N).`}`;
+
+  const perguntasAssistente = [
+    {
+      id: 'massas',
+      pergunta: 'Como as duas massas interagem?',
+      resposta: `A massa A (${massA}kg) está sobre a mesa, presa por um fio que passa por uma polia até a massa B (${massB}kg), que pende no ar. O peso de B puxa o sistema; o atrito de A resiste ao movimento.`,
+    },
+    {
+      id: 'atrito',
+      pergunta: 'O que é o coeficiente de atrito μ?',
+      resposta: `μ=${muK} mede o quanto a superfície resiste ao deslizamento de A. A força de atrito máxima é μ×massA×g=${atritoMax.toFixed(1)}N — se o peso de B não superar isso, o sistema fica parado (repouso inercial).`,
+    },
+    {
+      id: 'tracao',
+      pergunta: 'O que é a tração no fio?',
+      resposta: `A tração é a força que o fio exerce nas duas massas (mesmo módulo dos dois lados, fio ideal e inextensível). Agora vale ${tracao.toFixed(1)}N — sempre menor que o peso de B quando o sistema acelera, pois parte da força de B é "gasta" acelerando o conjunto.`,
+    },
+    {
+      id: 'segundalei',
+      pergunta: 'Como a 2ª Lei de Newton é usada aqui?',
+      resposta: 'Aplicando F=ma separadamente em cada bloco e depois somando as equações (a tração se cancela), chega-se a: a=(peso de B − atrito máximo)/(massaA+massaB) — a aceleração do sistema acoplado.',
+    },
+  ];
+
   return (
     <>
       <style>{STYLES}</style>
       <div className="app-newton">
+        <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
         <header className="header-newton">
           <div>
             <div className="header-title-newton">Leis de Newton</div>

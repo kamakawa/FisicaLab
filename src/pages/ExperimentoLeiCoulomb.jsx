@@ -1,6 +1,7 @@
 // src/pages/ExperimentoLeiCoulomb.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, ELETRO } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { K } = ELETRO;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -121,6 +122,62 @@ function SimTab() {
   const atracao = (q1 > 0 && q2 < 0) || (q1 < 0 && q2 > 0);
   const mesmoSinal = !atracao && q1 !== 0 && q2 !== 0;
 
+  // ── Assistente contextual: texto gerado por template a partir do estado atual ──
+  const situacaoAtual = (() => {
+    if (q1 === 0 || q2 === 0) {
+      return `Uma das cargas está zerada (q₁=${fmt(q1, 1)}μC, q₂=${fmt(q2, 1)}μC) — sem carga, não existe força elétrica, então F=0.`;
+    }
+    const natureza = atracao ? 'atração' : 'repulsão';
+    const motivo = atracao ? 'os sinais são opostos' : 'os sinais são iguais';
+    let texto = `Com q₁=${fmt(q1, 1)}μC e q₂=${fmt(q2, 1)}μC separadas por r=${fmt(rDisp, 1)}cm, a força vale F=${fmtSci(F)}N, de ${natureza} (${motivo}).`;
+    if (solto) {
+      texto += atracao
+        ? ' As cargas foram soltas e estão se aproximando — a distância vai diminuir até colidirem.'
+        : ' As cargas foram soltas e estão se afastando — a distância vai crescer até saírem de vista.';
+    }
+    return texto;
+  })();
+
+  const perguntasAssistente = [
+    {
+      id: 'q1',
+      pergunta: 'O que é a carga q₁?',
+      resposta: `q₁ é uma das duas cargas elétricas puntuais da simulação, medida em microcoulombs (μC). Agora ela vale ${fmt(q1, 1)}μC — ${q1 >= 0 ? 'positiva' : 'negativa'}. O sinal dela, junto com o de q₂, decide se a força é de atração ou repulsão.`,
+    },
+    {
+      id: 'q2',
+      pergunta: 'O que é a carga q₂?',
+      resposta: `q₂ é a segunda carga da simulação. Agora ela vale ${fmt(q2, 1)}μC — ${q2 >= 0 ? 'positiva' : 'negativa'}.`,
+    },
+    {
+      id: 'r',
+      pergunta: 'O que é a distância r?',
+      resposta: `r é a separação entre as duas cargas, em centímetros. Agora vale ${fmt(rDisp, 1)}cm. Como a força cai com 1/r², dobrar essa distância reduz a força para ¼ do valor atual.`,
+    },
+    {
+      id: 'F',
+      pergunta: 'O que é a força F?',
+      resposta: `F é a intensidade da força elétrica entre as duas cargas, calculada pela Lei de Coulomb: F=k·|q₁q₂|/r². Com os valores atuais, F=${fmtSci(F)}N.`,
+    },
+    {
+      id: 'natureza',
+      pergunta: 'Por que é atração ou repulsão?',
+      resposta: atracao
+        ? 'Como q₁ e q₂ têm sinais opostos, a força entre elas é de atração — cargas de sinais diferentes se atraem.'
+        : 'Como q₁ e q₂ têm o mesmo sinal, a força entre elas é de repulsão — cargas de mesmo sinal se repelem.',
+    },
+    {
+      id: 'soltar',
+      pergunta: 'O que faz o botão "Soltar"?',
+      resposta: '"Soltar" deixa as cargas livres para se mover de verdade sob a força que elas mesmas exercem uma na outra (usando F=ma, com a massa definida no slider). Se atraem, vão se aproximar até colidir; se repelem, vão se afastar até sumirem de vista.',
+    },
+    {
+      id: 'k',
+      pergunta: 'O que é a constante k?',
+      resposta: 'k é a constante eletrostática (constante de Coulomb), k≈8,99×10⁹ N·m²/C² — define a intensidade da interação elétrica no vácuo. É análoga à constante G da gravitação, só que cerca de 10²⁰ vezes maior.',
+    },
+  ];
+
   const canvasRef = useRef(null);
   useEffect(() => {
     const cv = canvasRef.current;
@@ -220,6 +277,7 @@ function SimTab() {
 
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Cargas</div>
         <div className="ctrl">

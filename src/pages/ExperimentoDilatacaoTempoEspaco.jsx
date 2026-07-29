@@ -1,6 +1,7 @@
 // src/pages/ExperimentoDilatacaoTempoEspaco.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, RELATIVIDADE } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { C } = RELATIVIDADE;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -165,8 +166,34 @@ function RelogioTab() {
 
   const aplicarPreset = (v) => setBeta(v);
 
+  const situacaoAtual = `Com β=${fmt(beta, 3)}c, γ=${fmt(gamma, 4)}. Para cada tique completo do relógio da nave, o observador externo mede ${fmt(gamma, 3)}× mais tempo decorrido — agora τ(nave)=${fmt(display.nTicks, 2)} e t(observador)=${fmt(display.tLab, 2)}.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'beta',
+      pergunta: 'O que é β?',
+      resposta: `β=v/c é a velocidade da nave como fração da velocidade da luz. Agora β=${fmt(beta, 3)}, ou seja, a nave viaja a ${fmt(beta * 100, 1)}% da velocidade da luz.`,
+    },
+    {
+      id: 'gamma',
+      pergunta: 'O que é o fator γ?',
+      resposta: `γ=1/√(1−β²) é o fator de Lorentz — mede o quanto o tempo dilata (e o espaço contrai) devido à velocidade. Agora γ=${fmt(gamma, 4)}, ou seja, o observador externo mede o tempo passar ${fmt(gamma, 3)}× mais devagar na nave.`,
+    },
+    {
+      id: 'relogios',
+      pergunta: 'Por que os dois relógios mostram números diferentes?',
+      resposta: 'Os dois fótons batem nos espelhos exatamente juntos (é o mesmo evento físico nos dois referenciais) — mas cada observador usa seu próprio relógio para cronometrar isso. O relógio da nave sempre mede menos tempo (τ) que o do observador externo (t), na proporção γ.',
+    },
+    {
+      id: 'zigzag',
+      pergunta: 'Por que o fóton faz um zigue-zague no painel direito?',
+      resposta: 'No referencial externo, a nave se move enquanto o fóton sobe e desce — então, além do movimento vertical, o fóton também se desloca horizontalmente junto com a nave, formando o caminho diagonal (mais longo que o vertical puro do painel esquerdo).',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Velocidade da Nave</div>
         <div className="ctrl">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 // ─── Paleta e CSS global ─────────────────────────────────────────────────────
 const STYLES = `
@@ -718,8 +719,34 @@ function SimTab() {
     drawPlot(plotARef,   h.ay.map(v => -v), '#f87171', 'ay(t) = −ω²sin(ωt)', -1.1, 1.1);
   }, [t, drawPlot]);
 
+  const situacaoAtual = `Com raio=${raio.toFixed(1)}m, ω=${omega.toFixed(2)}rad/s e massa=${massa.toFixed(1)}kg, a velocidade linear é v=${vLin.toFixed(2)}m/s, a aceleração centrípeta é ${aCent.toFixed(2)}m/s², exigindo uma força centrípeta (tensão) de ${T.toFixed(2)}N.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'omega',
+      pergunta: 'O que é a velocidade angular ω?',
+      resposta: `ω=${omega.toFixed(2)}rad/s mede quantos radianos o objeto percorre por segundo — é constante no movimento circular uniforme. Junto ao raio, define a velocidade linear: v=ω×raio.`,
+    },
+    {
+      id: 'centripeta',
+      pergunta: 'O que é a aceleração centrípeta?',
+      resposta: `É a aceleração que sempre aponta para o centro do círculo, responsável por curvar a trajetória (sem ela, o objeto seguiria em linha reta). Vale ac=ω²×raio=${aCent.toFixed(2)}m/s² agora — mesmo com velocidade constante em módulo, há aceleração, pois a DIREÇÃO da velocidade muda.`,
+    },
+    {
+      id: 'tensao',
+      pergunta: 'O que é a força centrípeta (tensão)?',
+      resposta: `É a força necessária para manter o objeto em círculo, sempre apontando para o centro: F=massa×ac=${T.toFixed(2)}N. Num objeto preso por um fio, essa força é fornecida pela tensão do fio.`,
+    },
+    {
+      id: 'periodo',
+      pergunta: 'O que são período e frequência?',
+      resposta: `Período T=${Per.toFixed(2)}s é o tempo de uma volta completa; frequência f=${freq.toFixed(3)}Hz é quantas voltas por segundo (f=1/T). Ambos dependem só de ω: T=2π/ω.`,
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       {/* ── Esquerda ── */}
       <div className="sidebar-l">
         <div className="section-label">Parâmetros</div>

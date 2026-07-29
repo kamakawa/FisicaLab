@@ -1,6 +1,7 @@
 // src/pages/ExperimentoLinhasCampo.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, ELETRO } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { K } = ELETRO;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -282,8 +283,39 @@ function SimTab() {
 
   const Vteste = potencialEm(testeDisp, cargas);
 
+  const situacaoAtual = `Configuração "${CONFIGS[configId].label}" com magnitude Q=${fmt(Q, 1)}μC. No ponto atual da carga de teste (${fmt(testeDisp.x, 2)}, ${fmt(testeDisp.y, 2)}), o potencial vale V=${fmtSci(Vteste)}V. ${solto ? `A carga de teste (${sinalTeste > 0 ? 'positiva' : 'negativa'}) foi solta e está deslizando ao longo do campo.` : 'Clique em "Soltar" para ver a carga de teste seguir o campo a partir do ponto escolhido.'}`;
+
+  const perguntasAssistente = [
+    {
+      id: 'linhas',
+      pergunta: 'O que são as linhas de campo?',
+      resposta: 'São curvas tangentes ao vetor campo elétrico em cada ponto — mostram a direção que uma carga positiva sentiria a força ali. Por convenção, saem das cargas positivas e entram nas negativas.',
+    },
+    {
+      id: 'potencial',
+      pergunta: 'O que é o mapa de potencial?',
+      resposta: 'É um mapa de calor do potencial elétrico V(x,y) — vermelho onde V é positivo, azul onde é negativo. Diferente do campo (vetor), o potencial é um número (escalar) em cada ponto.',
+    },
+    {
+      id: 'config',
+      pergunta: 'O que muda entre as configurações de carga?',
+      resposta: `Cada configuração organiza as cargas de um jeito diferente: Carga Única (campo puramente radial), Dipolo (uma + e uma −, linhas curvam de uma para outra), Cargas Iguais (duas do mesmo sinal, se repelem, há um ponto de campo nulo entre elas) e Quadrupolo (4 cargas alternadas). Agora está em "${CONFIGS[configId].label}".`,
+    },
+    {
+      id: 'teste',
+      pergunta: 'O que é a carga de teste?',
+      resposta: `É uma carga fictícia, de sinal escolhido (agora ${sinalTeste > 0 ? 'positiva' : 'negativa'}), que você posiciona e solta para ver como ela se move seguindo o campo elétrico das outras cargas — útil para "sentir" a direção do campo na prática.`,
+    },
+    {
+      id: 'perpendicular',
+      pergunta: 'Por que falam que campo e potencial são perpendiculares?',
+      resposta: 'Ao longo de uma linha equipotencial (mesmo V), não há variação de potencial — e o campo aponta na direção de maior queda de V. Por isso o campo elétrico é sempre perpendicular às curvas de potencial constante.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Configuração de Cargas</div>
         <div className="pill-row">

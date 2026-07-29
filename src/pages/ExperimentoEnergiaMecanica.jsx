@@ -1,5 +1,6 @@
 // ExperimentoEnergiaMecanica.jsx — v3.0 corrigido e modernizado
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 // ─── ESTILOS ────────────────────────────────────────────────────────────────
 const STYLES = `
@@ -722,8 +723,34 @@ function SimulacaoPendulo() {
     drawPlot(plotVelRef, hist.v,   '#00D4FF', 'v(t)',  0, Math.sqrt(2*g*comprimento*(1-Math.cos(anguloInicial*Math.PI/180)))*1.2, 'm/s');
   }, [hist, drawPlot, anguloInicial, E0, comprimento]);
 
+  const situacaoAtual = `Pêndulo de m=${fmt(massa, 1)}kg, L=${fmt(comprimento, 2)}m, solto de ${anguloInicial}°: agora Ep=${fmt(Ep, 2)}J, Ec=${fmt(Ec, 2)}J, total Et=${fmt(Et, 2)}J (${fmt(perdaE, 1)}% perdido pelo amortecimento até aqui).`;
+
+  const perguntasAssistente = [
+    {
+      id: 'energias',
+      pergunta: 'O que são Ep e Ec?',
+      resposta: `Ep=mgh é a energia potencial gravitacional (máxima nos extremos do balanço, onde a altura h é maior). Ec=½mv² é a energia cinética (máxima no ponto mais baixo, onde a velocidade é maior). Agora Ep=${fmt(Ep, 2)}J e Ec=${fmt(Ec, 2)}J.`,
+    },
+    {
+      id: 'conservacao',
+      pergunta: 'A energia mecânica se conserva?',
+      resposta: `Sem amortecimento, sim — Et=Ep+Ec permaneceria constante, só trocando de forma. Com amortecimento (agora=${fmt(amort, 3)}), Et diminui aos poucos: já perdeu ${fmt(perdaE, 1)}% da energia inicial E0.`,
+    },
+    {
+      id: 'tensao',
+      pergunta: 'O que é a tensão no fio?',
+      resposta: `T=mg·cos(θ)+mω²L é a força que o fio exerce — soma da componente do peso ao longo do fio com a força centrípeta necessária para manter o movimento circular. Agora T=${fmt(T_fio, 2)}N.`,
+    },
+    {
+      id: 'periodo',
+      pergunta: 'Do que depende o período de oscilação?',
+      resposta: 'Para pequenas oscilações, o período depende só do comprimento L e da gravidade (T=2π√(L/g)) — não depende da massa nem (aproximadamente) da amplitude, desde que o ângulo inicial seja pequeno.',
+    },
+  ];
+
   return (
     <div className="layout">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar">
         <div className="section-label">Parâmetros</div>
         <Ctrl label="Massa m" val={`${fmt(massa,1)} kg`} min={0.2} max={5} step={0.1} value={massa} onChange={setMassa} />
@@ -1361,8 +1388,34 @@ function SimulacaoLoop() {
     drawPlot(plotVRef, hist.v, '#00D4FF','v(t)', 0, Math.sqrt(2*g*h0)*1.1,'m/s');
   },[hist, drawPlot, h0, E0]);
 
+  const situacaoAtual = `Carrinho de ${fmt(massa/1000, 2)}t solto de h₀=${fmt(h0, 1)}m, loop de raio R=${fmt(raio, 1)}m (altura mínima necessária=2,5R=${fmt(h_min, 2)}m). ${podeCompletar ? 'A altura inicial é suficiente — o carrinho completa o loop.' : `Faltam ${fmt(h_min - h0, 2)}m de altura — o carrinho não completa o loop.`}`;
+
+  const perguntasAssistente = [
+    {
+      id: 'hmin',
+      pergunta: 'Por que existe uma altura mínima para completar o loop?',
+      resposta: `No topo do loop, a gravidade sozinha precisa fornecer pelo menos a força centrípeta necessária (senão o carrinho perde contato com a pista e cai). Isso exige uma velocidade mínima no topo, que por conservação de energia se traduz numa altura inicial mínima: h_min=2,5R=${fmt(h_min, 2)}m.`,
+    },
+    {
+      id: 'normal',
+      pergunta: 'O que é a força normal N no loop?',
+      resposta: 'N é a força que a pista exerce sobre o carrinho, sempre perpendicular à pista (apontando para o centro do loop). No topo, N=mv²/R−mg; se essa conta desse negativa, significa que a pista não consegue "empurrar" o carrinho (ele cairia) — por isso N≥0 é a condição física real por trás de h_min.',
+    },
+    {
+      id: 'atrito',
+      pergunta: 'Como o atrito afeta o resultado?',
+      resposta: `O atrito (agora μ=${fmt(atrito, 3)}) dissipa energia mecânica ao longo do percurso — quanto maior o atrito, mais altura inicial extra é necessária além do h_min teórico (que assume pista sem atrito).`,
+    },
+    {
+      id: 'energia',
+      pergunta: 'Como a energia se transforma ao longo do percurso?',
+      resposta: 'No topo da rampa, é toda potencial (Ep=mgh₀). Conforme desce, vira cinética (Ec=½mv²). No loop, as duas convivem, trocando continuamente — mas a soma total só diminui com o atrito, nunca aumenta.',
+    },
+  ];
+
   return (
     <div className="layout">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar">
         <div className="section-label">Parâmetros</div>
         <Ctrl label="Massa m" val={`${fmt(massa/1000,2)} t`} min={100} max={2000} step={50} value={massa} onChange={setMassa}/>

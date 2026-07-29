@@ -1,6 +1,7 @@
 // src/pages/ExperimentoDualidadeOnda.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, QUANTICA } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { H } = QUANTICA;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -149,8 +150,34 @@ function DeBroglieTab() {
     ctx.fillText(`λ ≈ ${fmtSci(lambda)} m`, xL, cy - 30);
   }, [lambda]);
 
+  const situacaoAtual = `Com m=${fmtSci(m)}kg e v=${fmtSci(v)}m/s (${PRESETS[preset]?.label ?? 'personalizado'}), o momento é p=${fmtSci(m * v)}kg·m/s e o comprimento de onda de de Broglie é λ=${fmtSci(lambda)}m — ${lambda > 1e-9 ? 'comparável a escalas atômicas' : 'absurdamente menor que qualquer escala observável'}.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'lambda',
+      pergunta: 'O que é o comprimento de onda de de Broglie?',
+      resposta: `É o comprimento de onda associado a QUALQUER partícula com momento p, dado por λ=h/p. Mesmo objetos macroscópicos têm um, mas é pequeno demais para ter efeito observável — agora λ=${fmtSci(lambda)}m.`,
+    },
+    {
+      id: 'massa',
+      pergunta: 'Por que a massa muda tanto o resultado?',
+      resposta: 'λ=h/(mv) é inversamente proporcional à massa — como h é extremamente pequeno, só partículas de massa minúscula (elétrons, prótons) têm λ grande o bastante para produzir efeitos ondulatórios perceptíveis, como difração.',
+    },
+    {
+      id: 'regua',
+      pergunta: 'O que a régua horizontal está comparando?',
+      resposta: 'É uma escala logarítmica de comprimentos, do tamanho de um próton até 1 metro. O marcador amarelo mostra onde λ da partícula atual cai nessa régua, comparado a referências conhecidas (raio atômico, luz visível, um fio de cabelo).',
+    },
+    {
+      id: 'porque',
+      pergunta: 'Por que bolas de tênis não difratam?',
+      resposta: 'Porque, apesar de terem um λ tecnicamente diferente de zero, ele é tantas ordens de grandeza menor que qualquer fenda ou obstáculo real que nenhum efeito ondulatório é jamais observável — só objetos muito leves, como elétrons, têm λ comparável a distâncias atômicas.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Partícula</div>
         <div className="pill-row">

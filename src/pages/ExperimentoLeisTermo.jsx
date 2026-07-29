@@ -1,6 +1,7 @@
 // src/pages/ExperimentoLeisTermo.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES, GAS } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { R, GAMMA } = GAS;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -285,8 +286,34 @@ function SimTab() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const situacaoAtual = `Com T_quente=${fmt(Th, 0)}K e T_fria=${fmt(Tc, 0)}K, o ciclo de Carnot absorve Qₕ=${fmt(Qh, 1)}, rejeita Qc=${fmt(Qc, 1)}, produz trabalho líquido W=${fmt(Wnet, 1)}, com rendimento η=${fmt(eta * 100, 1)}%.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'Th',
+      pergunta: 'O que são T_quente e T_fria?',
+      resposta: `São as temperaturas dos dois reservatórios térmicos entre os quais o ciclo opera. Agora T_quente=${fmt(Th, 0)}K e T_fria=${fmt(Tc, 0)}K — quanto maior a diferença entre elas, maior o rendimento possível.`,
+    },
+    {
+      id: 'ciclo',
+      pergunta: 'O que são as 4 etapas do ciclo?',
+      resposta: 'O ciclo de Carnot tem 4 etapas: expansão isotérmica (absorve Qₕ na temperatura quente), expansão adiabática (esfria sem trocar calor), compressão isotérmica (libera Qc na temperatura fria), e compressão adiabática (esquenta de volta) — fechando o ciclo.',
+    },
+    {
+      id: 'eta',
+      pergunta: 'O que é o rendimento η?',
+      resposta: `η=1−Tc/Tₕ é a fração do calor absorvido que vira trabalho útil. Agora η=${fmt(eta * 100, 1)}% — esse é o rendimento MÁXIMO teoricamente possível entre essas duas temperaturas, nenhum motor real pode superá-lo.`,
+    },
+    {
+      id: 'trabalho',
+      pergunta: 'O que é o trabalho líquido W?',
+      resposta: `W=Qₕ−Qc é o trabalho que sobra depois de descontar o calor rejeitado para a fonte fria. Agora W=${fmt(Wnet, 1)} — é isso que o motor térmico realmente entrega como energia útil.`,
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Reservatórios Térmicos</div>
         <div className="ctrl">

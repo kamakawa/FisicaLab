@@ -1,6 +1,7 @@
 // src/pages/ExperimentoLeiGauss.jsx
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, ELETRO } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { K, EPSILON0 } = ELETRO;
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
@@ -271,8 +272,39 @@ function SimTab() {
     return () => cancelAnimationFrame(raf);
   }, [R, cargas, linhasCampo]);
 
+  const situacaoAtual = `Com R=${fmt(R, 2)}m, a carga encerrada pela superfície é Q_enc=${fmtSci(Qenc * 1e6)}μC — dando fluxo teórico Φ=${fmtSci(fluxoTeorico)} e fluxo numérico (calculado por integração real sobre a esfera) de ${fmtSci(fluxoNum)}, uma diferença de ${fmt(diffPct, 2)}%.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'raioR',
+      pergunta: 'O que é o raio R da superfície?',
+      resposta: `R define o tamanho da esfera gaussiana (imaginária) centrada na origem. Agora vale ${fmt(R, 2)}m — só cargas com distância à origem menor que R contam para Q_enc.`,
+    },
+    {
+      id: 'qenc',
+      pergunta: 'O que é Q_enc?',
+      resposta: `Q_enc é a soma das cargas que estão fisicamente dentro da superfície gaussiana (r<R) — agora vale ${fmtSci(Qenc * 1e6)}μC. Cargas fora da superfície não entram nessa soma, mesmo influenciando o campo local.`,
+    },
+    {
+      id: 'fluxo',
+      pergunta: 'O que é o fluxo elétrico Φ?',
+      resposta: 'Φ mede quantas linhas de campo atravessam a superfície fechada, líquidas (saindo menos entrando). A Lei de Gauss diz que Φ=Q_enc/ε₀ — só depende da carga interna, não da posição exata dela nem das cargas de fora.',
+    },
+    {
+      id: 'numerico',
+      pergunta: 'Por que tem um Φ "teórico" e um "numérico"?',
+      resposta: `O teórico vem direto da fórmula Q_enc/ε₀. O numérico é calculado de verdade, integrando E·dA em ~1800 pontos da esfera — os dois devem bater (agora diferem só ${fmt(diffPct, 2)}%), confirmando a Lei de Gauss na prática.`,
+    },
+    {
+      id: 'ticks',
+      pergunta: 'O que são os tiques verdes/vermelhos na esfera?',
+      resposta: 'Cada tique mostra a direção do campo elétrico local naquele ponto da superfície: verde = fluxo saindo, vermelho = fluxo entrando. O saldo de todos eles é o que vira Φ.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Superfície Gaussiana</div>
         <div className="ctrl">

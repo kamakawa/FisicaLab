@@ -1,6 +1,7 @@
 // src/pages/ExperimentoGasesIdeais.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES, GAS } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 // ─── Constantes e utilidades ─────────────────────────────────────────────────
 const { R, GAMMA, CV } = GAS;
@@ -272,8 +273,39 @@ function SimTab() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const situacaoAtual = `Com T=${fmt(T, 0)}K, V=${fmt(V, 2)}L e n=${fmt(n, 2)}mol, a equação de Clapeyron dá P=nRT/V=${fmt(P, 3)}atm. As partículas na cena se movem mais rápido quanto maior T — isso é a própria energia cinética média do gás.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'T',
+      pergunta: 'O que é a Temperatura T?',
+      resposta: `T é a temperatura absoluta do gás, em Kelvin. Agora T=${fmt(T, 0)}K. Microscopicamente, T mede a energia cinética média das partículas — por isso elas se movem mais rápido na tela quando você aumenta T.`,
+    },
+    {
+      id: 'V',
+      pergunta: 'O que é o Volume V?',
+      resposta: `V é o volume que o gás ocupa, em litros. Agora V=${fmt(V, 2)}L. Para a mesma quantidade de gás e temperatura, reduzir V comprime as partículas e aumenta a pressão.`,
+    },
+    {
+      id: 'n',
+      pergunta: 'O que é n (número de mols)?',
+      resposta: `n é a quantidade de matéria do gás, em mols. Agora n=${fmt(n, 2)}mol — mais mols significa mais partículas na cena e, para o mesmo V e T, mais pressão.`,
+    },
+    {
+      id: 'P',
+      pergunta: 'Como a pressão P é calculada?',
+      resposta: `P vem da Lei dos Gases Ideais: P=nRT/V, com R=${fmt(R, 4)} atm·L/(mol·K). Com os valores atuais, P=${fmt(P, 3)}atm.`,
+    },
+    {
+      id: 'particulas',
+      pergunta: 'O que representam as bolinhas na cena?',
+      resposta: 'São as moléculas do gás, uma simplificação visual — sua velocidade na tela é proporcional à energia cinética média (∝T), e a quantidade delas cresce com n. As colisões com as paredes são o que, em escala macroscópica, sentimos como pressão.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Parâmetros</div>
 

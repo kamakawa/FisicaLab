@@ -1,6 +1,7 @@
 // src/pages/ExperimentoDinamicaFluidos.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const G = 9.8;
 const TIME_SCALE = 25; // aceleração do "relógio" só na aba do tanque furado (ver comentário no loop de física)
@@ -192,8 +193,34 @@ function VenturiTab() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const situacaoAtual = `Com A₁=${fmt(A1, 0)}cm² e A₂=${fmt(A2, 0)}cm², a continuidade dá v₂=${fmt(v2, 2)}m/s (entrando a v₁=${fmt(v1, 2)}m/s). Bernoulli então prevê uma queda de pressão ΔP=${fmt(deltaP, 0)}Pa no estreitamento — onde o fluido é mais rápido, a pressão é menor.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'areas',
+      pergunta: 'O que são A₁ e A₂?',
+      resposta: `São as áreas da seção transversal do tubo antes (A₁=${fmt(A1, 0)}cm²) e no estreitamento (A₂=${fmt(A2, 0)}cm²). Quanto mais estreito for A₂ em relação a A₁, mais o fluido acelera ali.`,
+    },
+    {
+      id: 'continuidade',
+      pergunta: 'O que é a equação da continuidade?',
+      resposta: `A₁v₁=A₂v₂ — como o fluido é incompressível, a mesma quantidade de volume por segundo (vazão Q) precisa passar por qualquer seção do tubo. Onde a área é menor, a velocidade tem que ser maior para manter a vazão constante.`,
+    },
+    {
+      id: 'bernoulli',
+      pergunta: 'O que Bernoulli tem a ver com pressão?',
+      resposta: `A equação de Bernoulli (P+½ρv²+ρgh=constante) diz que, no mesmo nível, onde a velocidade é maior, a pressão é menor. É por isso que a região estreita (v₂ alto) tem pressão menor que a região larga.`,
+    },
+    {
+      id: 'deltaP',
+      pergunta: 'O que é a queda de pressão ΔP?',
+      resposta: `ΔP=P₁−P₂=½ρ(v₂²−v₁²) é a diferença de pressão entre a entrada larga e o estreitamento, causada pela diferença de velocidade. Agora ΔP=${fmt(deltaP, 0)}Pa — esse é o princípio usado em medidores de vazão do tipo Venturi.`,
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Geometria do Tubo</div>
         <div className="ctrl">

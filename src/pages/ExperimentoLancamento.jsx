@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import CanvasAnimacao from '../components/CanvasAnimacao';
 import LancamentoCalculus from '../components/LancamentoCalculus';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 export default function ExperimentoLancamento() {
   const [v0, setV0] = useState(25);
@@ -73,8 +74,34 @@ export default function ExperimentoLancamento() {
     setTime(0);
   };
 
+  const situacaoAtual = `Com v₀=${v0}m/s e ângulo=${angle}°, o alcance máximo é ${alcanceMax.toFixed(1)}m e a altura máxima é ${alturaMax.toFixed(1)}m. No instante atual (t=${time.toFixed(2)}s), o projétil está em (x=${posX.toFixed(1)}m, y=${posY.toFixed(1)}m) com velocidade ${vModulo.toFixed(1)}m/s.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'v0',
+      pergunta: 'O que é a velocidade inicial v₀?',
+      resposta: `v₀=${v0}m/s é a rapidez com que o projétil é lançado. Ela se decompõe em vx=v₀cos(θ)=${vx.toFixed(1)}m/s (constante durante todo o voo) e vy₀=v₀sen(θ)=${vy0.toFixed(1)}m/s (a componente vertical inicial).`,
+    },
+    {
+      id: 'angulo',
+      pergunta: 'Por que o ângulo de lançamento importa tanto?',
+      resposta: `O ângulo (agora ${angle}°) decide como v₀ se reparte entre horizontal e vertical. Ângulos maiores dão mais altura mas menos alcance horizontal por mais tempo no ar; 45° maximiza o alcance no vácuo (sem resistência do ar).`,
+    },
+    {
+      id: 'alcance',
+      pergunta: 'Como o alcance máximo é calculado?',
+      resposta: `Alcance = vx × tempo_total_de_voo. O tempo total (${tempoTotal.toFixed(2)}s) vem de quando y volta a zero: t=2vy₀/g. Com os valores atuais, alcance=${alcanceMax.toFixed(1)}m.`,
+    },
+    {
+      id: 'gravidade',
+      pergunta: 'Por que só a componente vertical muda com o tempo?',
+      resposta: 'A gravidade só atua na vertical (g=9,81m/s² para baixo) — por isso vx permanece constante durante todo o voo, enquanto vy diminui, zera no topo da trajetória, e depois cresce (negativamente) até o impacto.',
+    },
+  ];
+
   return (
     <div className="exp-container">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       {/* Cabeçalho Padronizado */}
       <div className="exp-header">
         <h1>LANÇAMENTO DE PROJÉTEIS</h1>

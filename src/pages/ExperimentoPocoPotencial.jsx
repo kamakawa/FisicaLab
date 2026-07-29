@@ -1,6 +1,7 @@
 // src/pages/ExperimentoPocoPotencial.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA3_BASE_STYLES, QUANTICA } from '../styles/fisica3Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const { H, HBAR } = QUANTICA;
 const ME = 9.109e-31; // kg — massa do elétron
@@ -171,8 +172,39 @@ function PocoTab() {
     }
   }, [Lnm, n, L, niveis]);
 
+  const situacaoAtual = `Com uma caixa de largura L=${fmt(Lnm, 2)}nm, o estado n=${n} tem energia E_${n}=${fmt(Eatual, 4)}eV. Repare que os níveis não são igualmente espaçados — crescem com n².`;
+
+  const perguntasAssistente = [
+    {
+      id: 'L',
+      pergunta: 'O que é a largura L da caixa?',
+      resposta: `L é o tamanho da região onde a partícula está confinada (as "paredes" do poço infinito). Agora L=${fmt(Lnm, 2)}nm. Caixas menores forçam energias maiores — é o próprio princípio da incerteza em ação.`,
+    },
+    {
+      id: 'n',
+      pergunta: 'O que é o número quântico n?',
+      resposta: `n conta quantos "meios-comprimentos de onda" da função de onda cabem dentro da caixa — n=1 é o estado fundamental (menor energia), n=2 tem um nó a mais, e assim por diante. Agora n=${n}.`,
+    },
+    {
+      id: 'psi',
+      pergunta: 'O que são as curvas amarela e azul?',
+      resposta: 'A amarela é ψ_n(x), a função de onda — pode ser positiva ou negativa, não tem significado físico direto sozinha. A azul é |ψ_n(x)|², a densidade de probabilidade — mostra onde é mais provável encontrar a partícula.',
+    },
+    {
+      id: 'niveis',
+      pergunta: 'Por que os níveis de energia não são igualmente espaçados?',
+      resposta: 'Porque E_n∝n² — a diferença entre níveis consecutivos cresce conforme n aumenta (E₂−E₁≠E₃−E₂). Isso é uma diferença marcante em relação a um oscilador harmônico, onde os níveis SÃO igualmente espaçados.',
+    },
+    {
+      id: 'zero',
+      pergunta: 'Por que a energia nunca é zero, nem no estado fundamental?',
+      resposta: 'Se E=0, a partícula estaria parada E localizada dentro da caixa ao mesmo tempo — violando o princípio da incerteza (Δx·Δp≥ℏ/2). Por isso até o estado de menor energia (n=1) tem uma "energia de ponto zero" positiva.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Caixa (Poço Infinito)</div>
         <div className="ctrl">

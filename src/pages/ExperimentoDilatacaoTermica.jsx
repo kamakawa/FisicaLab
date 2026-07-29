@@ -1,6 +1,7 @@
 // src/pages/ExperimentoDilatacaoTermica.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
 
@@ -196,8 +197,34 @@ function LinearTab() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const situacaoAtual = `Uma barra de ${material.label} (L₀=${fmt(L0, 1)}m) sofre ΔT=${fmt(deltaT, 0)}°C. Com α=${material.alpha.toExponential(1)}/°C, a dilatação é ΔL=${fmt(deltaL * 1000, 2)}mm — o desenho exagera essa variação (${EXAGERO}×) para ficar visível.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'alpha',
+      pergunta: 'O que é o coeficiente α?',
+      resposta: `α é o coeficiente de dilatação linear — quanto cada metro do material se estica por grau Celsius de aquecimento. Agora, para ${material.label}, α=${material.alpha.toExponential(1)}/°C. Materiais diferentes dilatam em taxas diferentes.`,
+    },
+    {
+      id: 'deltaL',
+      pergunta: 'Por que a barra na tela parece dilatar tanto?',
+      resposta: `A dilatação real é minúscula (da ordem de milímetros em barras de metros) — imperceptível a olho nu. Por isso a animação exagera o efeito em ${EXAGERO}×, só para tornar visível algo que fisicamente é bem sutil.`,
+    },
+    {
+      id: 'formula',
+      pergunta: 'Como ΔL é calculado?',
+      resposta: `ΔL=L₀·α·ΔT — a dilatação é proporcional ao comprimento original, ao coeficiente do material e à variação de temperatura. Agora ΔL=${fmt(deltaL * 1000, 2)}mm.`,
+    },
+    {
+      id: 'porque',
+      pergunta: 'Por que os materiais dilatam de forma diferente?',
+      resposta: 'Cada material tem uma estrutura atômica diferente — as ligações entre átomos respondem de forma distinta ao aumento da energia térmica (vibração atômica), resultando em coeficientes de dilatação α diferentes para cada substância.',
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Material do Trilho</div>
         <div className="pill-row">

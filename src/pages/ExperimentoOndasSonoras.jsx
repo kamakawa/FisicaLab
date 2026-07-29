@@ -1,6 +1,7 @@
 // src/pages/ExperimentoOndasSonoras.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FISICA2_BASE_STYLES } from '../styles/fisica2Theme';
+import PainelExplicativo from '../components/PainelExplicativo';
 
 const fmt = (n, d = 2) => (typeof n === 'number' && isFinite(n) ? n.toFixed(d) : '—');
 const I0 = 1e-12; // W/m² — limiar de audição
@@ -196,8 +197,34 @@ function DopplerTab() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const situacaoAtual = `Com f=${fmt(freq, 0)}Hz emitida por uma fonte a vs=${fmt(vs, 1)}m/s e observador a vo=${fmt(vo, 1)}m/s (som a ${fmt(vSom, 1)}m/s, ${fmt(temp, 0)}°C), a frequência percebida é f'=${fmt(fObs, 1)}Hz — ${fObs > freq ? 'mais aguda (aproximação)' : fObs < freq ? 'mais grave (afastamento)' : 'igual (sem movimento relativo)'}.`;
+
+  const perguntasAssistente = [
+    {
+      id: 'freq',
+      pergunta: 'O que é a frequência f da fonte?',
+      resposta: `f é a frequência real que a fonte emite, em Hz — não muda mesmo que a fonte esteja em movimento. Agora f=${fmt(freq, 0)}Hz.`,
+    },
+    {
+      id: 'vs',
+      pergunta: 'O que é vs (velocidade da fonte)?',
+      resposta: `vs é a velocidade da fonte sonora em relação ao ar, positiva quando ela se aproxima do observador. Agora vs=${fmt(vs, 1)}m/s — fontes se aproximando "empilham" as frentes de onda, aumentando a frequência percebida.`,
+    },
+    {
+      id: 'doppler',
+      pergunta: 'O que é o efeito Doppler?',
+      resposta: 'É a mudança na frequência percebida de uma onda quando há movimento relativo entre fonte e observador — mais aguda quando se aproximam, mais grave quando se afastam. É o mesmo motivo pelo qual uma ambulância parece mudar de tom ao passar por você.',
+    },
+    {
+      id: 'vsom',
+      pergunta: 'Por que a temperatura afeta a velocidade do som?',
+      resposta: `A velocidade do som no ar cresce com a temperatura (aproximadamente vsom=331+0,6×T em m/s). Agora, a ${fmt(temp, 0)}°C, vsom=${fmt(vSom, 1)}m/s.`,
+    },
+  ];
+
   return (
     <div className="content">
+      <PainelExplicativo situacao={situacaoAtual} perguntas={perguntasAssistente} />
       <div className="sidebar-l">
         <div className="section-label">Fonte Sonora</div>
         <div className="ctrl">
